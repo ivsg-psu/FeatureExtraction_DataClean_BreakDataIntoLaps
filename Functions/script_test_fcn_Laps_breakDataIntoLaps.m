@@ -107,16 +107,42 @@ assert(isequal(entry_traversal,traversal));
 assert(isempty(exit_traversal));
 
 %% This one returns nothing since there is no end
+fig_num = 123;
 traversal = fcn_Path_convertPathToTraversalStructure([-1 1; -0.03 0; -0.02 0; 0 0; 0.1 0; 1 1]);
 start_definition = [0 0 0.2]; % Located at [0,0] with radius 0.2
 [lap_traversals, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLaps(...
     traversal,...
-    start_definition);
+    start_definition,...
+    [],...
+    [],...
+    fig_num);
 
 assert(isempty(lap_traversals));
 assert(isequal(entry_traversal,traversal));
 assert(isempty(exit_traversal));
 
+%% This one returns nothing since the end is incomplete
+fig_num = 123;
+
+% Create some data to plot
+full_steps = (-1:0.1:1)';
+zero_full_steps = 0*full_steps;
+half_steps = (-1:0.1:0)';
+zero_half_steps = 0*half_steps;
+
+traversal = fcn_Path_convertPathToTraversalStructure(...
+    [full_steps zero_full_steps; zero_half_steps half_steps]);
+start_definition = [0 0 0.2]; % Located at [0,0] with radius 0.2
+[lap_traversals, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLaps(...
+    traversal,...
+    start_definition,...
+    [],...
+    [],...
+    fig_num);
+
+assert(isempty(lap_traversals));
+assert(isequal(entry_traversal,traversal));
+assert(isempty(exit_traversal));
 
 
 %% Fail conditions

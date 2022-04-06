@@ -369,7 +369,7 @@ end
 % end-index zone, in case the next start point is hiding in there
 
 num_laps = 0;
-last_lap_end_index = length(path_flag_array);;
+last_lap_end_index = length(path_flag_array);
 first_fragment_indicies.start = 1;
 last_fragment_indicies.start = 1;
 first_fragment_indicies.end = length(path_flag_array);
@@ -469,12 +469,46 @@ if flag_do_plots
     figure(fig_num);
     clf;
     hold on;
+    grid on
+    axis equal
     
     % Plot the reference trajectory first
-    fcn_Laps_plotLapsXY(input_traversal,fig_num);
+    data.traversal{1} = input_traversal;
+    fcn_Laps_plotLapsXY(data,fig_num);
 
     % Plot the start, excursion, and end conditions
-    %     plot(input_traversal.X,input_traversal.Y,'b.-','Linewidth',4,'Markersize',20);
+    % Start point in green
+    if flag_start_is_a_point_type==1
+        Xcenter = start_definition(1,1);
+        Ycenter = start_definition(1,2);
+        radius  = start_definition(1,3);
+        % Plot the center point
+        plot(Xcenter,Ycenter,'go','Markersize',20);
+        
+        % Plot circle
+        angles = 0:0.01:2*pi;        
+        x_circle = Xcenter + radius * cos(angles);
+        y_circle = Ycenter + radius * sin(angles);
+        plot(x_circle,y_circle,'color',[0 .7 0]);
+                
+    end
+    
+    % End point in red
+    if flag_end_is_a_point_type==1
+        Xcenter = end_definition(1,1);
+        Ycenter = end_definition(1,2);
+        radius  = end_definition(1,3);
+        % Plot the center point
+        plot(Xcenter,Ycenter,'ro','Markersize',22);
+        
+        % Plot circle
+        angles = 0:0.01:2*pi;        
+        x_circle = Xcenter + radius * cos(angles);
+        y_circle = Ycenter + radius * sin(angles);
+        plot(x_circle,y_circle,'--','color',[0.7 0 0]);
+                
+    end
+    
     %
     %     % Plot the random results
     %     fcn_Path_plotTraversalsXY(random_traversals,fig_num);
@@ -509,43 +543,85 @@ function [in_zone, min_indices] = INTERNAL_fcn_Laps_findZone(...
     zone_definition)
 
 % A zone is the location meeting the distance criteria, and where the path
-% has at least 3 points inside the given area. Among these points,
-% find the minimum distance index. The minimum cannot be the first or
-% last point.
+% has at least 3 points inside the given area. 
+% Among these points, find the minimum distance index. The minimum cannot
+% be the first or last point.
 distances_to_zone = sum((path_original - zone_definition(1,1:2)).^2,2).^0.5;
 in_zone = distances_to_zone<zone_definition(1,3);
 
-min_indices = [];
+% For debugging:
+fprintf('Index\tIn_zone\n');
+for ith_index = 1:length(in_zone)
+    fprintf(1,'%d\t %d\n',ith_index, in_zone(ith_index));
+end
 
-% Check each in_zone area
-ith_index = 0; % Initialize result
-while (ith_index<length(in_zone))
-    ith_index = ith_index+1;
-    % Start point
-    start_subzone = find(in_zone(ith_index:end,1)==1,1,'first');
 
-    if ~isempty(start_subzone)
-        % End point
-        end_subzone = (start_subzone-2) + find(in_zone(start_subzone:end,1)~=1,1,'first');
-        if ~isempty(end_subzone)
-            % Find the minimum inside
-            distances_inside = distances_to_zone(start_subzone:end_subzone);
-            [~,min_index] = min(distances_inside);
-            
-            % Check that it isn't on border
-            if min_index==1 || min_index==length(distances_inside)
-                % Not big enough, so clear it out
-                in_zone(start_subzone:end_subzone) = 0;
-            else
-                min_indices = min_index+(start_subzone-1);
-                ith_index = end_subzone; 
-            end
-        end
-    else
-        % No more start points
-        break
+% Take the diff of the in_zone indices to find transitions in and out of
+% zones. 
+transitions_into_zone = find(diff([0; in_zone])>0);
+transitions_outof_zone = find(diff([in_zone;0])<0);
+
+num_zones = length(transitions_into_zone);
+if num_zones ==0
+    zone_start_stop_indices = [];
+else
+    
+    zone_start_stop_indices = zeros(,2);
+    for ith_zone = 1:num_zones
     end
 end
+% 
+% 
+% 
+% min_indices = [];
+% 
+% % Check each in_zone area
+% ith_index = 0; % Initialize result
+% Nindices = length(in_zone);
+% while (ith_index<Nindices)
+%     ith_index = ith_index+1;
+%     
+%     % Exit?
+%     if ith_index>Nindices
+%         % No more points to search
+%         break
+%     end
+%     
+%     % Find the start point - first location where zone becomes 1 after
+%     % present search point. Remember to shift indices based on current
+%     % shift point! This is why there is the (ith_index-1) term at start.
+%     start_subzone = (ith_index-1) + find(in_zone(ith_index:end,1)==1,1,'first');
+% 
+%     % Check if the start point was found?
+%     if ~isempty(start_subzone) % Yes
+%         % Find end point
+%         end_subzone = (start_subzone-2) + find(in_zone(start_subzone:end,1)~=1,1,'first');
+%         
+%         % Is the end point zone empty? If so, it must have gone all way to
+%         % the end of the data.
+%         if isempty(end_subzone)
+%             % Never exit the subzone at the end
+%             end_subzone = Nindices;
+%         end
+%         % Find the minimum inside
+%         distances_inside = distances_to_zone(start_subzone:end_subzone);
+%         [~,min_index] = min(distances_inside);
+%         
+%         % Check that it isn't on border
+%         if min_index==1 || min_index==length(distances_inside)
+%             % Not big enough, so set this entire zone to zero
+%             in_zone(start_subzone:end_subzone) = 0;
+%         else
+%             % Keep this minimum
+%             min_indices = min_index+(start_subzone-1);
+%         end
+%         % Set the next search poing
+%         ith_index = end_subzone;
+%     else
+%         % No more start points
+%         ith_index = Nindices;
+%     end
+% end
 
 
 end % ends INTERNAL_fcn_Laps_findZone
