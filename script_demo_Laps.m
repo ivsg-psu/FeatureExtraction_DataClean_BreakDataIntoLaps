@@ -10,6 +10,8 @@
 %      -- created a demo script of core debug utilities
 %      2022_04_02
 %      -- Added sample path creation
+%      2022_04_04
+%      -- Added minor edits
 
 %% Set up workspace
 if ~exist('flag_Laps_Folders_Initialized','var')
