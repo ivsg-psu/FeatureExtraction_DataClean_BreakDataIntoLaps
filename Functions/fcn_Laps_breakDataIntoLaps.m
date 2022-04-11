@@ -295,15 +295,18 @@ path_flag_array = zeros(length(input_traversal.X(:,1)),1);
 % 2, and 3 respectively in the array. Keep track of the zones where start
 % and end zones occur, as need to sometimes search backwards in next step
 
+minimum_width = 3;
+
 if flag_start_is_a_point_type==1
     % Define start zone and indices,
     % A zone is the location meeting the distance criteria, and where the path
-    % has at least 3 points inside the given area. Among these points,
+    % has at least minimum_width points inside the given area. Among these points,
     % find the minimum distance index. The minimum cannot be the first or
     % last point.
-    [start_zone, min_indices] = INTERNAL_fcn_Laps_findZone(...
+    [start_zone, min_indices] = INTERNAL_fcn_Laps_findZoneStartStopAndMinimum(...
         path_original,...
-        start_definition);
+        start_definition,...
+        minimum_width);
     if isempty(min_indices) % No minimum detected, so no laps exist
         return
     end
@@ -318,9 +321,10 @@ if flag_use_excursion_definition
         % A zone is the location meeting the distance criteria, and where the path
         % has at least 3 points inside the given area. Among these three points,
         % find the minimum distance index.
-        [excursion_zone, min_indices] = INTERNAL_fcn_Laps_findZone(...
+        [excursion_zone, min_indices] = INTERNAL_fcn_Laps_findZoneStartStopAndMinimum(...
             path_original,...
-            excursion_definition);
+            excursion_definition,...
+            minimum_width);
         if isempty(min_indices) % No minimum detected, so no laps exist
             return
         end
@@ -338,9 +342,10 @@ if flag_end_is_a_point_type==1
     % A zone is the location meeting the distance criteria, and where the path
     % has at least 3 points inside the given area. Among these three points,
     % find the minimum distance index.
-    [end_zone, min_indices] = INTERNAL_fcn_Laps_findZone(...
+    [end_zone, min_indices] = INTERNAL_fcn_Laps_findZoneStartStopAndMinimum(...
         path_original,...
-        end_definition);
+        end_definition,...
+        minimum_width);
     if isempty(min_indices) % No minimum detected, so no laps exist
         return
     end
@@ -538,12 +543,19 @@ end % Ends main function
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%§
 
 % Define lap zone and indices, used for point searches
-function [in_zone, min_indices] = INTERNAL_fcn_Laps_findZone(...
+function [zone_start_indices, zone_end_indices, zone_min_indices] = INTERNAL_fcn_Laps_findZoneStartStopAndMinimum(...
     path_original,...
-    zone_definition)
-
+    zone_definition,...
+    minimum_width)
 % A zone is the location meeting the distance criteria, and where the path
-% has at least 3 points inside the given area. 
+% has at least minimum_width points inside the given area. 
+
+% Set default values
+
+zone_min_indices = [];
+zone_start_indices = [];
+zone_end_indices = [];
+
 % Among these points, find the minimum distance index. The minimum cannot
 % be the first or last point.
 distances_to_zone = sum((path_original - zone_definition(1,1:2)).^2,2).^0.5;
@@ -561,15 +573,53 @@ end
 transitions_into_zone = find(diff([0; in_zone])>0);
 transitions_outof_zone = find(diff([in_zone;0])<0);
 
+% Check each of the zones to see if they are empty, and if not, whether
+% they are of correct length
 num_zones = length(transitions_into_zone);
+
+% Are zones empty?
 if num_zones ==0
     zone_start_stop_indices = [];
-else
-    
-    zone_start_stop_indices = zeros(,2);
-    for ith_zone = 1:num_zones
+else % Are they the correct length?
+    if length(transitions_into_zone)~=length(transitions_outof_zone)
+        error('Unexpected mismatch in zone sizes!');
+    else
+        zone_widths = transitions_outof_zone - transitions_into_zone + 1;
+        good_zones = find(zone_widths>=minimum_width);
+                
+        % For each good zone, fill in start and stop indices
+        num_good_zones = length(good_zones);
+        zone_start_stop_indices = zeros(num_good_zones,2);
+        for ith_zone = 1:num_good_zones
+            good_index = good_zones(ith_zone);
+            zone_start_stop_indices(ith_zone,:) = [...
+                transitions_into_zone(good_index,1) transitions_outof_zone(good_index,1)];            
+        end
+    end % Ends if check that the zone starts and ends match
+end % Ends if check to see if zones are empty
+
+% For debugging:
+fprintf('Istart \tIend\n');
+for ith_index = 1:num_good_zones
+    fprintf(1,'%d\t %d\n',zone_start_stop_indices(ith_index,1), zone_start_stop_indices(ith_index,2));
+end
+
+% Find the minimum in the zones
+zone_min_indices = zeros(num_good_zones,1);
+for ith_zone = 1:num_good_zones
+    distances_inside = distances_to_zone(zone_start_stop_indices(ith_zone,1):zone_start_stop_indices(ith_zone,2));
+    [~,min_index] = min(distances_inside);
+
+    % Check that it isn't on border
+    if min_index==1 || min_index==length(distances_inside)
+        % Not big enough, so set this entire zone to zero
+        in_zone(start_subzone:end_subzone) = 0;
+    else
+        % Keep this minimum - be sure to shift it to correct indexing
+        zone_min_indices(ith_zone,1) = min_index+(zone_start_stop_indices(ith_zone,1)-1); 
     end
 end
+
 % 
 % 
 % 

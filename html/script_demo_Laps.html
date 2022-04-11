@@ -1,0 +1,303 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>script_demo_Laps</title><meta name="generator" content="MATLAB 9.9"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2022-04-11"><meta name="DC.source" content="script_demo_Laps.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1></h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Introduction to and Purpose of the Code</a></li><li><a href="#2">Dependencies and Setup of the Code</a></li><li><a href="#4">Using Zone Definitions to Define Start, End, and Excursion Locations</a></li><li><a href="#9">Create sample paths? If so, use fcn_Path_fillPathViaUserInputs to fill</a></li><li><a href="#10">Revision History:</a></li></ul></div><h2 id="1">Introduction to and Purpose of the Code</h2><p>This is the explanation of the code that can be found by running       script_demo_Laps.m This is a script to demonstrate the functions within the Laps code library. This code repo is typically located at:   <a href="https://github.com/ivsg-psu/FeatureExtraction_DataClean_BreakDataIntoLaps">https://github.com/ivsg-psu/FeatureExtraction_DataClean_BreakDataIntoLaps</a></p><p>If you have questions or comments, please contact Sean Brennan at <a href="mailto:sbrennan@psu.edu">sbrennan@psu.edu</a></p><p>The purpose of the code is to break data into "laps", namely portions of data defined by start and end points, and in some cases, even allowing excursion points that must be "hit" between start and end points. The reason for this code is that it is very common that data collection in the field passes repeatedly over a test area, even in one data set, and thus one must be able to quickly break the code into individual data groups with one grouping, or "lap", per traversal.</p><h2 id="2">Dependencies and Setup of the Code</h2><p>The code requires several other libraries to work, namely the following</p><div><ul><li>DebugTools - the repo can be found at: <a href="https://github.com/ivsg-psu/Errata_Tutorials_DebugTools">https://github.com/ivsg-psu/Errata_Tutorials_DebugTools</a></li><li>PathClassLibrary - the repo can be found at: <a href="https://github.com/ivsg-psu/PathPlanning_PathTools_PathClassLibrary">https://github.com/ivsg-psu/PathPlanning_PathTools_PathClassLibrary</a></li></ul></div><p>Each should be installed in a folder called "Utilities" under the root folder, namely ./Utilities/DebugTools/ , ./Utilities/PathClassLibrary/ . If you wish to put these codes in different directories, the function below can be easily modified with strings specifying the different location.</p><p>For ease of transfer, zip files of the directories used - without the .git repo information, to keep them small - are included in this repo.</p><p>The following code checks to see if the folders flag has been initialized, and if not, it calls the DebugTools function that loads the path variables. It then loads the PathClassLibrary functions as well. Note that the PathClass Library also has sub-utilities that are included.</p><pre class="codeinput"><span class="keyword">if</span> ~exist(<span class="string">'flag_Laps_Folders_Initialized'</span>,<span class="string">'var'</span>)
+
+    <span class="comment">% add necessary directories for function creation utility</span>
+    <span class="comment">%(special case because folders not added yet)</span>
+    debug_utility_folder = fullfile(pwd, <span class="string">'Utilities'</span>, <span class="string">'DebugTools'</span>);
+    debug_utility_function_folder = fullfile(pwd, <span class="string">'Utilities'</span>, <span class="string">'DebugTools'</span>,<span class="string">'Functions'</span>);
+    debug_utility_folder_inclusion_script = fullfile(pwd, <span class="string">'Utilities'</span>, <span class="string">'DebugTools'</span>,<span class="string">'Functions'</span>,<span class="string">'fcn_DebugTools_addSubdirectoriesToPath.m'</span>);
+    <span class="keyword">if</span>(exist(debug_utility_folder_inclusion_script,<span class="string">'file'</span>))
+        current_location = pwd;
+        cd(debug_utility_function_folder);
+        fcn_DebugTools_addSubdirectoriesToPath(debug_utility_folder,{<span class="string">'Functions'</span>,<span class="string">'Data'</span>});
+        cd(current_location);
+    <span class="keyword">else</span> <span class="comment">% Throw an error?</span>
+        error(<span class="string">'The necessary utilities are not found. Please add them (see README.md) and run again.'</span>);
+    <span class="keyword">end</span>
+
+    <span class="comment">% Now can add the Path Class Library automatically</span>
+    utility_folder_PathClassLibrary = fullfile(pwd, <span class="string">'Utilities'</span>, <span class="string">'PathClassLibrary'</span>);
+    fcn_DebugTools_addSubdirectoriesToPath(utility_folder_PathClassLibrary,{<span class="string">'Functions'</span>,<span class="string">'Utilities'</span>});
+
+    <span class="comment">% utility_folder_GetUserInputPath = fullfile(pwd, 'Utilities', 'GetUserInputPath');</span>
+    <span class="comment">% fcn_DebugTools_addSubdirectoriesToPath(utility_folder_GetUserInputPath,{'Functions','Utilities'});</span>
+
+    <span class="comment">% Now can add all the other utilities automatically</span>
+    folder_LapsClassLibrary = fullfile(pwd);
+    fcn_DebugTools_addSubdirectoriesToPath(folder_LapsClassLibrary,{<span class="string">'Functions'</span>});
+
+    <span class="comment">% set a flag so we do not have to do this again</span>
+    flag_Laps_Folders_Initialized = 1;
+<span class="keyword">end</span>
+</pre><h2 id="4">Using Zone Definitions to Define Start, End, and Excursion Locations</h2><p>To define the start, end, and excursion locations for data, the data must pass through or nearby a geolocation which is hereafter called a "zone definition". There are two types of zone definitions used in this code:</p><div><ul><li>Point methods of zone definitions - this is when a start, stop, or excursion is defined by "passing by" a point. For example, if a journey is said to start at someone's house and go to someone's office, then the location of the house and office define the start and end of the journey. The specification is given by an X,Y location and a radius in the form of [X Y radius], as a 3x1 matrix. Whenever the path passes within the radius with a specified number of points within that radius, the minimum distance point then "triggers" the zone.</li><li>Line segment methods of zone definitions - this when a start, stop, or excursion condition is defined by a path passing through a line segment. The line segment is given by the X,Y coordinates of the start and stop of the line segment, in the form [Xstart Ystart; Xend Yend], thus producing a 2x2 matrix. An example of a line segment definition is the start line and finish line of a race.</li></ul></div><p>To illustrate both definitions, we first create some data to plot:</p><pre class="codeinput">full_steps = (-1:0.1:1)';
+zero_full_steps = 0*full_steps;
+ones_full_steps = ones(length(full_steps(:,1)),1);
+half_steps = (-1:0.1:0)';
+zero_half_steps = 0*half_steps;
+ones_half_steps = ones(length(half_steps(:,1)),1);
+path_examples{1} = [-1*ones_full_steps full_steps];
+path_examples{2} = [1*ones_full_steps full_steps];
+</pre><p>Each of the path_example matrices above can be plotted easily using the "plotLapsXY" subfunction, but this function expects the paths to be in a traversal type so that it is compatible with the Path library of functions. To convert them, we use the conversion utility from the Path library, convert each to "traversal" types stored in a variable called path_data. We then plot the paths.</p><pre class="codeinput">clear <span class="string">path_data</span>
+<span class="keyword">for</span> i_Path = 1:length(path_examples)
+    traversal = fcn_Path_convertPathToTraversalStructure(path_examples{i_Path});
+    path_data.traversal{i_Path} = traversal;
+<span class="keyword">end</span>
+</pre><p>Plot the results</p><pre class="codeinput">fig_num = 222;
+fcn_Laps_plotLapsXY(path_data,fig_num);
+</pre><img vspace="5" hspace="5" src="script_demo_Laps_01.png" alt=""> <p>Now, use a zone plotting tool to show the point and line-segment types of zone definitions. The point definition is shown in green, and the segment definition is shown in blue. The segment definition includes an arrow that points in the direction of an allowable crossing.</p><pre class="codeinput">point_zone_definition = [-1 0 0.2];
+segment_zone_definition = [0.8 0; 1.2 0];
+fcn_Laps_plotPointZoneDefinition(point_zone_definition,<span class="string">'g'</span>,fig_num);
+fcn_Laps_plotSegmentZoneDefinition(segment_zone_definition,<span class="string">'b'</span>,fig_num);
+</pre><img vspace="5" hspace="5" src="script_demo_Laps_02.png" alt=""> <h2 id="9">Create sample paths? If so, use fcn_Path_fillPathViaUserInputs to fill</h2><pre class="codeinput"><span class="comment">% Call the function to fill in an array of "path" type</span>
+laps_array = fcn_Laps_fillSampleLaps;
+
+clear <span class="string">data</span>
+<span class="comment">% Convert them all to "traversal" types</span>
+<span class="keyword">for</span> i_Path = 1:length(laps_array)
+    traversal = fcn_Path_convertPathToTraversalStructure(laps_array{i_Path});
+    data.traversal{i_Path} = traversal;
+<span class="keyword">end</span>
+
+<span class="comment">% Plot the last one</span>
+fig_num = 1222;
+single_lap.traversal{1} = data.traversal{end};
+fcn_Laps_plotLapsXY(single_lap,fig_num);
+</pre><img vspace="5" hspace="5" src="script_demo_Laps_03.png" alt=""> <h2 id="10">Revision History:</h2><pre>    2022_03_27:
+    -- created a demo script of core debug utilities
+    2022_04_02
+    -- Added sample path creation
+    2022_04_04
+    -- Added minor edits
+    2022_04_10
+    -- Added comments, plotting utilities for zone definitions</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+
+%% Introduction to and Purpose of the Code
+% This is the explanation of the code that can be found by running
+%       script_demo_Laps.m
+% This is a script to demonstrate the functions within the Laps code
+% library. This code repo is typically located at:
+%   https://github.com/ivsg-psu/FeatureExtraction_DataClean_BreakDataIntoLaps
+%
+% If you have questions or comments, please contact Sean Brennan at
+% sbrennan@psu.edu
+%
+% The purpose of the code is to break data into "laps", namely portions of
+% data defined by start and end points, and in some cases, even allowing
+% excursion points that must be "hit" between start and end points. The
+% reason for this code is that it is very common that data collection in
+% the field passes repeatedly over a test area, even in one data set, and
+% thus one must be able to quickly break the code into individual data
+% groups with one grouping, or "lap", per traversal.
+
+%% Dependencies and Setup of the Code
+% The code requires several other libraries to work, namely the following
+%%
+% 
+% * DebugTools - the repo can be found at: https://github.com/ivsg-psu/Errata_Tutorials_DebugTools
+% * PathClassLibrary - the repo can be found at: https://github.com/ivsg-psu/PathPlanning_PathTools_PathClassLibrary
+% 
+% Each should be installed in a folder called "Utilities" under the root
+% folder, namely ./Utilities/DebugTools/ , ./Utilities/PathClassLibrary/ .
+% If you wish to put these codes in different directories, the function
+% below can be easily modified with strings specifying the different
+% location.
+% 
+% For ease of transfer, zip files of the directories used - without the
+% .git repo information, to keep them small - are included in this repo.
+% 
+% The following code checks to see if the folders flag has been
+% initialized, and if not, it calls the DebugTools function that loads the
+% path variables. It then loads the PathClassLibrary functions as well.
+% Note that the PathClass Library also has sub-utilities that are included.
+if ~exist('flag_Laps_Folders_Initialized','var')
+    
+    % add necessary directories for function creation utility 
+    %(special case because folders not added yet)
+    debug_utility_folder = fullfile(pwd, 'Utilities', 'DebugTools');
+    debug_utility_function_folder = fullfile(pwd, 'Utilities', 'DebugTools','Functions');
+    debug_utility_folder_inclusion_script = fullfile(pwd, 'Utilities', 'DebugTools','Functions','fcn_DebugTools_addSubdirectoriesToPath.m');
+    if(exist(debug_utility_folder_inclusion_script,'file'))
+        current_location = pwd;
+        cd(debug_utility_function_folder);
+        fcn_DebugTools_addSubdirectoriesToPath(debug_utility_folder,{'Functions','Data'});
+        cd(current_location);
+    else % Throw an error?
+        error('The necessary utilities are not found. Please add them (see README.md) and run again.');
+    end
+    
+    % Now can add the Path Class Library automatically
+    utility_folder_PathClassLibrary = fullfile(pwd, 'Utilities', 'PathClassLibrary');
+    fcn_DebugTools_addSubdirectoriesToPath(utility_folder_PathClassLibrary,{'Functions','Utilities'});
+    
+    % utility_folder_GetUserInputPath = fullfile(pwd, 'Utilities', 'GetUserInputPath');
+    % fcn_DebugTools_addSubdirectoriesToPath(utility_folder_GetUserInputPath,{'Functions','Utilities'});
+
+    % Now can add all the other utilities automatically
+    folder_LapsClassLibrary = fullfile(pwd);
+    fcn_DebugTools_addSubdirectoriesToPath(folder_LapsClassLibrary,{'Functions'});
+
+    % set a flag so we do not have to do this again
+    flag_Laps_Folders_Initialized = 1;
+end
+
+%% Using Zone Definitions to Define Start, End, and Excursion Locations
+% To define the start, end, and excursion locations for data, the data must
+% pass through or nearby a geolocation which is hereafter called a "zone
+% definition". There are two types of zone definitions used in this code:
+%%
+% 
+% * Point methods of zone definitions - this is when a start, stop, or
+% excursion is defined by "passing by" a point. For example, if a journey
+% is said to start at someone's house and go to someone's office, then the
+% location of the house and office define the start and end of the journey.
+% The specification is given by an X,Y location and a radius in the form of
+% [X Y radius], as a 3x1 matrix. Whenever the path passes within the radius
+% with a specified number of points within that radius, the minimum
+% distance point then "triggers" the zone.
+% * Line segment methods of zone definitions - this when a start, stop, or
+% excursion condition is defined by a path passing through a line segment.
+% The line segment is given by the X,Y coordinates of the start and stop of
+% the line segment, in the form [Xstart Ystart; Xend Yend], thus producing
+% a 2x2 matrix. An example of a line segment definition is the start line
+% and finish line of a race.
+% 
+% To illustrate both definitions, we first create some data to plot:
+
+full_steps = (-1:0.1:1)';
+zero_full_steps = 0*full_steps;
+ones_full_steps = ones(length(full_steps(:,1)),1);
+half_steps = (-1:0.1:0)';
+zero_half_steps = 0*half_steps;
+ones_half_steps = ones(length(half_steps(:,1)),1);
+path_examples{1} = [-1*ones_full_steps full_steps];
+path_examples{2} = [1*ones_full_steps full_steps];
+
+%% 
+% Each of the path_example matrices above can be plotted easily using the
+% "plotLapsXY" subfunction, but this function expects the paths to be in a
+% traversal type so that it is compatible with the Path library of
+% functions. To convert them, we use the conversion utility from the Path
+% library, convert each to "traversal" types stored in a variable called
+% path_data. We then plot the paths.
+
+clear path_data
+for i_Path = 1:length(path_examples)
+    traversal = fcn_Path_convertPathToTraversalStructure(path_examples{i_Path});
+    path_data.traversal{i_Path} = traversal;
+end
+
+%%
+% Plot the results
+fig_num = 222;
+fcn_Laps_plotLapsXY(path_data,fig_num);    
+
+%%
+% Now, use a zone plotting tool to show the point and line-segment types of
+% zone definitions. The point definition is shown in green, and the segment
+% definition is shown in blue. The segment definition includes an arrow
+% that points in the direction of an allowable crossing.
+
+point_zone_definition = [-1 0 0.2];
+segment_zone_definition = [0.8 0; 1.2 0];
+fcn_Laps_plotPointZoneDefinition(point_zone_definition,'g',fig_num);
+fcn_Laps_plotSegmentZoneDefinition(segment_zone_definition,'b',fig_num);
+
+%% Create sample paths? If so, use fcn_Path_fillPathViaUserInputs to fill
+
+% Call the function to fill in an array of "path" type
+laps_array = fcn_Laps_fillSampleLaps;
+
+clear data
+% Convert them all to "traversal" types
+for i_Path = 1:length(laps_array)
+    traversal = fcn_Path_convertPathToTraversalStructure(laps_array{i_Path});
+    data.traversal{i_Path} = traversal;
+end
+
+% Plot the last one
+fig_num = 1222;
+single_lap.traversal{1} = data.traversal{end};
+fcn_Laps_plotLapsXY(single_lap,fig_num);
+
+
+
+%% Revision History:
+%      2022_03_27:
+%      REPLACE_WITH_DASH_DASH created a demo script of core debug utilities
+%      2022_04_02
+%      REPLACE_WITH_DASH_DASH Added sample path creation
+%      2022_04_04
+%      REPLACE_WITH_DASH_DASH Added minor edits
+%      2022_04_10
+%      REPLACE_WITH_DASH_DASH Added comments, plotting utilities for zone definitions
+##### SOURCE END #####
+--></body></html>

@@ -18,6 +18,10 @@ function h = fcn_Laps_plotLapsXY(traversals,varargin)
 %      Note that ith_lap denotes an array of laps. Each lap will be
 %      plotted separately.
 %
+%      (OPTIONAL INPUTS)
+%
+%      fig_num: a figure number to plot results.
+%
 % OUTPUTS:
 %
 %      h: a handle to the resulting figure
