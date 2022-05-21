@@ -45,6 +45,8 @@ function h_plot = fcn_Laps_plotSegmentZoneDefinition(zone_definition,varargin)
 % Revision history:
 %     2022_04_10 
 %     -- wrote the code
+%     2022_04_12
+%     -- fixed minor bug with showing the arrowhead
 
 
 flag_do_debug = 0; % Flag to plot the results for debugging
@@ -147,9 +149,9 @@ end
 U = vector_with_magnitude(1,1);
 V = vector_with_magnitude(1,2);
 if flag_plot_style_is_specified
-    h_plot{2} = quiver(start_point(1,1),start_point(1,2),U,V,0,plot_style,'Linewidth',2,'Markersize',20,'ShowArrowHead','on');
+    h_plot{2} = quiver(start_point(1,1),start_point(1,2),U,V,0,plot_style,'Linewidth',2,'Markersize',20,'ShowArrowHead','on','MaxHeadSize',2);
 else
-    h_plot{2} = quiver(start_point(1,1),start_point(1,2),U,V,0,'color',[0 1 0],'Linewidth',2);
+    h_plot{2} = quiver(start_point(1,1),start_point(1,2),U,V,0,'color',[0 1 0],'Linewidth',2,'Markersize',20,'ShowArrowHead','on','MaxHeadSize',2);
 end
 
 

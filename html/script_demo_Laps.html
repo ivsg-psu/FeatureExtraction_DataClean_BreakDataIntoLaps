@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>script_demo_Laps</title><meta name="generator" content="MATLAB 9.9"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2022-04-11"><meta name="DC.source" content="script_demo_Laps.m"><style type="text/css">
+      --><title>script_demo_Laps</title><meta name="generator" content="MATLAB 9.9"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2022-04-19"><meta name="DC.source" content="script_demo_Laps.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -67,7 +67,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1></h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Introduction to and Purpose of the Code</a></li><li><a href="#2">Dependencies and Setup of the Code</a></li><li><a href="#4">Using Zone Definitions to Define Start, End, and Excursion Locations</a></li><li><a href="#9">Create sample paths? If so, use fcn_Path_fillPathViaUserInputs to fill</a></li><li><a href="#10">Revision History:</a></li></ul></div><h2 id="1">Introduction to and Purpose of the Code</h2><p>This is the explanation of the code that can be found by running       script_demo_Laps.m This is a script to demonstrate the functions within the Laps code library. This code repo is typically located at:   <a href="https://github.com/ivsg-psu/FeatureExtraction_DataClean_BreakDataIntoLaps">https://github.com/ivsg-psu/FeatureExtraction_DataClean_BreakDataIntoLaps</a></p><p>If you have questions or comments, please contact Sean Brennan at <a href="mailto:sbrennan@psu.edu">sbrennan@psu.edu</a></p><p>The purpose of the code is to break data into "laps", namely portions of data defined by start and end points, and in some cases, even allowing excursion points that must be "hit" between start and end points. The reason for this code is that it is very common that data collection in the field passes repeatedly over a test area, even in one data set, and thus one must be able to quickly break the code into individual data groups with one grouping, or "lap", per traversal.</p><h2 id="2">Dependencies and Setup of the Code</h2><p>The code requires several other libraries to work, namely the following</p><div><ul><li>DebugTools - the repo can be found at: <a href="https://github.com/ivsg-psu/Errata_Tutorials_DebugTools">https://github.com/ivsg-psu/Errata_Tutorials_DebugTools</a></li><li>PathClassLibrary - the repo can be found at: <a href="https://github.com/ivsg-psu/PathPlanning_PathTools_PathClassLibrary">https://github.com/ivsg-psu/PathPlanning_PathTools_PathClassLibrary</a></li></ul></div><p>Each should be installed in a folder called "Utilities" under the root folder, namely ./Utilities/DebugTools/ , ./Utilities/PathClassLibrary/ . If you wish to put these codes in different directories, the function below can be easily modified with strings specifying the different location.</p><p>For ease of transfer, zip files of the directories used - without the .git repo information, to keep them small - are included in this repo.</p><p>The following code checks to see if the folders flag has been initialized, and if not, it calls the DebugTools function that loads the path variables. It then loads the PathClassLibrary functions as well. Note that the PathClass Library also has sub-utilities that are included.</p><pre class="codeinput"><span class="keyword">if</span> ~exist(<span class="string">'flag_Laps_Folders_Initialized'</span>,<span class="string">'var'</span>)
+  </style></head><body><div class="content"><h1></h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Introduction to and Purpose of the Code</a></li><li><a href="#2">Dependencies and Setup of the Code</a></li><li><a href="#4">Using Zone Definitions to Define Start, End, and Excursion Locations</a></li><li><a href="#9">Point zone evaluations</a></li><li><a href="#13">Create sample paths</a></li><li><a href="#16">Definition of zones</a></li><li><a href="#17">Revision History:</a></li></ul></div><h2 id="1">Introduction to and Purpose of the Code</h2><p>This is the explanation of the code that can be found by running       script_demo_Laps.m This is a script to demonstrate the functions within the Laps code library. This code repo is typically located at:   <a href="https://github.com/ivsg-psu/FeatureExtraction_DataClean_BreakDataIntoLaps">https://github.com/ivsg-psu/FeatureExtraction_DataClean_BreakDataIntoLaps</a></p><p>If you have questions or comments, please contact Sean Brennan at <a href="mailto:sbrennan@psu.edu">sbrennan@psu.edu</a></p><p>The purpose of the code is to break data into "laps", namely portions of data defined by start and end points, and in some cases, even allowing excursion points that must be "hit" between start and end points. The reason for this code is that it is very common that data collection in the field passes repeatedly over a test area, even in one data set, and thus one must be able to quickly break the code into individual data groups with one grouping, or "lap", per traversal.</p><h2 id="2">Dependencies and Setup of the Code</h2><p>The code requires several other libraries to work, namely the following</p><div><ul><li>DebugTools - the repo can be found at: <a href="https://github.com/ivsg-psu/Errata_Tutorials_DebugTools">https://github.com/ivsg-psu/Errata_Tutorials_DebugTools</a></li><li>PathClassLibrary - the repo can be found at: <a href="https://github.com/ivsg-psu/PathPlanning_PathTools_PathClassLibrary">https://github.com/ivsg-psu/PathPlanning_PathTools_PathClassLibrary</a></li></ul></div><p>Each should be installed in a folder called "Utilities" under the root folder, namely ./Utilities/DebugTools/ , ./Utilities/PathClassLibrary/ . If you wish to put these codes in different directories, the function below can be easily modified with strings specifying the different location.</p><p>For ease of transfer, zip files of the directories used - without the .git repo information, to keep them small - are included in this repo.</p><p>The following code checks to see if the folders flag has been initialized, and if not, it calls the DebugTools function that loads the path variables. It then loads the PathClassLibrary functions as well. Note that the PathClass Library also has sub-utilities that are included.</p><pre class="codeinput"><span class="keyword">if</span> ~exist(<span class="string">'flag_Laps_Folders_Initialized'</span>,<span class="string">'var'</span>)
 
     <span class="comment">% add necessary directories for function creation utility</span>
     <span class="comment">%(special case because folders not added yet)</span>
@@ -116,21 +116,266 @@ fcn_Laps_plotLapsXY(path_data,fig_num);
 segment_zone_definition = [0.8 0; 1.2 0];
 fcn_Laps_plotPointZoneDefinition(point_zone_definition,<span class="string">'g'</span>,fig_num);
 fcn_Laps_plotSegmentZoneDefinition(segment_zone_definition,<span class="string">'b'</span>,fig_num);
-</pre><img vspace="5" hspace="5" src="script_demo_Laps_02.png" alt=""> <h2 id="9">Create sample paths? If so, use fcn_Path_fillPathViaUserInputs to fill</h2><pre class="codeinput"><span class="comment">% Call the function to fill in an array of "path" type</span>
-laps_array = fcn_Laps_fillSampleLaps;
+</pre><img vspace="5" hspace="5" src="script_demo_Laps_02.png" alt=""> <h2 id="9">Point zone evaluations</h2><p>The function, fcn_Laps_findPointZoneStartStopAndMinimum, uses a point zone evaluation to determine portions of a segment that are within a point zone definition. For example, if the path does not cross into the zone, nothing is returned:</p><pre class="codeinput">fig_num = 1;
 
-clear <span class="string">data</span>
+query_path = <span class="keyword">...</span>
+    [full_steps 0.4*ones_full_steps];
+
+zone_definition = [0 0 0.2]; <span class="comment">% Located at [0,0] with radius 0.2</span>
+[zone_start_indices, zone_end_indices, zone_min_indices] = <span class="keyword">...</span>
+    fcn_Laps_findPointZoneStartStopAndMinimum(<span class="keyword">...</span>
+    query_path,<span class="keyword">...</span>
+    zone_definition,<span class="keyword">...</span>
+    [],<span class="keyword">...</span>
+    fig_num);
+
+assert(isempty(zone_start_indices));
+assert(isempty(zone_end_indices));
+assert(isempty(zone_min_indices));
+</pre><pre class="codeoutput">
+Index	In_zone
+ 1		 0
+ 2		 0
+ 3		 0
+ 4		 0
+ 5		 0
+ 6		 0
+ 7		 0
+ 8		 0
+ 9		 0
+ 10		 0
+ 11		 0
+ 12		 0
+ 13		 0
+ 14		 0
+ 15		 0
+ 16		 0
+ 17		 0
+ 18		 0
+ 19		 0
+ 20		 0
+ 21		 0
+</pre><img vspace="5" hspace="5" src="script_demo_Laps_03.png" alt=""> <p>And, the default is that three points must be within the zone. So, if a path only crosses one or two points, then nothing is returned.</p><pre class="codeinput">fig_num = 2;
+
+query_path = <span class="keyword">...</span>
+    [full_steps 0.2*ones_full_steps];
+
+zone_definition = [0 0 0.2]; <span class="comment">% Located at [0,0] with radius 0.2</span>
+[zone_start_indices, zone_end_indices, zone_min_indices] = <span class="keyword">...</span>
+    fcn_Laps_findPointZoneStartStopAndMinimum(<span class="keyword">...</span>
+    query_path,<span class="keyword">...</span>
+    zone_definition,<span class="keyword">...</span>
+    [],<span class="keyword">...</span>
+    fig_num);
+
+assert(isempty(zone_start_indices));
+assert(isempty(zone_end_indices));
+assert(isempty(zone_min_indices));
+
+
+
+query_path = <span class="keyword">...</span>
+    [full_steps 0.2*ones_full_steps];
+
+zone_definition = [0.05 0 0.23]; <span class="comment">% Located at [0.05,0] with radius 0.23</span>
+[zone_start_indices, zone_end_indices, zone_min_indices] = <span class="keyword">...</span>
+    fcn_Laps_findPointZoneStartStopAndMinimum(<span class="keyword">...</span>
+    query_path,<span class="keyword">...</span>
+    zone_definition,<span class="keyword">...</span>
+    [],<span class="keyword">...</span>
+    fig_num);
+
+assert(isempty(zone_start_indices));
+assert(isempty(zone_end_indices));
+assert(isempty(zone_min_indices));
+</pre><pre class="codeoutput">
+Index	In_zone
+ 1		 0
+ 2		 0
+ 3		 0
+ 4		 0
+ 5		 0
+ 6		 0
+ 7		 0
+ 8		 0
+ 9		 0
+ 10		 0
+ 11		 0
+ 12		 0
+ 13		 0
+ 14		 0
+ 15		 0
+ 16		 0
+ 17		 0
+ 18		 0
+ 19		 0
+ 20		 0
+ 21		 0
+
+Index	In_zone
+ 1		 0
+ 2		 0
+ 3		 0
+ 4		 0
+ 5		 0
+ 6		 0
+ 7		 0
+ 8		 0
+ 9		 0
+ 10		 0
+ 11		 1
+ 12		 1
+ 13		 0
+ 14		 0
+ 15		 0
+ 16		 0
+ 17		 0
+ 18		 0
+ 19		 0
+ 20		 0
+ 21		 0
+</pre><img vspace="5" hspace="5" src="script_demo_Laps_04.png" alt=""> <img vspace="5" hspace="5" src="script_demo_Laps_05.png" alt=""> <p>But, if a path crosses the zone with at least three points, then the indices of the start, end, and minimum of the path are returned.</p><pre class="codeinput">fig_num = 3;
+
+radius = 0.2;
+
+query_path = <span class="keyword">...</span>
+    [half_steps zero_half_steps];
+
+zone_definition = [-0.02 0 0.2]; <span class="comment">% Located at [0.02,0] with radius 0.2</span>
+[zone_start_indices, zone_end_indices, zone_min_indices] = <span class="keyword">...</span>
+    fcn_Laps_findPointZoneStartStopAndMinimum(<span class="keyword">...</span>
+    query_path,<span class="keyword">...</span>
+    zone_definition,<span class="keyword">...</span>
+    [],<span class="keyword">...</span>
+    fig_num);
+
+assert(isequal(zone_start_indices,9));
+assert(isequal(zone_end_indices,11));
+assert(isequal(zone_min_indices,11));
+</pre><pre class="codeoutput">
+Index	In_zone
+ 1		 0
+ 2		 0
+ 3		 0
+ 4		 0
+ 5		 0
+ 6		 0
+ 7		 0
+ 8		 0
+ 9		 1
+ 10		 1
+ 11		 1
+
+Start, end, and minimum indices for good zones: 
+Istart 	 Iend 	 Imin
+9		 11		 11
+</pre><img vspace="5" hspace="5" src="script_demo_Laps_06.png" alt=""> <p>If there are multiple crossings of the zone, then indices of the start/stop/minimum are returned for each crossing:</p><pre class="codeinput">full_steps = (-1:0.1:1)';
+zero_full_steps = 0*full_steps;
+ones_full_steps = ones(length(full_steps(:,1)),1);
+half_steps = (-1:0.1:0)';
+zero_half_steps = 0*half_steps;
+ones_half_steps = ones(length(half_steps(:,1)),1);
+
+minimum_number_of_indices_in_zone = 3;
+fig_num = 5;
+
+radius = 0.2;
+
+query_path = <span class="keyword">...</span>
+    [full_steps 0*ones_full_steps; -full_steps 0.1*ones_full_steps; full_steps 0.2*ones_full_steps ];
+
+zone_definition = [0.05 0 0.23]; <span class="comment">% Located at [0.05,0] with radius 0.23</span>
+[zone_start_indices, zone_end_indices, zone_min_indices] = <span class="keyword">...</span>
+    fcn_Laps_findPointZoneStartStopAndMinimum(<span class="keyword">...</span>
+    query_path,<span class="keyword">...</span>
+    zone_definition,<span class="keyword">...</span>
+    minimum_number_of_indices_in_zone,<span class="keyword">...</span>
+    fig_num);
+
+assert(isequal(zone_start_indices,[10; 30]));
+assert(isequal(zone_end_indices,  [13; 33]));
+assert(isequal(zone_min_indices,  [12; 31]));
+</pre><pre class="codeoutput">
+Index	In_zone
+ 1		 0
+ 2		 0
+ 3		 0
+ 4		 0
+ 5		 0
+ 6		 0
+ 7		 0
+ 8		 0
+ 9		 0
+ 10		 1
+ 11		 1
+ 12		 1
+ 13		 1
+ 14		 0
+ 15		 0
+ 16		 0
+ 17		 0
+ 18		 0
+ 19		 0
+ 20		 0
+ 21		 0
+ 22		 0
+ 23		 0
+ 24		 0
+ 25		 0
+ 26		 0
+ 27		 0
+ 28		 0
+ 29		 0
+ 30		 1
+ 31		 1
+ 32		 1
+ 33		 1
+ 34		 0
+ 35		 0
+ 36		 0
+ 37		 0
+ 38		 0
+ 39		 0
+ 40		 0
+ 41		 0
+ 42		 0
+ 43		 0
+ 44		 0
+ 45		 0
+ 46		 0
+ 47		 0
+ 48		 0
+ 49		 0
+ 50		 0
+ 51		 0
+ 52		 0
+ 53		 1
+ 54		 1
+ 55		 0
+ 56		 0
+ 57		 0
+ 58		 0
+ 59		 0
+ 60		 0
+ 61		 0
+ 62		 0
+ 63		 0
+
+Start, end, and minimum indices for good zones: 
+Istart 	 Iend 	 Imin
+10		 13		 12
+30		 33		 31
+</pre><img vspace="5" hspace="5" src="script_demo_Laps_07.png" alt=""> <h2 id="13">Create sample paths</h2><p>To illustrate the functionality of this library, we call the library function fillPathViaUserInputs which fills in an array of "path" types.</p><pre class="codeinput">laps_array = fcn_Laps_fillSampleLaps;
+</pre><p>We then convert the paths into traversals, compatible with the Path library, using the path library conversion function.</p><pre class="codeinput">clear <span class="string">data</span>
 <span class="comment">% Convert them all to "traversal" types</span>
 <span class="keyword">for</span> i_Path = 1:length(laps_array)
     traversal = fcn_Path_convertPathToTraversalStructure(laps_array{i_Path});
     data.traversal{i_Path} = traversal;
 <span class="keyword">end</span>
-
-<span class="comment">% Plot the last one</span>
-fig_num = 1222;
+</pre><p>To show an example of the data load, we can plot the last traversal</p><pre class="codeinput">fig_num = 1222;
 single_lap.traversal{1} = data.traversal{end};
 fcn_Laps_plotLapsXY(single_lap,fig_num);
-</pre><img vspace="5" hspace="5" src="script_demo_Laps_03.png" alt=""> <h2 id="10">Revision History:</h2><pre>    2022_03_27:
+</pre><img vspace="5" hspace="5" src="script_demo_Laps_08.png" alt=""> <h2 id="16">Definition of zones</h2><h2 id="17">Revision History:</h2><pre>    2022_03_27:
     -- created a demo script of core debug utilities
     2022_04_02
     -- Added sample path creation
@@ -271,11 +516,129 @@ segment_zone_definition = [0.8 0; 1.2 0];
 fcn_Laps_plotPointZoneDefinition(point_zone_definition,'g',fig_num);
 fcn_Laps_plotSegmentZoneDefinition(segment_zone_definition,'b',fig_num);
 
-%% Create sample paths? If so, use fcn_Path_fillPathViaUserInputs to fill
+%% Point zone evaluations
+% The function, fcn_Laps_findPointZoneStartStopAndMinimum, uses a point
+% zone evaluation to determine portions of a segment that are within a
+% point zone definition. For example, if the path does not cross into the
+% zone, nothing is returned:
+fig_num = 1;
 
-% Call the function to fill in an array of "path" type
+query_path = ...
+    [full_steps 0.4*ones_full_steps];
+
+zone_definition = [0 0 0.2]; % Located at [0,0] with radius 0.2
+[zone_start_indices, zone_end_indices, zone_min_indices] = ...
+    fcn_Laps_findPointZoneStartStopAndMinimum(...
+    query_path,...
+    zone_definition,...
+    [],...
+    fig_num);
+
+assert(isempty(zone_start_indices));
+assert(isempty(zone_end_indices));
+assert(isempty(zone_min_indices));
+
+%%
+% And, the default is that three points must be within the zone. So, if a
+% path only crosses one or two points, then nothing is returned.
+
+fig_num = 2;
+
+query_path = ...
+    [full_steps 0.2*ones_full_steps];
+
+zone_definition = [0 0 0.2]; % Located at [0,0] with radius 0.2
+[zone_start_indices, zone_end_indices, zone_min_indices] = ...
+    fcn_Laps_findPointZoneStartStopAndMinimum(...
+    query_path,...
+    zone_definition,...
+    [],...
+    fig_num);
+
+assert(isempty(zone_start_indices));
+assert(isempty(zone_end_indices));
+assert(isempty(zone_min_indices));
+
+
+
+query_path = ...
+    [full_steps 0.2*ones_full_steps];
+
+zone_definition = [0.05 0 0.23]; % Located at [0.05,0] with radius 0.23
+[zone_start_indices, zone_end_indices, zone_min_indices] = ...
+    fcn_Laps_findPointZoneStartStopAndMinimum(...
+    query_path,...
+    zone_definition,...
+    [],...
+    fig_num);
+
+assert(isempty(zone_start_indices));
+assert(isempty(zone_end_indices));
+assert(isempty(zone_min_indices));
+
+
+%%
+% But, if a path crosses the zone with at least three points, then the
+% indices of the start, end, and minimum of the path are returned.
+fig_num = 3;
+
+radius = 0.2;
+
+query_path = ...
+    [half_steps zero_half_steps];
+
+zone_definition = [-0.02 0 0.2]; % Located at [0.02,0] with radius 0.2
+[zone_start_indices, zone_end_indices, zone_min_indices] = ...
+    fcn_Laps_findPointZoneStartStopAndMinimum(...
+    query_path,...
+    zone_definition,...
+    [],...
+    fig_num);
+
+assert(isequal(zone_start_indices,9));
+assert(isequal(zone_end_indices,11));
+assert(isequal(zone_min_indices,11));
+
+%%
+% If there are multiple crossings of the zone, then indices of the
+% start/stop/minimum are returned for each crossing:
+full_steps = (-1:0.1:1)';
+zero_full_steps = 0*full_steps;
+ones_full_steps = ones(length(full_steps(:,1)),1);
+half_steps = (-1:0.1:0)';
+zero_half_steps = 0*half_steps;
+ones_half_steps = ones(length(half_steps(:,1)),1);
+
+minimum_number_of_indices_in_zone = 3;
+fig_num = 5;
+
+radius = 0.2;
+
+query_path = ...
+    [full_steps 0*ones_full_steps; -full_steps 0.1*ones_full_steps; full_steps 0.2*ones_full_steps ];
+
+zone_definition = [0.05 0 0.23]; % Located at [0.05,0] with radius 0.23
+[zone_start_indices, zone_end_indices, zone_min_indices] = ...
+    fcn_Laps_findPointZoneStartStopAndMinimum(...
+    query_path,...
+    zone_definition,...
+    minimum_number_of_indices_in_zone,...
+    fig_num);
+
+assert(isequal(zone_start_indices,[10; 30]));
+assert(isequal(zone_end_indices,  [13; 33]));
+assert(isequal(zone_min_indices,  [12; 31]));
+
+
+%% Create sample paths
+% To illustrate the functionality of this library, we call the library
+% function fillPathViaUserInputs which fills in an array of "path" types.
+
 laps_array = fcn_Laps_fillSampleLaps;
 
+%%
+% We then convert the paths into traversals, compatible with the Path
+% library, using the path library conversion function.
 clear data
 % Convert them all to "traversal" types
 for i_Path = 1:length(laps_array)
@@ -283,12 +646,14 @@ for i_Path = 1:length(laps_array)
     data.traversal{i_Path} = traversal;
 end
 
-% Plot the last one
+%%
+% To show an example of the data load, we can plot the last traversal
 fig_num = 1222;
 single_lap.traversal{1} = data.traversal{end};
 fcn_Laps_plotLapsXY(single_lap,fig_num);
 
-
+%% Definition of zones
+% 
 
 %% Revision History:
 %      2022_03_27:

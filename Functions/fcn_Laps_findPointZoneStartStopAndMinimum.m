@@ -23,7 +23,8 @@ function [zone_start_indices, zone_end_indices, zone_min_indices] = ...
 % and minimum-distance indices are determined and are returned by this
 % function. 
 % 
-% has at least minimum_width points inside the given area.
+% An optional input forces the zone to have at least minimum_width points
+% inside the given area.
 %
 % FORMAT:
 %
@@ -177,7 +178,7 @@ distances_to_zone = sum((query_path - zone_definition(1,1:2)).^2,2).^0.5;
 in_zone = distances_to_zone<zone_definition(1,3);
 
 % For debugging:
-fprintf('Index\tIn_zone\n');
+fprintf('\nIndex\tIn_zone\n');
 for ith_index = 1:length(in_zone)
     fprintf(1,' %d\t\t %d\n',ith_index, in_zone(ith_index));
 end
@@ -215,12 +216,7 @@ if num_zones ~= 0  % empty
     end % Ends if check that the zone starts and ends match
 
     if num_good_zones~=0
-        % For debugging:
-        fprintf(1,'\nStart and end indices for good zones: \nIstart \t Iend \n');
-        for ith_index = 1:num_good_zones
-            fprintf(1,'%d\t\t %d\n',zone_start_indices(ith_index,1), zone_end_indices(ith_index,1));
-        end
-        
+       
         % Find the minimum in the zones
         zone_min_indices = zeros(num_good_zones,1);
         for ith_zone = 1:num_good_zones
@@ -237,7 +233,14 @@ if num_zones ~= 0  % empty
             %                 zone_min_indices(ith_zone,1) = min_index+(zone_start_indices(ith_zone,1)-1);
             %             end
         end
+        
+        % For debugging:
+        fprintf(1,'\nStart, end, and minimum indices for good zones: \nIstart \t Iend \t Imin\n');
+        for ith_index = 1:num_good_zones
+            fprintf(1,'%d\t\t %d\t\t %d\n',zone_start_indices(ith_index,1), zone_end_indices(ith_index,1),zone_min_indices(ith_index,1));
+        end
     end
+        
 end % Ends if check to see if zones are empty
 
 
@@ -280,7 +283,7 @@ if flag_do_plots
             % Plot the minimum
             plot(...
                 query_path(zone_min_indices(ith_zone,1),1),...
-                query_path(zone_min_indices(ith_zone,1),1),...
+                query_path(zone_min_indices(ith_zone,1),2),...
                 'x','Markersize',10,...            
                 'Color',color_value,'Linewidth',3);
             

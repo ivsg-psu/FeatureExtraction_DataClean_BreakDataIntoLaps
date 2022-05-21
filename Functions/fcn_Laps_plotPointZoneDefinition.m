@@ -44,7 +44,8 @@ function h_plot = fcn_Laps_plotPointZoneDefinition(zone_definition,varargin)
 % Revision history:
 %     2022_04_10 
 %     -- wrote the code
-
+%     2022_04_12
+%     -- fixed minor bug with showing the arrowhead
 
 flag_do_debug = 0; % Flag to plot the results for debugging
 flag_this_is_a_new_figure = 1; % Flag to check to see if this is a new figure
@@ -155,9 +156,9 @@ end
 U = radius*cos(45*pi/180);
 V = radius*sin(45*pi/180);
 if flag_plot_style_is_specified
-    h_plot{3} = quiver(Xcenter,Ycenter,U,V,0,plot_style,'Linewidth',2,'Markersize',20);
+    h_plot{3} = quiver(Xcenter,Ycenter,U,V,0,plot_style,'Linewidth',2,'Markersize',20,'ShowArrowHead','on','MaxHeadSize',2);
 else
-    h_plot{3} = quiver(Xcenter,Ycenter,U,V,0,'color',[0 1 0],'Linewidth',2);
+    h_plot{3} = quiver(Xcenter,Ycenter,U,V,0,'color',[0 1 0],'Linewidth',2,'ShowArrowHead','on','MaxHeadSize',2);
 end
 
 

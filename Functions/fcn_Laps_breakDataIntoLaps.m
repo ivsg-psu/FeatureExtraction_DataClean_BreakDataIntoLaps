@@ -78,11 +78,13 @@ function [lap_traversals, entry_traversal,exit_traversal] = fcn_Laps_breakDataIn
 %      (OPTIONAL INPUTS)
 %
 %      end_definition: the condition, defined as a point/radius or line
-%      segment, defining the end condition to break the data into laps.
+%      segment, defining the end condition to break the data into laps. If
+%      not specified, the start condition is used.
 % 
 %      excursion_definition: the condition, defined as a point/radius or
 %      line segment, defining a situation that must be met between the
-%      start and end conditions
+%      start and end conditions. If not specified, then no excursion point
+%      is used.
 %
 %      fig_num: a figure number to plot results.
 %
@@ -119,6 +121,13 @@ function [lap_traversals, entry_traversal,exit_traversal] = fcn_Laps_breakDataIn
 %     
 %     2022_04_03: 
 %     -- wrote the code originally 
+%     2022_04_23
+%     -- added external call to zone calculation function
+%     2022_05_21
+%     -- cleaned up the comments
+%     -- fixed bugs in excursion zone flag shutting off code
+%     -- fixed bugs in excursion zone and end zone definitions
+%     -- fixed scalar comparison in size function of argument check
 
 % TO DO
 % 
@@ -174,9 +183,9 @@ if flag_check_inputs
 end
 
 % Set the start values
-if size(start_definition)==[1 3]
+if isequal(size(start_definition),[1 3])
     flag_start_is_a_point_type = 1;
-elseif size(start_definition)==[2 2]
+elseif isequal(size(start_definition),[2 2])
     flag_start_is_a_point_type = 0;
 else
     error('The start_definition input must be either a 3x1 variable, in the case of a point, or a 2x2 variable, in the case of a line segment.');    
@@ -271,6 +280,7 @@ entry_traversal = input_traversal;
 exit_traversal = [];
 lap_traversals = [];
 
+
 % Steps used:
 % 1) extract the path, and create an array that is all zeros the same
 % length of the path
@@ -289,70 +299,110 @@ lap_traversals = [];
 % Grab the XY data out of the variable
 path_original = [input_traversal.X input_traversal.Y];
 path_flag_array = zeros(length(input_traversal.X(:,1)),1);
+Npoints = length(path_original(:,1));
 
 %% Step 2
 % find the start, excursion, and end possibilities and label them as 1,
 % 2, and 3 respectively in the array. Keep track of the zones where start
 % and end zones occur, as need to sometimes search backwards in next step
 
-minimum_width = 3;
+minimum_number_of_indices_in_zone = 3;
 
+flag_keep_going = 0; % Default is to assume there is no start zones yet, as there's no sense to keep going if not
+
+% Do start zone calculations
 if flag_start_is_a_point_type==1
     % Define start zone and indices,
     % A zone is the location meeting the distance criteria, and where the path
     % has at least minimum_width points inside the given area. Among these points,
-    % find the minimum distance index. The minimum cannot be the first or
-    % last point.
-    [start_zone, min_indices] = INTERNAL_fcn_Laps_findZoneStartStopAndMinimum(...
-        path_original,...
-        start_definition,...
-        minimum_width);
-    if isempty(min_indices) % No minimum detected, so no laps exist
-        return
-    end
-    start_indices = min_indices -1;
+    % find the minimum distance index. The start point is the index
+    % immediately prior to the minimum.
+
+    [start_zone_start_indices, start_zone_end_indices, start_zone_min_indices] = ...
+    fcn_Laps_findPointZoneStartStopAndMinimum(...
+    path_original,...
+    start_definition,...
+    minimum_number_of_indices_in_zone,...
+    3333);
+
+    start_indices = start_zone_min_indices + 1;
     path_flag_array(start_indices,1) = 1;
+    
+    if ~isempty(start_zone_start_indices) % No minimum detected, so no laps exist       
+        flag_keep_going = 1;
+    end
+    
 else
 end
 
-if flag_use_excursion_definition
-    if flag_excursion_is_a_point_type==1
-        % Define excursion zone and indices,
-        % A zone is the location meeting the distance criteria, and where the path
-        % has at least 3 points inside the given area. Among these three points,
-        % find the minimum distance index.
-        [excursion_zone, min_indices] = INTERNAL_fcn_Laps_findZoneStartStopAndMinimum(...
-            path_original,...
-            excursion_definition,...
-            minimum_width);
-        if isempty(min_indices) % No minimum detected, so no laps exist
-            return
+% Do excursion zone calculations
+if flag_keep_going
+    if flag_use_excursion_definition
+        flag_keep_going = 0; % Default is to assume there is no excursion zones yet, as there's no sense to keep going if not
+        if flag_excursion_is_a_point_type==1
+            % Define excursion zone and indices,
+            % A zone is the location meeting the distance criteria, and where the path
+            % has at least 3 points inside the given area. Among these three points,
+            % find the minimum distance index.
+            
+            %             [excursion_zone, min_indices] = INTERNAL_fcn_Laps_findZoneStartStopAndMinimum(...
+            %                 path_original,...
+            %                 excursion_definition,...
+            %                 minimum_width);
+            
+            [excursion_zone_start_indices, excursion_zone_end_indices, excursion_zone_min_indices] = ...
+                fcn_Laps_findPointZoneStartStopAndMinimum(...
+                path_original,...
+                excursion_definition,...
+                minimum_number_of_indices_in_zone,...
+                3334);
+            
+            if ~isempty(excursion_zone_start_indices) % No minimum detected, so no laps exist
+                flag_keep_going = 1;
+            end
+            
+            path_flag_array(excursion_zone_min_indices,1) = 2;
+        else % It's a line segement type
+            % Fill this in later
         end
-        excursion_indices = min_indices;
-        path_flag_array(excursion_indices,1) = 2;
+    else % No excursion zones given, so default to the indices after the start zone
+        excursion_zone_start_indices = min(start_zone_end_indices+1,Npoints);
+        excursion_zone_end_indices = min(start_zone_end_indices+1,Npoints);
+        excursion_zone_min_indices = min(start_zone_end_indices+1,Npoints);
+        
+    end
+end % Ends check to see if keep going
+
+% Do end zone calculations
+if flag_keep_going
+    flag_keep_going = 0; % Default is to assume there is no end zones yet, as there's no sense to keep going if not
+    if flag_end_is_a_point_type==1        
+        % Define end zone and indices, A zone is the location meeting the
+        % distance criteria, and where the path has at least 3 points
+        % inside the given area. Among these three points, find the minimum
+        % distance index. The end zone finishes the point after the
+        % minimum.
+        
+        %         [end_zone, min_indices] = INTERNAL_fcn_Laps_findZoneStartStopAndMinimum(...
+        %             path_original,...
+        %             end_definition,...
+        %             minimum_width);
+        
+        [end_zone_start_indices, end_zone_end_indices, end_zone_min_indices] = ...
+            fcn_Laps_findPointZoneStartStopAndMinimum(...
+            path_original,...
+            end_definition,...
+            minimum_number_of_indices_in_zone,...
+            3335);
+        
+        if ~isempty(end_zone_start_indices) % No minimum detected, so no laps exist
+            flag_keep_going = 1;
+        end
+        end_indices = end_zone_min_indices + 1;
+        path_flag_array(end_indices,1) = 3;
     else
     end
-else
-    
-end
-
-
-if flag_end_is_a_point_type==1
-    % Define end zone and indices,
-    % A zone is the location meeting the distance criteria, and where the path
-    % has at least 3 points inside the given area. Among these three points,
-    % find the minimum distance index.
-    [end_zone, min_indices] = INTERNAL_fcn_Laps_findZoneStartStopAndMinimum(...
-        path_original,...
-        end_definition,...
-        minimum_width);
-    if isempty(min_indices) % No minimum detected, so no laps exist
-        return
-    end
-    end_indices = min_indices + 1;
-    path_flag_array(end_indices,1) = 3;
-else
-end
+end % Ends check to see if keep going
 
 %% Step 3
 % progress through the array, matching the start, to transition, to end.
@@ -365,96 +415,278 @@ end
 % complete lap:
 %
 % start index
+% find minimum index in start zone and record index before minimum - this
+% is the start of the lap
 % end of start zone
 % excursion index
 % end of exursion zone (use end of start zone if excursions not used)
 % end index
+% find minimum index in end zone and record index after minimum - this is
+% the end of the lap
+% start of end zone
 %
 % Once a lap is found, the loop is rewound back to the start of the last
 % end-index zone, in case the next start point is hiding in there
 
-num_laps = 0;
-last_lap_end_index = length(path_flag_array);
-first_fragment_indicies.start = 1;
-last_fragment_indicies.start = 1;
-first_fragment_indicies.end = length(path_flag_array);
-last_fragment_indicies.end = length(path_flag_array);
+%% Summarize where we are:
 
-ith_index = 1; % Initialize result
-while (ith_index<length(path_flag_array))
-    ith_index = ith_index+1;
-    
-    % Find the next start index
-    next_start_index = (ith_index-1) + find(path_flag_array(ith_index:end,1)==1,1,'first');
-    if ~isempty(next_start_index)
-        % Find where we leave the start zone
-        startzone_end_point = (next_start_index-1) + find(start_zone(next_start_index:end,1)~=1,1,'first');
-        if ~isempty(startzone_end_point)
-            % Find the excursion point and zone?
-            if flag_use_excursion_definition
-                next_excursion_index = (startzone_end_point-1) + find(path_flag_array(startzone_end_point:end,1)==2,1,'first');
-                if ~isempty(next_excursion_index)
-                    % Find where we leave excursion zone
-                    excursionzone_end_point = (next_excursion_index-1) + find(excursion_zone(next_excursion_index:end,1)~=1,1,'first');
-                else                    
-                    % No more laps to find since no more end indices - exit the loop
-                    last_fragment_indicies.start = last_lap_end_index;
-                    break;
-                end            
-            else
-                excursionzone_end_point = startzone_end_point;
-            end % Ends flag to check excursion zone
-            % Find the next end index
-            next_end_index = (excursionzone_end_point-1) + find(path_flag_array(excursionzone_end_point:end,1)==3,1,'first');
-            if ~isempty(next_end_index)
-                % A complete lap was found!
-                if 0==num_laps
-                    first_fragment_indicies.end = next_start_index-1;
-                end
-                
-                num_laps = num_laps+1;
-                lap_indices(num_laps).start = next_start_index; %#ok<AGROW>
-                lap_indices(num_laps).end = next_end_index; %#ok<AGROW>
-                last_lap_end_index = next_end_index;
-                
-                % Reset the loop to start of current end zone, just in case
-                % next start point is INSIDE the current end zone. This is
-                % such a weird way to program that have to tell MATLAB not
-                % to throw an error.
-                ith_index = (excursionzone_end_point-1) + find(end_zone(excursionzone_end_point:end,1)==1,1,'first'); %#ok<FXSET>
-            else
-                % No more laps to find since no more end indices - exit the loop
-                last_fragment_indicies.start = last_lap_end_index;
-                break;
-            end  
-        else
-            % No more laps to find since no more end indices - exit the loop
-            last_fragment_indicies.start = last_lap_end_index;
-            break
-        end % Ends check if start zone is empty
-    else              
-        % No more laps to find since no more start indices - exit the loop
-        last_fragment_indicies.start = last_lap_end_index;
-        break;
-    end % Ends check if next start index is empty or not
-end % Ends for loop
+print_width = 20;
+fprintf(1,'\n');
+fprintf(1,'Summary of Zone results:\n');
+fprintf(1,'Start Zone Indices:\n');
+H1 = sprintf('%s','Start');
+H2 = sprintf('%s','End');
+H3 = sprintf('%s','Minimum');
+short_H1 = fcn_DebugTools_debugPrintStringToNCharacters(H1,print_width);
+short_H2 = fcn_DebugTools_debugPrintStringToNCharacters(H2,print_width);
+short_H3 = fcn_DebugTools_debugPrintStringToNCharacters(H3,print_width);
+fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
+for ith_index = 1:length(start_zone_start_indices)
+    T1 = sprintf('%d',start_zone_start_indices(ith_index));
+    T2 = sprintf('%d',start_zone_end_indices(ith_index));
+    T3 = sprintf('%d',start_zone_min_indices(ith_index));
+    short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
+    short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
+    short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
+    fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
+end
+
+fprintf(1,'\n');
+fprintf(1,'Excursion Zone Indices:\n');
+fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
+for ith_index = 1:length(excursion_zone_start_indices)
+    T1 = sprintf('%d',excursion_zone_start_indices(ith_index));
+    T2 = sprintf('%d',excursion_zone_end_indices(ith_index));
+    T3 = sprintf('%d',excursion_zone_min_indices(ith_index));
+    short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
+    short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
+    short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
+    fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
+end
+
+fprintf(1,'\n');
+fprintf(1,'End Zone Indices:\n');
+fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
+for ith_index = 1:length(end_zone_start_indices)
+    T1 = sprintf('%d',end_zone_start_indices(ith_index));
+    T2 = sprintf('%d',end_zone_end_indices(ith_index));
+    T3 = sprintf('%d',end_zone_min_indices(ith_index));
+    short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
+    short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
+    short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
+    fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
+end
+
+%%  Loop through each start points, checking for next excursion and end point
+
+% Initialize our test laps as a N x 3 NaN matrix to store results
+test_laps = nan(length(start_zone_start_indices),3); 
+last_end = 0;
+Nlaps = 0;
+for ith_start = 1:length(start_zone_start_indices)
+    % Start point must be greater than or equal to last end point
+    if start_zone_start_indices(ith_start)>=last_end 
+        test_laps(ith_start,1) = start_zone_start_indices(ith_start);
+        % Excursion point must be greater than or equal to last start point 
+        next_excursionzone   = find(excursion_zone_start_indices>=test_laps(ith_start,1),1,'first');
+         if ~isempty(next_excursionzone)
+             test_laps(ith_start,2) = excursion_zone_end_indices(next_excursionzone);
+             % End point must be greater than or equal to last excursion point
+             next_endzone   = find(end_zone_start_indices>=test_laps(ith_start,2),1,'first');
+             if ~isempty(next_endzone)
+                 % Current lap ends at END of current endzone
+                 test_laps(ith_start,3) = end_zone_end_indices(next_endzone);
+                 % Start next search point at the START of the current
+                 % endzone
+                 last_end = end_zone_start_indices(next_endzone);
+             end
+         end
+    end
+    % Count the number of complete laps
+    if all(~isnan(test_laps(ith_start,:)))
+        Nlaps = Nlaps+1;
+    end
+end
+
+%% Summarize results to this point
+
+print_width = 20;
+fprintf(1,'\n');
+fprintf(1,'Summary of Test Lap results:\n');
+H1 = sprintf('%s','Start');
+H2 = sprintf('%s','Transition');
+H3 = sprintf('%s','End');
+short_H1 = fcn_DebugTools_debugPrintStringToNCharacters(H1,print_width);
+short_H2 = fcn_DebugTools_debugPrintStringToNCharacters(H2,print_width);
+short_H3 = fcn_DebugTools_debugPrintStringToNCharacters(H3,print_width);
+fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
+for ith_index = 1:length(test_laps(:,1))
+    T1 = sprintf('%d',test_laps(ith_index,1));
+    T2 = sprintf('%d',test_laps(ith_index,2));
+    T3 = sprintf('%d',test_laps(ith_index,3));
+    short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
+    short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
+    short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
+    fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
+end
+fprintf(1,'Number of comlete laps: %d\n',Nlaps);
+
+%% Save everything in a laps array
+if Nlaps>0
+    laps_array = zeros(Nlaps,3);
+    current_lap = 1;
+    for ith_test_lap = 1:length(test_laps(:,1))
+        % Count the number of complete laps
+        if all(~isnan(test_laps(ith_test_lap,:)))
+            laps_array(current_lap,:) = test_laps(ith_test_lap,:);
+            current_lap = current_lap + 1;
+        end
+    end
+end
+
+%% Summarize results to this point
+
+print_width = 20;
+fprintf(1,'\n');
+fprintf(1,'Summary of Final Lap results:\n');
+H1 = sprintf('%s','Start');
+H2 = sprintf('%s','Transition');
+H3 = sprintf('%s','End');
+short_H1 = fcn_DebugTools_debugPrintStringToNCharacters(H1,print_width);
+short_H2 = fcn_DebugTools_debugPrintStringToNCharacters(H2,print_width);
+short_H3 = fcn_DebugTools_debugPrintStringToNCharacters(H3,print_width);
+fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
+for ith_index = 1:length(laps_array(:,1))
+    T1 = sprintf('%d',laps_array(ith_index,1));
+    T2 = sprintf('%d',laps_array(ith_index,2));
+    T3 = sprintf('%d',laps_array(ith_index,3));
+    short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
+    short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
+    short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
+    fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
+end
+fprintf(1,'Number of comlete laps: %d\n',Nlaps);
+
+
+%%
+% UNUSED HORRIBLE WAY TO DO THIS
+% 
+% 
+% 
+% length_of_path = length(path_flag_array);
+% 
+% if flag_keep_going
+%        
+%     ith_index = 0; % Initialize index to be zero - the first value is checked next
+%     
+%     % Until we get to the end of the path, keep searching for laps
+%     while ith_index<length_of_path
+%         % Move the index forward
+%         ith_index = ith_index+1;
+%         
+%         % Find the next start index. Note, the "lap" is just the row value
+%         next_startzone_lap   = find(start_zone_start_indices>=ith_index,1,'first');
+%         
+%         % Was a start zone found?
+%         if ~isempty(next_startzone_lap)
+%             % Find where we enter and leave the start zone
+%             startzone_start_index = start_zone_start_indices(next_startzone_lap);
+%             startzone_lap_start_index = max(start_zone_min_indices(next_startzone_lap)-1,1); % Use the index before the minimum as the start of the lap, and make sure it is not less than 1
+%             startzone_end_index = start_zone_end_indices(next_startzone_lap);
+%             
+%             % Find the excursion point and zone?
+%             if flag_use_excursion_definition
+%                 
+%                 % Find next excursion
+%                 next_excursionzone_lap   = find(excursion_zone_start_indices>=startzone_end_index,1,'first');                
+%                 
+%                 % Was an excursion zone found?
+%                 if ~isempty(next_excursionzone_lap)
+%                     % Find where we start and leave excursion zone
+%                     excursionzone_start_index = excursion_zone_start_indices(next_excursionzone_lap);
+%                     excursionzone_end_index = excursion_zone_end_indices(next_excursionzone_lap);
+%                 else
+%                     % No more laps to find since no more end indices - exit the loop
+%                     break;
+%                 end
+%             else % Excursionzone indices are not being used
+%                 excursionzone_end_index = startzone_end_index;
+%             end % Ends flag to check excursion zone            
+%             
+%             % Find the next end index
+%             next_endzone_lap   = find(end_zone_start_indices>=excursionzone_end_index,1,'first');   
+% 
+%             % Was an end zone found?
+%             if ~isempty(next_end_index)
+%                 % Find where we enter and leave the end zone                
+%                 endzone_start_index = end_zone_start_indices(next_endzone_lap);
+%                 endzone_lap_end_index = min(end_zone_min_indices(next_endzone_lap)+1,length_of_path); % Use the index after the minimum as the end of the lap, and make sure it is not greater than length_of_path
+%                 endzone_end_index = end_zone_end_indices(next_endzone_lap);
+% 
+%                 % If we get here, a complete lap was found!                 
+%                 num_laps = num_laps+1; % Increment laps                                               
+%                 lap_indices(num_laps).start = startzone_lap_start_index; %#ok<AGROW>
+%                 lap_indices(num_laps).end = endzone_lap_end_index; %#ok<AGROW>
+%                 
+%                 % Reset the loop to start of current end zone, just in case
+%                 % next start point is INSIDE the current end zone. 
+%                 ith_index = end_zone_start_indices;
+%             else
+%                 % No more laps to find since no more end indices - exit the loop
+%                 break;
+%             end
+% 
+%         else
+%             % No more laps to find since no more start indices - exit the loop
+%             break;
+%         end % Ends check if next start index is empty or not
+%     end % Ends for loop
+% end % Ends check to see if keep going
 
 %% Step 4
 % save results out to arrays.
-start_path = path_original(first_fragment_indicies.start:first_fragment_indicies.end,:);
-end_path = path_original(last_fragment_indicies.start:last_fragment_indicies.end,:);
+
+if flag_keep_going    
+    
+    % Fill in the laps
+    lap_traversals = [];
+    for ith_lap = 1:num_laps
+        lap_path = path_original(lap_indices(ith_lap).start:lap_indices(ith_lap).end,:);
+        lap_traversals.traversal{ith_lap} = fcn_Path_convertPathToTraversalStructure(lap_path);
+    end
+    
+    URHERE
+    % Update the fragments
+    % Initialize the start and end fragments to be entire path
+    first_fragment_indicies.start = 1;
+    last_fragment_indicies.start = 1;
+    first_fragment_indicies.end = length(path_flag_array);
+    last_fragment_indicies.end = length(path_flag_array);
+    
+    
+    if 0==num_laps
+        first_fragment_indicies.end = startzone_start_index-1;
+    end
+    if isequal(endzone_lap_end_index,length_of_path)
+        last_fragment_indices.start = [];
+        last_fragment_indices.end = [];
+    else
+        last_fragment_indicies.start = endzone_lap_end_index+1;
+    end
+    
+    start_path = path_original(first_fragment_indicies.start:first_fragment_indicies.end,:);
+    end_path = path_original(last_fragment_indicies.start:last_fragment_indicies.end,:);
+    
+    
+    entry_traversal = fcn_Path_convertPathToTraversalStructure(start_path);
+    if length(end_path(:,1))>1
+        exit_traversal = fcn_Path_convertPathToTraversalStructure(end_path);
+    end
+    
+    
+end % Ends check to see if keep going
 
 
-entry_traversal = fcn_Path_convertPathToTraversalStructure(start_path);
-if length(end_path(:,1))>1
-    exit_traversal = fcn_Path_convertPathToTraversalStructure(end_path);
-end
-
-lap_traversals = [];
-for ith_lap = 1:num_laps
-    lap_path = path_original(lap_indices(ith_lap).start:lap_indices(ith_lap).end,:);
-    lap_traversals.traversal{ith_lap} = fcn_Path_convertPathToTraversalStructure(lap_path);
-end
 
 
 %% Plot the results (for debugging)?
@@ -542,139 +774,139 @@ end % Ends main function
 % See: https://patorjk.com/software/taag/#p=display&f=Big&t=Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%§
 
-% Define lap zone and indices, used for point searches
-function [zone_start_indices, zone_end_indices, zone_min_indices] = INTERNAL_fcn_Laps_findZoneStartStopAndMinimum(...
-    path_original,...
-    zone_definition,...
-    minimum_width)
-% A zone is the location meeting the distance criteria, and where the path
-% has at least minimum_width points inside the given area. 
-
-% Set default values
-
-zone_min_indices = [];
-zone_start_indices = [];
-zone_end_indices = [];
-
-% Among these points, find the minimum distance index. The minimum cannot
-% be the first or last point.
-distances_to_zone = sum((path_original - zone_definition(1,1:2)).^2,2).^0.5;
-in_zone = distances_to_zone<zone_definition(1,3);
-
-% For debugging:
-fprintf('Index\tIn_zone\n');
-for ith_index = 1:length(in_zone)
-    fprintf(1,'%d\t %d\n',ith_index, in_zone(ith_index));
-end
-
-
-% Take the diff of the in_zone indices to find transitions in and out of
-% zones. 
-transitions_into_zone = find(diff([0; in_zone])>0);
-transitions_outof_zone = find(diff([in_zone;0])<0);
-
-% Check each of the zones to see if they are empty, and if not, whether
-% they are of correct length
-num_zones = length(transitions_into_zone);
-
-% Are zones empty?
-if num_zones ==0
-    zone_start_stop_indices = [];
-else % Are they the correct length?
-    if length(transitions_into_zone)~=length(transitions_outof_zone)
-        error('Unexpected mismatch in zone sizes!');
-    else
-        zone_widths = transitions_outof_zone - transitions_into_zone + 1;
-        good_zones = find(zone_widths>=minimum_width);
-                
-        % For each good zone, fill in start and stop indices
-        num_good_zones = length(good_zones);
-        zone_start_stop_indices = zeros(num_good_zones,2);
-        for ith_zone = 1:num_good_zones
-            good_index = good_zones(ith_zone);
-            zone_start_stop_indices(ith_zone,:) = [...
-                transitions_into_zone(good_index,1) transitions_outof_zone(good_index,1)];            
-        end
-    end % Ends if check that the zone starts and ends match
-end % Ends if check to see if zones are empty
-
-% For debugging:
-fprintf('Istart \tIend\n');
-for ith_index = 1:num_good_zones
-    fprintf(1,'%d\t %d\n',zone_start_stop_indices(ith_index,1), zone_start_stop_indices(ith_index,2));
-end
-
-% Find the minimum in the zones
-zone_min_indices = zeros(num_good_zones,1);
-for ith_zone = 1:num_good_zones
-    distances_inside = distances_to_zone(zone_start_stop_indices(ith_zone,1):zone_start_stop_indices(ith_zone,2));
-    [~,min_index] = min(distances_inside);
-
-    % Check that it isn't on border
-    if min_index==1 || min_index==length(distances_inside)
-        % Not big enough, so set this entire zone to zero
-        in_zone(start_subzone:end_subzone) = 0;
-    else
-        % Keep this minimum - be sure to shift it to correct indexing
-        zone_min_indices(ith_zone,1) = min_index+(zone_start_stop_indices(ith_zone,1)-1); 
-    end
-end
-
+% % Define lap zone and indices, used for point searches
+% function [zone_start_indices, zone_end_indices, zone_min_indices] = INTERNAL_fcn_Laps_findZoneStartStopAndMinimum(...
+%     path_original,...
+%     zone_definition,...
+%     minimum_width)
+% % A zone is the location meeting the distance criteria, and where the path
+% % has at least minimum_width points inside the given area. 
+% 
+% % Set default values
+% 
+% zone_min_indices = [];
+% zone_start_indices = [];
+% zone_end_indices = [];
+% 
+% % Among these points, find the minimum distance index. The minimum cannot
+% % be the first or last point.
+% distances_to_zone = sum((path_original - zone_definition(1,1:2)).^2,2).^0.5;
+% in_zone = distances_to_zone<zone_definition(1,3);
+% 
+% % For debugging:
+% fprintf('Index\tIn_zone\n');
+% for ith_index = 1:length(in_zone)
+%     fprintf(1,'%d\t %d\n',ith_index, in_zone(ith_index));
+% end
 % 
 % 
+% % Take the diff of the in_zone indices to find transitions in and out of
+% % zones. 
+% transitions_into_zone = find(diff([0; in_zone])>0);
+% transitions_outof_zone = find(diff([in_zone;0])<0);
 % 
-% min_indices = [];
+% % Check each of the zones to see if they are empty, and if not, whether
+% % they are of correct length
+% num_zones = length(transitions_into_zone);
 % 
-% % Check each in_zone area
-% ith_index = 0; % Initialize result
-% Nindices = length(in_zone);
-% while (ith_index<Nindices)
-%     ith_index = ith_index+1;
-%     
-%     % Exit?
-%     if ith_index>Nindices
-%         % No more points to search
-%         break
-%     end
-%     
-%     % Find the start point - first location where zone becomes 1 after
-%     % present search point. Remember to shift indices based on current
-%     % shift point! This is why there is the (ith_index-1) term at start.
-%     start_subzone = (ith_index-1) + find(in_zone(ith_index:end,1)==1,1,'first');
-% 
-%     % Check if the start point was found?
-%     if ~isempty(start_subzone) % Yes
-%         % Find end point
-%         end_subzone = (start_subzone-2) + find(in_zone(start_subzone:end,1)~=1,1,'first');
-%         
-%         % Is the end point zone empty? If so, it must have gone all way to
-%         % the end of the data.
-%         if isempty(end_subzone)
-%             % Never exit the subzone at the end
-%             end_subzone = Nindices;
-%         end
-%         % Find the minimum inside
-%         distances_inside = distances_to_zone(start_subzone:end_subzone);
-%         [~,min_index] = min(distances_inside);
-%         
-%         % Check that it isn't on border
-%         if min_index==1 || min_index==length(distances_inside)
-%             % Not big enough, so set this entire zone to zero
-%             in_zone(start_subzone:end_subzone) = 0;
-%         else
-%             % Keep this minimum
-%             min_indices = min_index+(start_subzone-1);
-%         end
-%         % Set the next search poing
-%         ith_index = end_subzone;
+% % Are zones empty?
+% if num_zones ==0
+%     zone_start_stop_indices = [];
+% else % Are they the correct length?
+%     if length(transitions_into_zone)~=length(transitions_outof_zone)
+%         error('Unexpected mismatch in zone sizes!');
 %     else
-%         % No more start points
-%         ith_index = Nindices;
+%         zone_widths = transitions_outof_zone - transitions_into_zone + 1;
+%         good_zones = find(zone_widths>=minimum_width);
+%                 
+%         % For each good zone, fill in start and stop indices
+%         num_good_zones = length(good_zones);
+%         zone_start_stop_indices = zeros(num_good_zones,2);
+%         for ith_zone = 1:num_good_zones
+%             good_index = good_zones(ith_zone);
+%             zone_start_stop_indices(ith_zone,:) = [...
+%                 transitions_into_zone(good_index,1) transitions_outof_zone(good_index,1)];            
+%         end
+%     end % Ends if check that the zone starts and ends match
+% end % Ends if check to see if zones are empty
+% 
+% % For debugging:
+% fprintf('Istart \tIend\n');
+% for ith_index = 1:num_good_zones
+%     fprintf(1,'%d\t %d\n',zone_start_stop_indices(ith_index,1), zone_start_stop_indices(ith_index,2));
+% end
+% 
+% % Find the minimum in the zones
+% zone_min_indices = zeros(num_good_zones,1);
+% for ith_zone = 1:num_good_zones
+%     distances_inside = distances_to_zone(zone_start_stop_indices(ith_zone,1):zone_start_stop_indices(ith_zone,2));
+%     [~,min_index] = min(distances_inside);
+% 
+%     % Check that it isn't on border
+%     if min_index==1 || min_index==length(distances_inside)
+%         % Not big enough, so set this entire zone to zero
+%         in_zone(start_subzone:end_subzone) = 0;
+%     else
+%         % Keep this minimum - be sure to shift it to correct indexing
+%         zone_min_indices(ith_zone,1) = min_index+(zone_start_stop_indices(ith_zone,1)-1); 
 %     end
 % end
-
-
-end % ends INTERNAL_fcn_Laps_findZone
+% 
+% % 
+% % 
+% % 
+% % min_indices = [];
+% % 
+% % % Check each in_zone area
+% % ith_index = 0; % Initialize result
+% % Nindices = length(in_zone);
+% % while (ith_index<Nindices)
+% %     ith_index = ith_index+1;
+% %     
+% %     % Exit?
+% %     if ith_index>Nindices
+% %         % No more points to search
+% %         break
+% %     end
+% %     
+% %     % Find the start point - first location where zone becomes 1 after
+% %     % present search point. Remember to shift indices based on current
+% %     % shift point! This is why there is the (ith_index-1) term at start.
+% %     start_subzone = (ith_index-1) + find(in_zone(ith_index:end,1)==1,1,'first');
+% % 
+% %     % Check if the start point was found?
+% %     if ~isempty(start_subzone) % Yes
+% %         % Find end point
+% %         end_subzone = (start_subzone-2) + find(in_zone(start_subzone:end,1)~=1,1,'first');
+% %         
+% %         % Is the end point zone empty? If so, it must have gone all way to
+% %         % the end of the data.
+% %         if isempty(end_subzone)
+% %             % Never exit the subzone at the end
+% %             end_subzone = Nindices;
+% %         end
+% %         % Find the minimum inside
+% %         distances_inside = distances_to_zone(start_subzone:end_subzone);
+% %         [~,min_index] = min(distances_inside);
+% %         
+% %         % Check that it isn't on border
+% %         if min_index==1 || min_index==length(distances_inside)
+% %             % Not big enough, so set this entire zone to zero
+% %             in_zone(start_subzone:end_subzone) = 0;
+% %         else
+% %             % Keep this minimum
+% %             min_indices = min_index+(start_subzone-1);
+% %         end
+% %         % Set the next search poing
+% %         ith_index = end_subzone;
+% %     else
+% %         % No more start points
+% %         ith_index = Nindices;
+% %     end
+% % end
+% 
+% 
+% end % ends INTERNAL_fcn_Laps_findZone
 
 % 
 % URHERE

@@ -17,6 +17,9 @@
 % thus one must be able to quickly break the code into individual data
 % groups with one grouping, or "lap", per traversal.
 
+%% Prep workspace
+clear all
+
 %% Dependencies and Setup of the Code
 % The code requires several other libraries to work, namely the following
 %%
@@ -130,11 +133,129 @@ segment_zone_definition = [0.8 0; 1.2 0];
 fcn_Laps_plotPointZoneDefinition(point_zone_definition,'g',fig_num);
 fcn_Laps_plotSegmentZoneDefinition(segment_zone_definition,'b',fig_num);
 
-%% Create sample paths? If so, use fcn_Path_fillPathViaUserInputs to fill
+%% Point zone evaluations
+% The function, fcn_Laps_findPointZoneStartStopAndMinimum, uses a point
+% zone evaluation to determine portions of a segment that are within a
+% point zone definition. For example, if the path does not cross into the
+% zone, nothing is returned:
+fig_num = 1;
 
-% Call the function to fill in an array of "path" type
+query_path = ...
+    [full_steps 0.4*ones_full_steps];
+
+zone_definition = [0 0 0.2]; % Located at [0,0] with radius 0.2
+[zone_start_indices, zone_end_indices, zone_min_indices] = ...
+    fcn_Laps_findPointZoneStartStopAndMinimum(...
+    query_path,...
+    zone_definition,...
+    [],...
+    fig_num);
+
+assert(isempty(zone_start_indices));
+assert(isempty(zone_end_indices));
+assert(isempty(zone_min_indices));
+
+%%
+% And, the default is that three points must be within the zone. So, if a
+% path only crosses one or two points, then nothing is returned.
+
+fig_num = 2;
+
+query_path = ...
+    [full_steps 0.2*ones_full_steps];
+
+zone_definition = [0 0 0.2]; % Located at [0,0] with radius 0.2
+[zone_start_indices, zone_end_indices, zone_min_indices] = ...
+    fcn_Laps_findPointZoneStartStopAndMinimum(...
+    query_path,...
+    zone_definition,...
+    [],...
+    fig_num);
+
+assert(isempty(zone_start_indices));
+assert(isempty(zone_end_indices));
+assert(isempty(zone_min_indices));
+
+
+% Show that 2 points still doesn't work
+query_path = ...
+    [full_steps 0.2*ones_full_steps];
+
+zone_definition = [0.05 0 0.23]; % Located at [0.05,0] with radius 0.23
+[zone_start_indices, zone_end_indices, zone_min_indices] = ...
+    fcn_Laps_findPointZoneStartStopAndMinimum(...
+    query_path,...
+    zone_definition,...
+    [],...
+    fig_num);
+
+assert(isempty(zone_start_indices));
+assert(isempty(zone_end_indices));
+assert(isempty(zone_min_indices));
+
+
+%%
+% But, if a path crosses the zone with at least three points, then the
+% indices of the start, end, and minimum of the path are returned.
+fig_num = 3;
+
+radius = 0.2;
+
+query_path = ...
+    [half_steps zero_half_steps];
+
+zone_definition = [-0.02 0 0.2]; % Located at [0.02,0] with radius 0.2
+[zone_start_indices, zone_end_indices, zone_min_indices] = ...
+    fcn_Laps_findPointZoneStartStopAndMinimum(...
+    query_path,...
+    zone_definition,...
+    [],...
+    fig_num);
+
+assert(isequal(zone_start_indices,9));
+assert(isequal(zone_end_indices,11));
+assert(isequal(zone_min_indices,11));
+
+%%
+% If there are multiple crossings of the zone, then indices of the
+% start/stop/minimum are returned for each crossing:
+full_steps = (-1:0.1:1)';
+zero_full_steps = 0*full_steps;
+ones_full_steps = ones(length(full_steps(:,1)),1);
+half_steps = (-1:0.1:0)';
+zero_half_steps = 0*half_steps;
+ones_half_steps = ones(length(half_steps(:,1)),1);
+
+minimum_number_of_indices_in_zone = 3;
+fig_num = 5;
+
+radius = 0.2;
+
+query_path = ...
+    [full_steps 0*ones_full_steps; -full_steps 0.1*ones_full_steps; full_steps 0.2*ones_full_steps ];
+
+zone_definition = [0.05 0 0.23]; % Located at [0.05,0] with radius 0.23
+[zone_start_indices, zone_end_indices, zone_min_indices] = ...
+    fcn_Laps_findPointZoneStartStopAndMinimum(...
+    query_path,...
+    zone_definition,...
+    minimum_number_of_indices_in_zone,...
+    fig_num);
+
+assert(isequal(zone_start_indices,[10; 30]));
+assert(isequal(zone_end_indices,  [13; 33]));
+assert(isequal(zone_min_indices,  [12; 31]));
+
+
+%% Create sample paths
+% To illustrate the functionality of this library, we call the library
+% function fillPathViaUserInputs which fills in an array of "path" types.
+
 laps_array = fcn_Laps_fillSampleLaps;
 
+%%
+% We then convert the paths into traversals, compatible with the Path
+% library, using the path library conversion function.
 clear data
 % Convert them all to "traversal" types
 for i_Path = 1:length(laps_array)
@@ -142,12 +263,14 @@ for i_Path = 1:length(laps_array)
     data.traversal{i_Path} = traversal;
 end
 
-% Plot the last one
+%%
+% To show an example of the data load, we can plot the last traversal
 fig_num = 1222;
 single_lap.traversal{1} = data.traversal{end};
 fcn_Laps_plotLapsXY(single_lap,fig_num);
 
-
+%% Definition of zones
+% 
 
 %% Revision History:
 %      2022_03_27:
@@ -158,3 +281,5 @@ fcn_Laps_plotLapsXY(single_lap,fig_num);
 %      -- Added minor edits
 %      2022_04_10
 %      -- Added comments, plotting utilities for zone definitions
+%      2022_05_21
+%      -- More cleanup
