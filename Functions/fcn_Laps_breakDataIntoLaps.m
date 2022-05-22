@@ -565,7 +565,7 @@ for ith_index = 1:length(laps_array(:,1))
     short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
     fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
 end
-fprintf(1,'Number of comlete laps: %d\n',Nlaps);
+fprintf(1,'Number of complete laps: %d\n',Nlaps);
 
 
 %%
@@ -646,44 +646,47 @@ fprintf(1,'Number of comlete laps: %d\n',Nlaps);
 %% Step 4
 % save results out to arrays.
 
-if flag_keep_going    
+if flag_keep_going && Nlaps>0 
     
     % Fill in the laps
     lap_traversals = [];
-    for ith_lap = 1:num_laps
-        lap_path = path_original(lap_indices(ith_lap).start:lap_indices(ith_lap).end,:);
+    for ith_lap = 1:Nlaps
+        lap_path = path_original(laps_array(ith_lap,1):laps_array(ith_lap,3),:);
         lap_traversals.traversal{ith_lap} = fcn_Path_convertPathToTraversalStructure(lap_path);
     end
     
-    URHERE
+    
     % Update the fragments
     % Initialize the start and end fragments to be entire path
-    first_fragment_indicies.start = 1;
-    last_fragment_indicies.start = 1;
-    first_fragment_indicies.end = length(path_flag_array);
-    last_fragment_indicies.end = length(path_flag_array);
+    % first_fragment_indicies.start = 1;
+    % last_fragment_indicies.start = 1;
+    % first_fragment_indicies.end = length(path_flag_array);
+    % last_fragment_indicies.end = length(path_flag_array);
     
     
-    if 0==num_laps
-        first_fragment_indicies.end = startzone_start_index-1;
-    end
-    if isequal(endzone_lap_end_index,length_of_path)
-        last_fragment_indices.start = [];
-        last_fragment_indices.end = [];
+    % if 0==num_laps
+    %     first_fragment_indicies.end = startzone_start_index-1;
+    % end
+    % if isequal(endzone_lap_end_index,length_of_path)
+    %     last_fragment_indices.start = [];
+    %     last_fragment_indices.end = [];
+    % else
+    %     last_fragment_indicies.start = endzone_lap_end_index+1;
+    % end
+    
+    start_path = path_original(1:laps_array(1,1),:);
+    end_path = path_original(laps_array(end,3):end,:);
+    
+    if length(start_path(:,1))>1    
+        entry_traversal = fcn_Path_convertPathToTraversalStructure(start_path);
     else
-        last_fragment_indicies.start = endzone_lap_end_index+1;
+        entry_traversal = [];
     end
-    
-    start_path = path_original(first_fragment_indicies.start:first_fragment_indicies.end,:);
-    end_path = path_original(last_fragment_indicies.start:last_fragment_indicies.end,:);
-    
-    
-    entry_traversal = fcn_Path_convertPathToTraversalStructure(start_path);
     if length(end_path(:,1))>1
         exit_traversal = fcn_Path_convertPathToTraversalStructure(end_path);
-    end
-    
-    
+    else
+        exit_traversal = [];
+    end   
 end % Ends check to see if keep going
 
 
@@ -705,10 +708,19 @@ if flag_do_plots
     % plot the final XY result
     figure(fig_num);
     clf;
+    
+    % Calculate the most square plot to make
+    % Number of columns is equal to most square result, which is rounding up of the square root
+    Ncols = ceil(sqrt(Nlaps+3));
+    Nrows = ceil((Nlaps+3)/Ncols);
+
+    % Input profile
+    subplot(Nrows,Ncols,1)
     hold on;
     grid on
     axis equal
-    
+    title('Input path');
+  
     % Plot the reference trajectory first
     data.traversal{1} = input_traversal;
     fcn_Laps_plotLapsXY(data,fig_num);
@@ -745,15 +757,38 @@ if flag_do_plots
         plot(x_circle,y_circle,'--','color',[0.7 0 0]);
                 
     end
-    
-    %
-    %     % Plot the random results
-    %     fcn_Path_plotTraversalsXY(random_traversals,fig_num);
-    %     title('Reference traversal and random traversals');
-    %     xlabel('X [m]');
-    %     ylabel('Y [m]');
-        
-    
+
+    % Entry traversal
+    subplot(Nrows,Ncols,2)
+    hold on;
+    grid on
+    axis equal
+    title('Entry traversal');
+    data.traversal{1} = entry_traversal;
+    fcn_Laps_plotLapsXY(data,fig_num);
+
+    % Laps
+    for ith_lap = 1:Nlaps
+        subplot(Nrows,Ncols,2+ith_lap)
+        hold on;
+        grid on
+        axis equal
+        title(sprintf('Lap %d',ith_lap));
+  
+        % Plot the reference trajectory first
+        data.traversal{1} = lap_traversals.traversal{ith_lap};
+        fcn_Laps_plotLapsXY(data,fig_num);
+    end
+
+    % Exit traversal
+    subplot(Nrows,Ncols,Nlaps+3)
+    hold on;
+    grid on
+    axis equal
+    title('Exit traversal');
+    data.traversal{1} = exit_traversal;
+    fcn_Laps_plotLapsXY(data,fig_num);
+
 end
 
 if flag_do_debug
