@@ -112,14 +112,22 @@ end
 NumTraversals = length(traversals.traversal);
 h = zeros(NumTraversals,1);
 for ith_lap= 1:NumTraversals
-    h(ith_lap) = plot(traversals.traversal{ith_lap}.X,traversals.traversal{ith_lap}.Y,'-o');
+    if ~isempty(traversals.traversal{ith_lap})
+        h(ith_lap) = plot(traversals.traversal{ith_lap}.X,traversals.traversal{ith_lap}.Y,'-o');
+    else
+        h(ith_lap) = plot(NaN,NaN,'-o');
+    end
 end
 
 % Plot the start and end values as green and red respectively
 for ith_lap= 1:NumTraversals
-    plot(...
-        traversals.traversal{ith_lap}.X(1,1),traversals.traversal{ith_lap}.Y(1,1),'go',...
-        traversals.traversal{ith_lap}.X(end,1),traversals.traversal{ith_lap}.Y(end,1),'ro');
+    if ~isempty(traversals.traversal{ith_lap})
+        plot(...
+            traversals.traversal{ith_lap}.X(1,1),traversals.traversal{ith_lap}.Y(1,1),'go',...
+            traversals.traversal{ith_lap}.X(end,1),traversals.traversal{ith_lap}.Y(end,1),'ro');
+    else
+        plot(NaN,NaN,'go',NaN,NaN,'ro');
+    end
 end
 
 % Shut the hold off?

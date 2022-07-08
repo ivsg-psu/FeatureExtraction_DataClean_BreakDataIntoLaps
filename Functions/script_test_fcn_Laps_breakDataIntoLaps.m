@@ -7,11 +7,12 @@
 %     2022_04_03
 %     -- added external call to zone calculation function
 
+%% Set up the workspace
 close all
 clc
-
 clear laps_array data single_lap
 
+%% Load some test data and plot it in figure 1 
 % Call the function to fill in an array of "path" type
 laps_array = fcn_Laps_fillSampleLaps;
 
@@ -25,50 +26,105 @@ for i_Path = 1:length(laps_array)
 end
 
 % Plot the last one
-fig_num = 1222;
-single_lap.traversal{1} = data.traversal{end};
-fcn_Laps_plotLapsXY(single_lap,fig_num);
+fig_num = 1;
+example_lap_data.traversal{1} = data.traversal{end};
+fcn_Laps_plotLapsXY(example_lap_data,fig_num);
 
-%% Call the function
+%% Call the function to show it operating, and plot in figure 2
 start_definition = [0 0 10]; % Located at [0,0] with radius 6
 end_definition = [0 -60 30]; % Located at [0,-60] with radius 30
 excursion_definition = []; % empty
-fig_num = 1;
+fig_num = 2;
 lap_traversals = fcn_Laps_breakDataIntoLaps(...
-    single_lap.traversal{1},...
+    example_lap_data.traversal{1},...
     start_definition,...
     end_definition,...
     excursion_definition,...
     fig_num);
 
-% lap_traversals = fcn_Laps_breakDataIntoLaps(single_lap.traversal{1},start_definition,end_definition,excursion_definition,fig_num);
+% Do we get 3 laps?
+assert(isequal(3,length(lap_traversals.traversal)));
+
+% Are the laps different lengths?
+assert(isequal(87,length(lap_traversals.traversal{1}.X)));
+assert(isequal(98,length(lap_traversals.traversal{2}.X)));
+assert(isequal(79,length(lap_traversals.traversal{3}.X)));
+
+% Plot the lap traversals (should have 3)
+fig_num = 3;
+fcn_Laps_plotLapsXY(lap_traversals,fig_num);
 
 
 %% Show how the output works if use full argument list
-[lap_traversals, input_and_exit_traversals] = fcn_Laps_breakDataIntoLaps(...
-    single_lap.traversal{1},...
+% This returns the input and exit traversals
+fig_num = 4;
+[lap_traversals, entry_traversal, exit_traversal] = ...
+    fcn_Laps_breakDataIntoLaps(...
+    example_lap_data.traversal{1},...
     start_definition,...
     end_definition,...
     excursion_definition,...
     fig_num);
 
-% [lap_traversals, input_and_exit_traversals] = fcn_Laps_breakDataIntoLaps(single_lap.traversal{1},start_definition,end_definition,excursion_definition,fig_num);
+% Do we get 3 laps?
+assert(isequal(3,length(lap_traversals.traversal)));
 
-%% Show how a lap is missed if start is not big enough
+% Are the laps different lengths?
+assert(isequal(87,length(lap_traversals.traversal{1}.X)));
+assert(isequal(98,length(lap_traversals.traversal{2}.X)));
+assert(isequal(79,length(lap_traversals.traversal{3}.X)));
+
+% Do we have an entry_traversal?
+assert(isequal(2,length(entry_traversal.X)));
+
+% Do we have an exit_traversal?
+assert(isequal(28,length(exit_traversal.X)));
+
+% Plot the results
+fig_num = 5;
+figure(fig_num);
+subplot(1,3,1);
+fcn_Laps_plotLapsXY(lap_traversals,fig_num);
+axis_limits = axis;
+title('All laps');
+
+subplot(1,3,2);
+single_lap.traversal{1} = entry_traversal;
+fcn_Laps_plotLapsXY(single_lap,fig_num);
+axis(axis_limits); % Inheret axis limits from main laps plot
+title('Entry segment');
+
+subplot(1,3,3);
+single_lap.traversal{1} = exit_traversal;
+fcn_Laps_plotLapsXY(single_lap,fig_num);
+axis(axis_limits); % Inheret axis limits from main laps plot
+title('Exit segment');
+
+%% Show how a lap is missed if start zone is not big enough
 start_definition = [0 0 6]; % Located at [0,0] with radius 6
 end_definition = [0 -60 30]; % Located at [0,-60] with radius 30
 excursion_definition = []; % empty
-fig_num = 1;
+fig_num = 6;
 lap_traversals = fcn_Laps_breakDataIntoLaps(...
-    single_lap.traversal{1},...
+    example_lap_data.traversal{1},...
     start_definition,...
     end_definition,...
     excursion_definition,...
     fig_num);
 
+% Do we get 2 laps?
+assert(isequal(2,length(lap_traversals.traversal)));
+
+% Are the laps different lengths?
+assert(isequal(86,length(lap_traversals.traversal{1}.X)));
+assert(isequal(78,length(lap_traversals.traversal{2}.X)));
+
+% Plot the lap traversals (should have 2)
+fig_num = 7;
+fcn_Laps_plotLapsXY(lap_traversals,fig_num);
 
 
-%% Check assertions
+%% Check assertions for basic path operations and function testing
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                              _   _                 
 %      /\                     | | (_)                
@@ -93,8 +149,7 @@ assert(isempty(lap_traversals));
 assert(isequal(entry_traversal,traversal));
 assert(isempty(exit_traversal));
 
-%% This one returns nothing since there is one portion of the path in the
-% criteria
+%% This one returns nothing since there is one point in criteria
 traversal = fcn_Path_convertPathToTraversalStructure([-1 1; 0 0; 1 1]);
 start_definition = [0 0 0.2]; % Located at [0,0] with radius 0.2
 [lap_traversals, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLaps(...
@@ -105,8 +160,7 @@ assert(isempty(lap_traversals));
 assert(isequal(entry_traversal,traversal));
 assert(isempty(exit_traversal));
 
-%% This one returns nothing since there is only two points the path in the
-% criteria
+%% This one returns nothing since there is only two points in criteria
 traversal = fcn_Path_convertPathToTraversalStructure([-1 1; 0 0; 0.1 0; 1 1]);
 start_definition = [0 0 0.2]; % Located at [0,0] with radius 0.2
 [lap_traversals, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLaps(...
@@ -141,7 +195,8 @@ assert(isempty(lap_traversals));
 assert(isequal(entry_traversal,traversal));
 assert(isempty(exit_traversal));
 
-%% This one returns nothing since there is no end
+%% This one returns nothing since the path doesn't come back to start
+% There is no end after the start
 fig_num = 123;
 traversal = fcn_Path_convertPathToTraversalStructure([-1 1; -0.03 0; -0.02 0; 0 0; 0.1 0; 1 1]);
 start_definition = [0 0 0.2]; % Located at [0,0] with radius 0.2
@@ -189,13 +244,13 @@ end_definition = [0.5 0 0.5];
 [lap_traversals, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLaps(...
     traversal,...
     start_definition,...
-    [],...
+    end_definition,...
     [],...
     fig_num);
 
-assert(isempty(lap_traversals));
-assert(isequal(entry_traversal,traversal));
-assert(isempty(exit_traversal));
+% Do we get 1 laps?
+assert(isequal(1,length(lap_traversals.traversal)));
+
 
 %% Show that the start and end points can be at the absolute ends
 fig_num = 1234;
@@ -207,13 +262,12 @@ end_definition = [1 0 0.5];
 [lap_traversals, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLaps(...
     traversal,...
     start_definition,...
-    [],...
+    end_definition,...
     [],...
     fig_num);
 
-assert(isempty(lap_traversals));
-assert(isequal(entry_traversal,traversal));
-assert(isempty(exit_traversal));
+% Do we get 1 laps?
+assert(isequal(1,length(lap_traversals.traversal)));
 
 
 %% Fail conditions

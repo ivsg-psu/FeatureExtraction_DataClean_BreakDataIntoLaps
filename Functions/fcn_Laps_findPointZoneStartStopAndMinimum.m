@@ -146,8 +146,10 @@ end
 % Does user want to show the plots?
 if 4 == nargin
     fig_num = varargin{end};
-    figure(fig_num);
-    flag_do_plots = 1;
+    if ~isempty(fig_num)
+        figure(fig_num);
+        flag_do_plots = 1;
+    end
 else
     if flag_do_debug
         fig = figure;

@@ -18,7 +18,7 @@
 % groups with one grouping, or "lap", per traversal.
 
 %% Prep workspace
-clear all
+clc
 
 %% Dependencies and Setup of the Code
 % The code requires several other libraries to work, namely the following
@@ -95,11 +95,11 @@ end
 % To illustrate both definitions, we first create some data to plot:
 
 full_steps = (-1:0.1:1)';
-zero_full_steps = 0*full_steps;
+zero_full_steps = 0*full_steps; %#ok<NASGU>
 ones_full_steps = ones(length(full_steps(:,1)),1);
 half_steps = (-1:0.1:0)';
 zero_half_steps = 0*half_steps;
-ones_half_steps = ones(length(half_steps(:,1)),1);
+ones_half_steps = ones(length(half_steps(:,1)),1); %#ok<PREALL>
 path_examples{1} = [-1*ones_full_steps full_steps];
 path_examples{2} = [1*ones_full_steps full_steps];
 
@@ -204,7 +204,7 @@ radius = 0.2;
 query_path = ...
     [half_steps zero_half_steps];
 
-zone_definition = [-0.02 0 0.2]; % Located at [0.02,0] with radius 0.2
+zone_definition = [-0.02 0 radius]; % Located at [0.02,0] with radius 0.2
 [zone_start_indices, zone_end_indices, zone_min_indices] = ...
     fcn_Laps_findPointZoneStartStopAndMinimum(...
     query_path,...
@@ -250,24 +250,44 @@ assert(isequal(zone_min_indices,  [12; 31]));
 %% Create sample paths
 % To illustrate the functionality of this library, we call the library
 % function fillPathViaUserInputs which fills in an array of "path" types.
+% Load some test data and plot it in figure 1 
 
+% Call the function to fill in an array of "path" type
 laps_array = fcn_Laps_fillSampleLaps;
 
-%%
-% We then convert the paths into traversals, compatible with the Path
-% library, using the path library conversion function.
-clear data
-% Convert them all to "traversal" types
+
+% Use Path library functions to onvert paths to traversals structures. Each
+% traversal instance is a "traversal" type, and the array called "data"
+% below is a "traversals" type.
 for i_Path = 1:length(laps_array)
     traversal = fcn_Path_convertPathToTraversalStructure(laps_array{i_Path});
     data.traversal{i_Path} = traversal;
 end
 
-%%
-% To show an example of the data load, we can plot the last traversal
-fig_num = 1222;
+% Plot the last one
+fig_num = 1;
 single_lap.traversal{1} = data.traversal{end};
 fcn_Laps_plotLapsXY(single_lap,fig_num);
+
+%% Call the fcn_Laps_breakDataIntoLaps function, plot in figure 2
+start_definition = [0 0 10]; % Located at [0,0] with radius 6
+end_definition = [0 -60 30]; % Located at [0,-60] with radius 30
+excursion_definition = []; % empty
+fig_num = 2;
+lap_traversals = fcn_Laps_breakDataIntoLaps(...
+    single_lap.traversal{1},...
+    start_definition,...
+    end_definition,...
+    excursion_definition,...
+    fig_num);
+
+% Do we get 3 laps?
+assert(isequal(3,length(lap_traversals.traversal)));
+
+% Are the laps different lengths?
+assert(isequal(87,length(lap_traversals.traversal{1}.X)));
+assert(isequal(98,length(lap_traversals.traversal{2}.X)));
+assert(isequal(79,length(lap_traversals.traversal{3}.X)));
 
 %% Definition of zones
 % 
