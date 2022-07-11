@@ -198,20 +198,12 @@ if flag_check_inputs
     fcn_DebugTools_checkInputsToFunctions(input_traversal, 'traversal');
     
     % Check the start definition required input
-    try
-        fcn_DebugTools_checkInputsToFunctions(start_definition, '3column_of_numbers',[1 1]);
-    catch
-        try
-            fcn_DebugTools_checkInputsToFunctions(start_definition, '2column_of_numbers',[2 2]);
-        catch
-            error('The start_definition input must be either a 3x1 variable, in the case of a point, or a 2x2 variable, in the case of a line segment.');
-        end
-    end
-    
+    fcn_DebugTools_checkInputsToFunctions(start_definition, '4or5column_of_numbers',[1 1]);
+        
 end
 
 % Set the start values
-if isequal(size(start_definition),[1 3])
+if isequal(size(start_definition),[1 4]) || isequal(size(start_definition),[1 5])
     flag_start_is_a_point_type = 1;
 elseif isequal(size(start_definition),[2 2])
     flag_start_is_a_point_type = 0;
@@ -230,10 +222,13 @@ if 3 <= nargin
     temp = varargin{1};
     if ~isempty(temp)
         end_definition = temp;
+        % Check the end_definition required input
         try
-            fcn_DebugTools_checkInputsToFunctions(end_definition, '3column_of_numbers',[1 1]);
-            flag_end_is_a_point_type = 1; %#ok<*NASGU>
+            fcn_DebugTools_checkInputsToFunctions(end_definition, '4or5column_of_numbers',[1 1]);
+            flag_end_is_a_point_type = 1; 
         catch
+            % URHERE - need to fix this later to allow for segment
+            % definitions
             try
                 fcn_DebugTools_checkInputsToFunctions(end_definition, '2column_of_numbers',[2 2]);
                 flag_end_is_a_point_type = 0;
@@ -351,11 +346,16 @@ if flag_start_is_a_point_type==1
     % find the minimum distance index. The start point is the index
     % immediately prior to the minimum.
     
+    zone_center = start_definition(1,3:end);
+    zone_radius = start_definition(1,1);
+    zone_num_points = start_definition(1,2);
+    
     [start_zone_start_indices, start_zone_end_indices, start_zone_min_indices] = ...
         fcn_Laps_findPointZoneStartStopAndMinimum(...
         path_original,...
-        start_definition,...
-        minimum_number_of_indices_in_zone,...
+        zone_center,...
+        zone_radius,...
+        zone_num_points,...
         fig_debug_start_zone);
     
     start_indices = start_zone_min_indices + 1;
@@ -382,12 +382,16 @@ if flag_keep_going
             %                 path_original,...
             %                 excursion_definition,...
             %                 minimum_width);
+            zone_center = excursion_definition(1,3:end);
+            zone_radius = excursion_definition(1,1);
+            zone_num_points = excursion_definition(1,2);
             
             [excursion_zone_start_indices, excursion_zone_end_indices, excursion_zone_min_indices] = ...
                 fcn_Laps_findPointZoneStartStopAndMinimum(...
                 path_original,...
-                excursion_definition,...
-                minimum_number_of_indices_in_zone,...
+                zone_center,...
+                zone_radius,...
+                zone_num_points,...
                 fig_debug_excursion_zone);
             
             if ~isempty(excursion_zone_start_indices) % No minimum detected, so no laps exist
@@ -421,11 +425,16 @@ if flag_keep_going
         %             end_definition,...
         %             minimum_width);
         
+        zone_center = end_definition(1,3:end);
+        zone_radius = end_definition(1,1);
+        zone_num_points = end_definition(1,2);
+        
         [end_zone_start_indices, end_zone_end_indices, end_zone_min_indices] = ...
             fcn_Laps_findPointZoneStartStopAndMinimum(...
             path_original,...
-            end_definition,...
-            minimum_number_of_indices_in_zone,...
+            zone_center,...
+            zone_radius,...
+            zone_num_points,...
             fig_debug_end_zone);
         
         if ~isempty(end_zone_start_indices) % No minimum detected, so no laps exist

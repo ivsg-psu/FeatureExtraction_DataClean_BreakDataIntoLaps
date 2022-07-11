@@ -280,8 +280,8 @@ single_lap.traversal{1} = data.traversal{end};
 fcn_Laps_plotLapsXY(single_lap,fig_num);
 
 %% Call the fcn_Laps_breakDataIntoLaps function, plot in figure 2
-start_definition = [0 0 10]; % Located at [0,0] with radius 6
-end_definition = [0 -60 30]; % Located at [0,-60] with radius 30
+start_definition = [10 3 0 0]; % Radius 10, 3 points must pass near [0 0]
+end_definition = [30 3 0 -60]; % Radius 30, 3 points must pass near [0,-60]
 excursion_definition = []; % empty
 fig_num = 2;
 lap_traversals = fcn_Laps_breakDataIntoLaps(...
