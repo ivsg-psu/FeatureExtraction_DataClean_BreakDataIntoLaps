@@ -1,37 +1,58 @@
 function [zone_start_indices, zone_end_indices, zone_min_indices] = ...
     fcn_Laps_findPointZoneStartStopAndMinimum(...
     query_path,...
-    zone_definition,...
+    zone_center,...
+    zone_radius,...    
     varargin)
 
 % fcn_Laps_findPointZoneStartStopAndMinimum
-% Given a path and a point zone definition, finds the indices where the
-% zone starts, where it ends, and the minimum index for the zone
-% definition.  A zone is the region meeting a user-defined distance
-% criteria, and a point zone is when the criteria are specified by a point
-% and radius.
+% Given a path and a point zone definition defined by a point center and
+% radius, finds the indices in the path for each crossing of the zone,
+% noting where in the path the zone starts, where it ends, and the minimum
+% index for the zone definition.  A zone is the region meeting a
+% user-defined distance criteria wherein the path enters the zone
+% sufficiently to consider that the path has crossed through the zone.
 %
-% For point zones, the zone definition is given in the form:
-%       zone_definition = [X Y radius] 
-% wherein X and Y specify the XY coordinates for the point, and radius
-% specifies the radius from the point that the path must pass for the
-% condition to be met. The minimum distance from the portion of the
-% path within the radius to the XY point is considered the
-% corresponding best condition. 
+% A point zone is defined by the center of the zone specified as a point,
+% typically [X Y] wherein X and Y specify the XY coordinates for the point,
+% and a zone radius specifies the radius from the point that the path must
+% pass for the condition to be met. A zone condition is met if the path
+% crosses within the zone with enough points STRICTLY within the zone (e.g.
+% not on the boundary, but within). The default number of points is 3; this
+% can be changed per the options below.
 % 
 % For each time a path goes through the zone definition, the start, end,
-% and minimum-distance indices are determined and are returned by this
-% function. 
+% and minimum-distance indices of the path are determined and are returned
+% by this function. These are defined as follows:
+%    * The start of the zone is the index of the first point strictly
+%    within the zone.
+%    * The end of the zone is the index of the last point strictly still
+%    within the zone immediately after the previous start
+%    * The minimum-distance is the index that, of the part of the path
+%    within the zone after the most previous start, is the minimum distance
+%    to the center point of the zone.
 % 
-% An optional input forces the zone to have at least minimum_width points
-% inside the given area.
+% As an option, the user can specify the num_points for a zone definition.
+% The variable num_points forces the path to have at least num_points
+% points inside the given area for the zone condition to be met. The
+% default is 3. The purpose of this input is to prevent situations
+% where noisy data, from GPS jumps for example, to cause a path to
+% suddenly jump into and then out of a zone definition, accidentally
+% registering as a zone entry. By requriing a minimum number of points, the
+% accidentally triggering of a zone by random noise can be avoided.
+%
+% If a path crosses through a zone repeatedly, the start/end/minimum is
+% recorded for each path through the zone as another row. Thus, if a path
+% crosses through the zone M times (and each time meets the criteria), the
+% start, end, and minimum indices will be an M x 1 column.
 %
 % FORMAT:
 %
 %      [zone_start_indices, zone_end_indices, zone_min_indices] = ...
 %      fcn_Laps_findPointZoneStartStopAndMinimum(...
 %      query_path,...
-%      zone_definition,...
+%      zone_center,...
+%      zone_radius,...  
 %      (minimum_number_of_indices_in_zone),...
 %      (fig_num))
 %
@@ -39,22 +60,21 @@ function [zone_start_indices, zone_end_indices, zone_min_indices] = ...
 %
 %      query_path: the path, in format [X Y] where the matrix is [N by 2].
 %      The path definition here is consistent with the Paths library of
-%      functions.
+%      functions. Note: the function does not yet support 3D paths but can
+%      easily be modified for this.
 %
-%      zone_definition: the condition, defined as a point/radius defining
-%      the zone. The format is zone_definition = [X Y radius], and is
-%      expected to be a [1 x 3] matrix.
+%      zone_center: the condition, defined as a point/radius defining
+%      the zone. The format is zone_center = [X Y] or [X Y Z], and is
+%      expected to be a [1 x 2] or a [1 x 3] matrix, 
+%
+%      zone_radius: a scalar specifying the radius of the zone. 
 % 
 %      (OPTIONAL INPUTS)
 %
-%      minimum_number_of_indices_in_zone: the miniimum required points of
-%      the path that must meet the zone definition criteria in order for
-%      that area to be considered a zone. The default is 3. The purpose of
-%      this input is to prevent situations where noisy data, from GPS jumps
-%      for example, causes a position to suddenly jump into and then out of
-%      a zone definition. By requriing a minimum number of points, this
-%      noise effect can be avoided.
-% 
+%      minimum_number_of_indices_in_zone: the number of points in a path
+%      that must consecutively be within a zone, for the zone condition to
+%      be met.
+%
 %      fig_num: a figure number to plot results.
 %
 % OUTPUTS:
@@ -90,6 +110,10 @@ function [zone_start_indices, zone_end_indices, zone_min_indices] = ...
 %     
 %     2022_04_08: 
 %     -- wrote the code originally 
+%     2022_07_10: 
+%     -- improved the comments
+%     -- changed zone definition to allow num_points in the zone
+%     definition, separating out radius, and allowing 3-D paths
 
 % TO DO
 % 
@@ -119,32 +143,35 @@ end
 
 if flag_check_inputs
     % Are there the right number of inputs?
-    if nargin < 2 || nargin > 4
+    if nargin < 3 || nargin > 5
         error('Incorrect number of input arguments')
     end
         
-    % Check the query_path input
-    fcn_DebugTools_checkInputsToFunctions(query_path, 'path');
+    % Check the query_path input, 2 or 3 columns, 1 or more rows
+    fcn_DebugTools_checkInputsToFunctions(query_path, '2or3column_of_numbers',[1 2]);
     
-    % Check the zone_definition input
-    fcn_DebugTools_checkInputsToFunctions(zone_definition, '3column_of_numbers',[1 1]);
+    % Check the zone_center input, 2 or 3 columns, 1 row
+    fcn_DebugTools_checkInputsToFunctions(zone_center, '2or3column_of_numbers',[1 1]);
+    
+    % Check the zone_radius input, 1 column, 1 row
+    fcn_DebugTools_checkInputsToFunctions(zone_radius, 'positive_1column_of_numbers',[1 1]);
 
 end
         
 % Check for variable argument inputs (varargin)
 minimum_number_of_indices_in_zone = 3; % Set default value
-if 3 <= nargin
+if 4 <= nargin
     temp = varargin{1};
     if ~isempty(temp)
         minimum_number_of_indices_in_zone = temp;
         if flag_check_inputs
-            fcn_DebugTools_checkInputsToFunctions(minimum_number_of_indices_in_zone, '1column_of_numbers',[1 1]);
+            fcn_DebugTools_checkInputsToFunctions(minimum_number_of_indices_in_zone, 'positive_1column_of_integers',1);
         end
     end
 end
 
 % Does user want to show the plots?
-if 4 == nargin
+if 5 == nargin
     fig_num = varargin{end};
     if ~isempty(fig_num)
         figure(fig_num);
@@ -176,13 +203,15 @@ zone_end_indices = [];
 
 % Among these points, find the minimum distance index. The minimum cannot
 % be the first or last point.
-distances_to_zone = sum((query_path - zone_definition(1,1:2)).^2,2).^0.5;
-in_zone = distances_to_zone<zone_definition(1,3);
+distances_to_zone = sum((query_path - zone_center(1,1:2)).^2,2).^0.5;
+in_zone = distances_to_zone<zone_radius;
 
 % For debugging:
-fprintf('\nIndex\tIn_zone\n');
-for ith_index = 1:length(in_zone)
-    fprintf(1,' %d\t\t %d\n',ith_index, in_zone(ith_index));
+if flag_do_debug
+    fprintf('\nIndex\tIn_zone\n');
+    for ith_index = 1:length(in_zone)
+        fprintf(1,' %d\t\t %d\n',ith_index, in_zone(ith_index));
+    end
 end
 
 
@@ -208,8 +237,8 @@ if num_zones ~= 0  % empty
                 
         % For each good zone, fill in start and stop indices
         num_good_zones = length(good_zones);
-        zone_start_indices = zeros(num_good_zones,1);
-        zone_end_indices   = zeros(num_good_zones,1);
+        zone_start_indices = zeros(num_good_zones,1); % Set defaults
+        zone_end_indices   = zeros(num_good_zones,1); % Set defaults
         for ith_zone = 1:num_good_zones
             good_index = good_zones(ith_zone);
             zone_start_indices(ith_zone,:) = transitions_into_zone(good_index,1); 
@@ -220,26 +249,19 @@ if num_zones ~= 0  % empty
     if num_good_zones~=0
        
         % Find the minimum in the zones
-        zone_min_indices = zeros(num_good_zones,1);
+        zone_min_indices = zeros(num_good_zones,1); % Set defaults
         for ith_zone = 1:num_good_zones
             distances_inside = distances_to_zone(zone_start_indices(ith_zone,1):zone_end_indices(ith_zone,1));
             [~,min_index] = min(distances_inside);
             zone_min_indices(ith_zone,1) = min_index+(zone_start_indices(ith_zone,1)-1);
-
-            %             % Check that it isn't on border?
-            %             if min_index==1 || min_index==length(distances_inside)
-            %                 % Not big enough, so set this entire zone to zero
-            %                 in_zone(start_subzone:end_subzone) = 0;
-            %             else
-            %                 % Keep this minimum - be sure to shift it to correct indexing
-            %                 zone_min_indices(ith_zone,1) = min_index+(zone_start_indices(ith_zone,1)-1);
-            %             end
         end
         
         % For debugging:
-        fprintf(1,'\nStart, end, and minimum indices for good zones: \nIstart \t Iend \t Imin\n');
-        for ith_index = 1:num_good_zones
-            fprintf(1,'%d\t\t %d\t\t %d\n',zone_start_indices(ith_index,1), zone_end_indices(ith_index,1),zone_min_indices(ith_index,1));
+        if flag_do_debug
+            fprintf(1,'\nStart, end, and minimum indices for good zones: \nIstart \t Iend \t Imin\n');
+            for ith_index = 1:num_good_zones
+                fprintf(1,'%d\t\t %d\t\t %d\n',zone_start_indices(ith_index,1), zone_end_indices(ith_index,1),zone_min_indices(ith_index,1));
+            end
         end
     end
         
@@ -271,7 +293,7 @@ if flag_do_plots
     plot(query_path(:,1),query_path(:,2),'b.-','Markersize',10);
     
     % Plot the zone definition in green
-    fcn_Laps_plotPointZoneDefinition(zone_definition,'g',fig_num);
+    fcn_Laps_plotPointZoneDefinition(zone_center, zone_radius,'g',fig_num);
     
     % Plot the results
     if num_zones ~= 0  % empty

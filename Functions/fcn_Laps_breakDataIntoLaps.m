@@ -74,17 +74,30 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 %
 %      start_definition: the condition, defined as a point/radius or line
 %      segment, defining the start condition to break the data into laps.
+%      It is of one of two forms. 
+%      A zone defined by a center point, radius, and number of points that
+%      must past through that "circle", given in a 1-row format as:
+%
+%        [zone_radius zone_num_points zone_center_x zone_center_y] (or)
+%        [zone_radius zone_num_points zone_center_x zone_center_y zone_center_z]
+%     
+%      OR, a zone can be given by a segment defined by a start and end
+%      point, given by two rows.
+%
+%        [zone_start_x zone_start_y; zone_end_x zone_end_y]
+%      (NOTE: there's no 3-d equivalent of a starting line or finish line)
 %
 %      (OPTIONAL INPUTS)
 %
 %      end_definition: the condition, defined as a point/radius or line
 %      segment, defining the end condition to break the data into laps. If
-%      not specified, the start condition is used.
+%      not specified, the start condition is used. The same type is used as
+%      the start_definition.
 %
 %      excursion_definition: the condition, defined as a point/radius or
 %      line segment, defining a situation that must be met between the
 %      start and end conditions. If not specified, then no excursion point
-%      is used.
+%      is used. The same type is used as the start_definition.
 %
 %      fig_num: a figure number to plot results.
 %
@@ -131,6 +144,8 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 %     -- fixed scalar comparison in size function of argument check
 %     2022_05_21 - sbrennan@psu.edu
 %     -- fixed plotting, made outputs variable argument types
+%     2022_07_11 - sbrennan@psu.edu
+%     -- corrected calls to zone function to allow number of points
 
 % TO DO
 %

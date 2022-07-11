@@ -1,4 +1,4 @@
-function h_plot = fcn_Laps_plotPointZoneDefinition(zone_definition,varargin)
+function h_plot = fcn_Laps_plotPointZoneDefinition(zone_center,zone_radius, varargin)
 % fcn_Laps_plotPointZoneDefinition
 % Plots the zone definition given by the input variable, zone_definition.
 %
@@ -14,9 +14,11 @@ function h_plot = fcn_Laps_plotPointZoneDefinition(zone_definition,varargin)
 %
 % INPUTS:
 %
-%      zone_definition: the definition of the zone as given in a 3x1 matrix
-%      with the following format [X Y radius], where X,Y denote the center
-%      of the zone circle, and radius is the radius.
+%      zone_center: the condition, defined as a point/radius defining
+%      the zone. The format is zone_center = [X Y] or [X Y Z], and is
+%      expected to be a [1 x 2] or a [1 x 3] matrix, 
+%
+%      zone_radius: a scalar specifying the radius of the zone. 
 %
 %      (OPTIONAL INPUTS)
 %   
@@ -48,7 +50,7 @@ function h_plot = fcn_Laps_plotPointZoneDefinition(zone_definition,varargin)
 %     -- fixed minor bug with showing the arrowhead
 
 flag_do_debug = 0; % Flag to plot the results for debugging
-flag_this_is_a_new_figure = 1; % Flag to check to see if this is a new figure
+flag_this_is_a_new_figure = 1; %#ok<NASGU> % Flag to check to see if this is a new figure
 flag_check_inputs = 1; % Flag to perform input checking
 
 if flag_do_debug
@@ -72,20 +74,21 @@ end
 
 if flag_check_inputs == 1
     % Are there the right number of inputs?
-    if nargin < 1 || nargin > 3
+    if nargin < 2 || nargin > 4
         error('Incorrect number of input arguments')
     end
+          
+    % Check the zone_center input, 2 or 3 columns, 1 row
+    fcn_DebugTools_checkInputsToFunctions(zone_center, '2or3column_of_numbers',[1 1]);
     
-      
-    % Check the zone_definition input, that it has 3 columns and exactly 1
-    % row
-    fcn_DebugTools_checkInputsToFunctions(zone_definition, '3column_of_numbers',[1 1])
+    % Check the zone_radius input, 1 column, 1 row
+    fcn_DebugTools_checkInputsToFunctions(zone_radius, 'positive_1column_of_numbers',[1 1]);
 
 end
 
 % Check for plot style input
 flag_plot_style_is_specified = 0; % Set default flag value
-if 2 <= nargin
+if 3 <= nargin
     temp = varargin{1};
     if ~isempty(temp)
         plot_style = temp;
@@ -94,10 +97,13 @@ if 2 <= nargin
 end
 
 % Does user want to show the plots?
-if 3 == nargin
-    fig_num = varargin{2};
-    figure(fig_num);
-    flag_this_is_a_new_figure = 0;
+if 4 == nargin
+    temp = varargin{2};
+    if ~isempty(temp)
+        fig_num = temp;
+        figure(fig_num);
+        flag_this_is_a_new_figure = 0; %#ok<NASGU>
+    end
 else    
     fig = figure;
     fig_num = fig.Number;
@@ -129,9 +135,9 @@ if ~ishold
 end
 
 % Do the plot
-Xcenter = zone_definition(1,1);
-Ycenter = zone_definition(1,2);
-radius  = zone_definition(1,3);
+Xcenter = zone_center(1,1);
+Ycenter = zone_center(1,2);
+radius  = zone_radius;
 
 % Plot the center point
 if flag_plot_style_is_specified
