@@ -6,6 +6,9 @@
 %     -- first write of the code
 %     2022_04_03
 %     -- added external call to zone calculation function
+%     2022_07_11 - sbrennan@psu.edu
+%     -- corrected calls to zone function to allow number of points,
+%     changed format to allow 3d circles
 
 %% Set up the workspace
 close all
@@ -31,8 +34,8 @@ example_lap_data.traversal{1} = data.traversal{end};
 fcn_Laps_plotLapsXY(example_lap_data,fig_num);
 
 %% Call the function to show it operating, and plot in figure 2
-start_definition = [0 0 10]; % Located at [0,0] with radius 6
-end_definition = [0 -60 30]; % Located at [0,-60] with radius 30
+start_definition = [10 3 0 0]; % Radius 10, 3 points must pass near [0,0]
+end_definition = [30 3 0 -60]; % Radius 30, 3 points must pass near [0,-60]
 excursion_definition = []; % empty
 fig_num = 2;
 lap_traversals = fcn_Laps_breakDataIntoLaps(...
@@ -101,8 +104,8 @@ axis(axis_limits); % Inheret axis limits from main laps plot
 title('Exit segment');
 
 %% Show how a lap is missed if start zone is not big enough
-start_definition = [0 0 6]; % Located at [0,0] with radius 6
-end_definition = [0 -60 30]; % Located at [0,-60] with radius 30
+start_definition = [6 3 0 0]; % Radius 10, 3 points must pass near [0,0]
+end_definition = [30 3 0 -60]; % Radius 30, 3 points must pass near [0,-60]
 excursion_definition = []; % empty
 fig_num = 6;
 lap_traversals = fcn_Laps_breakDataIntoLaps(...
@@ -123,6 +126,31 @@ assert(isequal(78,length(lap_traversals.traversal{2}.X)));
 fig_num = 7;
 fcn_Laps_plotLapsXY(lap_traversals,fig_num);
 
+%% Show the use of segment definition
+start_definition = [10 0; -10 0]; % start at [10 0], end at [-10 0]
+end_definition = [30 3 0 -60]; % Radius 30, 3 points must pass near [0,-60]
+excursion_definition = []; % empty
+fig_num = 6;
+lap_traversals = fcn_Laps_breakDataIntoLaps(...
+    example_lap_data.traversal{1},...
+    start_definition,...
+    end_definition,...
+    excursion_definition,...
+    fig_num);
+
+% Do we get 3 laps?
+assert(isequal(3,length(lap_traversals.traversal)));
+
+% Are the laps different lengths?
+assert(isequal(86,length(lap_traversals.traversal{1}.X)));
+assert(isequal(97,length(lap_traversals.traversal{2}.X)));
+assert(isequal(78,length(lap_traversals.traversal{3}.X)));
+
+% Plot the lap traversals (should have 2)
+fig_num = 7;
+fcn_Laps_plotLapsXY(lap_traversals,fig_num);
+
+
 
 %% Check assertions for basic path operations and function testing
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -140,7 +168,8 @@ fcn_Laps_plotLapsXY(lap_traversals,fig_num);
 %% This one returns nothing since there is no portion of the path in the
 % criteria
 traversal = fcn_Path_convertPathToTraversalStructure([-1 1; 1 1]);
-start_definition = [0 0 0.2]; % Located at [0,0] with radius 0.2
+start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
+
 [lap_traversals, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLaps(...
     traversal,...
     start_definition);
@@ -151,7 +180,7 @@ assert(isempty(exit_traversal));
 
 %% This one returns nothing since there is one point in criteria
 traversal = fcn_Path_convertPathToTraversalStructure([-1 1; 0 0; 1 1]);
-start_definition = [0 0 0.2]; % Located at [0,0] with radius 0.2
+start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
 [lap_traversals, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLaps(...
     traversal,...
     start_definition);
@@ -162,7 +191,7 @@ assert(isempty(exit_traversal));
 
 %% This one returns nothing since there is only two points in criteria
 traversal = fcn_Path_convertPathToTraversalStructure([-1 1; 0 0; 0.1 0; 1 1]);
-start_definition = [0 0 0.2]; % Located at [0,0] with radius 0.2
+start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
 [lap_traversals, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLaps(...
     traversal,...
     start_definition);
@@ -174,7 +203,7 @@ assert(isempty(exit_traversal));
 %% This one returns nothing since the minimum point is at the start
 % and so there is no strong minimum inside the zone
 traversal = fcn_Path_convertPathToTraversalStructure([-1 1; 0 0; 0.01 0; 0.02 0; 0.03 0; 1 1]);
-start_definition = [0 0 0.2]; % Located at [0,0] with radius 0.2
+start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
 [lap_traversals, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLaps(...
     traversal,...
     start_definition);
@@ -186,7 +215,7 @@ assert(isempty(exit_traversal));
 %% This one returns nothing since the minimum point is at the end
 % and so there is no strong minimum inside the zone
 traversal = fcn_Path_convertPathToTraversalStructure([-1 1; -0.03 0; -0.02 0; -0.01 0; 0 0; 1 1]);
-start_definition = [0 0 0.2]; % Located at [0,0] with radius 0.2
+start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
 [lap_traversals, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLaps(...
     traversal,...
     start_definition);
@@ -199,7 +228,8 @@ assert(isempty(exit_traversal));
 % There is no end after the start
 fig_num = 123;
 traversal = fcn_Path_convertPathToTraversalStructure([-1 1; -0.03 0; -0.02 0; 0 0; 0.1 0; 1 1]);
-start_definition = [0 0 0.2]; % Located at [0,0] with radius 0.2
+start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
+
 [lap_traversals, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLaps(...
     traversal,...
     start_definition,...
@@ -222,7 +252,9 @@ zero_half_steps = 0*half_steps;
 
 traversal = fcn_Path_convertPathToTraversalStructure(...
     [full_steps zero_full_steps; zero_half_steps half_steps]);
-start_definition = [0 0 0.2]; % Located at [0,0] with radius 0.2
+
+start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
+
 [lap_traversals, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLaps(...
     traversal,...
     start_definition,...
@@ -239,8 +271,9 @@ fig_num = 1234;
 
 traversal = fcn_Path_convertPathToTraversalStructure(...
     [full_steps zero_full_steps]);
-start_definition = [-0.5 0 0.5]; 
-end_definition = [0.5 0 0.5]; 
+start_definition = [0.5 3 -0.5 0]; % Located at [-0.5,0] with radius 0.5, 3 points
+end_definition = [0.5 3 0.5 0]; % Located at [0.5,0] with radius 0.5, 3 points
+
 [lap_traversals, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLaps(...
     traversal,...
     start_definition,...
@@ -257,8 +290,10 @@ fig_num = 1234;
 
 traversal = fcn_Path_convertPathToTraversalStructure(...
     [full_steps zero_full_steps]);
-start_definition = [-1 0 0.5]; 
-end_definition = [1 0 0.5]; 
+
+start_definition = [0.5 3 -1 0]; % Located at [-1,0] with radius 0.5, 3 points
+end_definition = [0.5 3 1 0]; % Located at [1,0] with radius 0.5, 3 points
+
 [lap_traversals, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLaps(...
     traversal,...
     start_definition,...
@@ -281,35 +316,63 @@ if 1==0
         start_definition); %#ok<*ASGLU>
     
     %% Fails because start_definition is not correct type
+    % Radius input is negative
     clc
-    start_definition = [1 2 3 4];
+    start_definition = [-1 2 3 4];
     [lap_traversals, input_and_exit_traversals] = fcn_Laps_breakDataIntoLaps(...
         single_lap.traversal{1},...
         start_definition); 
 
-    %% Fails because end_definition is not correct type
+    %% Fails because start_definition is not correct type
+    % Radius input is negative
     clc
-    start_definition = [1 2 3];
-    end_definition = [1 2];
+    start_definition = [0 2 3 4];
+    [lap_traversals, input_and_exit_traversals] = fcn_Laps_breakDataIntoLaps(...
+        single_lap.traversal{1},...
+        start_definition); 
+    
+    %% Fails because start_definition is not correct type
+    % Num_inputs input is not positive
+    clc
+    start_definition = [1 0 3 4];
+    [lap_traversals, input_and_exit_traversals] = fcn_Laps_breakDataIntoLaps(...
+        single_lap.traversal{1},...
+        start_definition); 
+    
+    %% Warning because start_definition is 3D not 2D
+    % Start_zone definition is a 3D point [radius num_points X Y Z]
+    clc
+    start_definition = [1 2 3 4 5];
+    [lap_traversals, input_and_exit_traversals] = fcn_Laps_breakDataIntoLaps(...
+        single_lap.traversal{1},...
+        start_definition); 
+    
+    %% Warning because start_definition is 3D not 2D
+    % Start_zone definition is a 3D point [X Y Z; X Y Z]
+    clc
+    start_definition = [1 2 3; 4 5 6];
+    [lap_traversals, input_and_exit_traversals] = fcn_Laps_breakDataIntoLaps(...
+        single_lap.traversal{1},...
+        start_definition); 
+    
+    %% Warning because end_definition is 3D not 2D
+    % End_zone definition is a 3D point [radius num_points X Y Z]
+    clc
+    start_definition = [1 2 3 4];
+    end_definition = [1 2 3 4 5];
+
     [lap_traversals, input_and_exit_traversals] = fcn_Laps_breakDataIntoLaps(...
         single_lap.traversal{1},...
         start_definition,...
         end_definition); 
     
-    %% Fails because end_definition is not correct type
+    %% Warning because excursion_definition is 3D not 2D
+    % Excursion_zone definition is a 3D point [radius num_points X Y Z]
     clc
-    start_definition = [1 2 3];
+    start_definition = [1 2 3 4];
     end_definition = [1 2 3 4];
-    [lap_traversals, input_and_exit_traversals] = fcn_Laps_breakDataIntoLaps(...
-        single_lap.traversal{1},...
-        start_definition,...
-        end_definition); 
-    
-    %% Fails because excursion_definition is not correct type
-    clc
-    start_definition = [1 2 3];
-    end_definition = [1 2 3];
-    excursion_definition = [1 2 3 4];
+    excursion_definition = [1 2 3 4 5];
+
     [lap_traversals, input_and_exit_traversals] = fcn_Laps_breakDataIntoLaps(...
         single_lap.traversal{1},...
         start_definition,...

@@ -117,12 +117,10 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 % DEPENDENCIES:
 %
 %      fcn_DebugTools_checkInputsToFunctions
-%
-%      fcn_Path_calcSingleTraversalStandardDeviation
-%      fcn_Path_findOrthogonalTraversalVectorsAtStations
+%      fcn_Laps_findPointZoneStartStopAndMinimum
 %      fcn_Path_convertPathToTraversalStructure
-%      fcn_Path_plotTraversalsXY
-%
+%      fcn_DebugTools_debugPrintStringToNCharacters
+%      
 % EXAMPLES:
 %
 %     See the script: script_test_fcn_Laps_breakDataIntoLaps
@@ -145,7 +143,10 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 %     2022_05_21 - sbrennan@psu.edu
 %     -- fixed plotting, made outputs variable argument types
 %     2022_07_11 - sbrennan@psu.edu
-%     -- corrected calls to zone function to allow number of points
+%     -- corrected calls to zone function to allow number of points,
+%     changed format to allow 3d circles
+%     2022_07_12 - sbrennan@psu.edu
+%     -- allow zone definitions based on segments
 
 % TO DO
 %
@@ -197,22 +198,16 @@ if flag_check_inputs
     % Check the reference_traversal variables
     fcn_DebugTools_checkInputsToFunctions(input_traversal, 'traversal');
     
-    % Check the start definition required input
-    fcn_DebugTools_checkInputsToFunctions(start_definition, '4or5column_of_numbers',[1 1]);
+    % NOTE: the start_definition required input is checked below!
         
 end
 
 % Set the start values
-if isequal(size(start_definition),[1 4]) || isequal(size(start_definition),[1 5])
-    flag_start_is_a_point_type = 1;
-elseif isequal(size(start_definition),[2 2])
-    flag_start_is_a_point_type = 0;
-else
-    error('The start_definition input must be either a 3x1 variable, in the case of a point, or a 2x2 variable, in the case of a line segment.');
-end
+[flag_start_is_a_point_type, start_definition] = INTERNAL_check_zone_type(start_definition, 'start_definition');
 
 
-% Check for variable argument inputs (varargin)
+% The following area checks for variable argument inputs (varargin)
+
 % Does the user want to specify the end_definition?
 % Set defaults first:
 end_definition = start_definition; % Default case
@@ -221,25 +216,10 @@ flag_end_is_a_point_type = flag_start_is_a_point_type; % Inheret the start case
 if 3 <= nargin
     temp = varargin{1};
     if ~isempty(temp)
-        end_definition = temp;
-        % Check the end_definition required input
-        try
-            fcn_DebugTools_checkInputsToFunctions(end_definition, '4or5column_of_numbers',[1 1]);
-            flag_end_is_a_point_type = 1; 
-        catch
-            % URHERE - need to fix this later to allow for segment
-            % definitions
-            try
-                fcn_DebugTools_checkInputsToFunctions(end_definition, '2column_of_numbers',[2 2]);
-                flag_end_is_a_point_type = 0;
-            catch
-                error('The end_definition input must be either a 3x1 variable, in the case of a point, or a 2x2 variable, in the case of a line segment.');
-            end
-        end
-        
+        % Set the end values
+        [flag_end_is_a_point_type, end_definition] = INTERNAL_check_zone_type(temp, 'end_definition');        
     end
 end
-
 
 % Does the user want to specify excursion_definition?
 flag_use_excursion_definition = 0; % Default case
@@ -247,20 +227,9 @@ flag_excursion_is_a_point_type = 1; % Default case
 if 4 <= nargin
     temp = varargin{2};
     if ~isempty(temp)
-        flag_use_excursion_definition = 1;
-        excursion_definition = temp;
-        try
-            fcn_DebugTools_checkInputsToFunctions(excursion_definition, '3column_of_numbers',[1 1]);
-            flag_excursion_is_a_point_type = 1; %#ok<*NASGU>
-        catch
-            try
-                fcn_DebugTools_checkInputsToFunctions(excursion_definition, '2column_of_numbers',[2 2]);
-                flag_excursion_is_a_point_type = 0;
-            catch
-                error('The excursion_definition input must be either a 3x1 variable, in the case of a point, or a 2x2 variable, in the case of a line segment.');
-            end
-        end
-        
+        % Set the excursion values
+        [flag_excursion_is_a_point_type, excursion_definition] = INTERNAL_check_zone_type(temp, 'excursion_definition');            
+        flag_use_excursion_definition = 1;        
     end
 end
 
@@ -334,17 +303,15 @@ Npoints = length(path_original(:,1));
 % 2, and 3 respectively in the array. Keep track of the zones where start
 % and end zones occur, as need to sometimes search backwards in next step
 
-minimum_number_of_indices_in_zone = 3;
-
 flag_keep_going = 0; % Default is to assume there is no start zones yet, as there's no sense to keep going if not
 
 % Do start zone calculations
 if flag_start_is_a_point_type==1
-    % Define start zone and indices,
-    % A zone is the location meeting the distance criteria, and where the path
-    % has at least minimum_width points inside the given area. Among these points,
-    % find the minimum distance index. The start point is the index
-    % immediately prior to the minimum.
+    % Define start zone and indices based on point zone type:
+    % A point zone is the location meeting the distance criteria, and where
+    % the path has at least minimum_width points inside the given area.
+    % Among these points, find the minimum distance index. The start point
+    % is the index immediately prior to the minimum.
     
     zone_center = start_definition(1,3:end);
     zone_radius = start_definition(1,1);
@@ -365,7 +332,20 @@ if flag_start_is_a_point_type==1
         flag_keep_going = 1;
     end
     
-else
+else % Define start zone and indices based on segment zone type
+
+    [start_zone_start_indices, start_zone_end_indices] = ...
+        fcn_Laps_findSegmentZoneStartStop(...
+        path_original,...
+        start_definition,...
+        3333); %fig_debug_start_zone);
+    start_zone_min_indices = start_zone_start_indices;
+    
+    path_flag_array(start_zone_start_indices,1) = 1;
+    
+    if ~isempty(start_zone_start_indices) % No start zone detected, so no laps exist
+        flag_keep_going = 1;
+    end
 end
 
 % Do excursion zone calculations
@@ -400,7 +380,18 @@ if flag_keep_going
             
             path_flag_array(excursion_zone_min_indices,1) = 2;
         else % It's a line segement type
-            % Fill this in later
+            [excursion_zone_start_indices, excursion_zone_end_indices] = ...
+                fcn_Laps_findSegmentZoneStartStop(...
+                path_original,...
+                excursion_definition,...
+                fig_debug_excursion_zone);
+            excursion_zone_min_indices = excursion_zone_start_indices;
+            
+            path_flag_array(excursion_zone_min_indices,1) = 2;
+            
+            if ~isempty(start_zone_start_indices) % No excursion zone detected, so no laps exist
+                flag_keep_going = 1;
+            end
         end
     else % No excursion zones given, so default to the indices after the start zone
         excursion_zone_start_indices = min(start_zone_end_indices+1,Npoints);
@@ -420,10 +411,6 @@ if flag_keep_going
         % distance index. The end zone finishes the point after the
         % minimum.
         
-        %         [end_zone, min_indices] = INTERNAL_fcn_Laps_findZoneStartStopAndMinimum(...
-        %             path_original,...
-        %             end_definition,...
-        %             minimum_width);
         
         zone_center = end_definition(1,3:end);
         zone_radius = end_definition(1,1);
@@ -441,8 +428,22 @@ if flag_keep_going
             flag_keep_going = 1;
         end
         end_indices = end_zone_min_indices + 1;
-        path_flag_array(end_indices,1) = 3;
-    else
+        path_flag_array(end_indices,1) = 3; %#ok<NASGU>
+        
+    else % Segment type
+        [end_zone_start_indices, end_zone_end_indices] = ...
+            fcn_Laps_findSegmentZoneStartStop(...
+            path_original,...
+            end_definition,...
+            fig_debug_end_zone);
+        end_zone_min_indices = end_zone_start_indices;
+        
+        end_indices = end_zone_min_indices + 1;
+        path_flag_array(end_indices,1) = 3; %#ok<NASGU>
+        
+        if ~isempty(end_zone_start_indices) % No excursion zone detected, so no laps exist
+            flag_keep_going = 1;
+        end
     end
 end % Ends check to see if keep going
 
@@ -496,27 +497,35 @@ end
 fprintf(1,'\n');
 fprintf(1,'Excursion Zone Indices:\n');
 fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
-for ith_index = 1:length(excursion_zone_start_indices)
-    T1 = sprintf('%d',excursion_zone_start_indices(ith_index));
-    T2 = sprintf('%d',excursion_zone_end_indices(ith_index));
-    T3 = sprintf('%d',excursion_zone_min_indices(ith_index));
-    short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
-    short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
-    short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
-    fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
+try
+    for ith_index = 1:length(excursion_zone_start_indices)
+        T1 = sprintf('%d',excursion_zone_start_indices(ith_index));
+        T2 = sprintf('%d',excursion_zone_end_indices(ith_index));
+        T3 = sprintf('%d',excursion_zone_min_indices(ith_index));
+        short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
+        short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
+        short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
+        fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
+    end
+catch
+    fprintf('None detected');
 end
 
 fprintf(1,'\n');
 fprintf(1,'End Zone Indices:\n');
 fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
-for ith_index = 1:length(end_zone_start_indices)
-    T1 = sprintf('%d',end_zone_start_indices(ith_index));
-    T2 = sprintf('%d',end_zone_end_indices(ith_index));
-    T3 = sprintf('%d',end_zone_min_indices(ith_index));
-    short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
-    short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
-    short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
-    fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
+try
+    for ith_index = 1:length(end_zone_start_indices)
+        T1 = sprintf('%d',end_zone_start_indices(ith_index));
+        T2 = sprintf('%d',end_zone_end_indices(ith_index));
+        T3 = sprintf('%d',end_zone_min_indices(ith_index));
+        short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
+        short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
+        short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
+        fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
+    end
+catch
+    fprintf('None detected');
 end
 
 %%  Loop through each start points, checking for next excursion and end point
@@ -712,7 +721,7 @@ if flag_do_plots
     end
     
     h_legend = legend(legend_text);
-    % set(h_legend,'AutoUpdate','off');
+    set(h_legend,'AutoUpdate','off');
     
 
     
@@ -735,7 +744,7 @@ if flag_do_plots
     legend_text = [legend_text, 'Start condition'];
     legend_text = [legend_text, 'End condition'];
     h_legend = legend(legend_text);
-    % set(h_legend,'AutoUpdate','off');
+    set(h_legend,'AutoUpdate','off');
     
     
 end
@@ -768,4 +777,62 @@ angles = 0:0.01:2*pi;
 x_circle = center_x + radius * cos(angles);
 y_circle = center_y + radius * sin(angles);
 plot(x_circle,y_circle,'color',color,'Linewidth',linewidth);
+end
+
+function [flag_is_a_point_zone_type, new_zone_definition] = INTERNAL_check_zone_type(zone_definition, string_label)
+
+% Checks the type of zone, returns flag of 1 if a point zone, 0 if a
+% segment zone, and in case of a 3D zone, returns the 2D zone equivalent
+% (dropping the z-dimension)
+
+
+% Check if it is a point zone by seeing if it is a 4x1 or 5x1
+try
+    % Check if it is 4 or 5 columns with exactly 1 row?
+    fcn_DebugTools_checkInputsToFunctions(zone_definition, '4or5column_of_numbers',[1 1]);
+       
+    % Check the zone_radius input is positive
+    fcn_DebugTools_checkInputsToFunctions(zone_definition(1,1), 'positive_1column_of_numbers',[1 1]);
+    
+    % Check that the num_points field is an integer
+    fcn_DebugTools_checkInputsToFunctions(zone_definition(1,2), 'positive_1column_of_integers',1);
+    
+    % If got here - it should be a point_zone!
+    flag_is_a_point_zone_type = 1;
+    
+    % Set the zone values to limits of 2D
+    new_zone_definition = zone_definition; % default case
+    if isequal(size(zone_definition),[1 5])
+        warning('The function: fcn_Laps_breakDataIntoLaps does not yet support 3D zone definitions. The %s zone, specified as a 3D point, is being flattened into 2D by ignoring the z-axis value.', string_label);
+        new_zone_definition = zone_definition(1,1:4);
+    end
+    
+
+catch
+    % Check that the zone_definition is in the segment format 
+    % [X_start Y_start; X_end Y_end], 
+    % or 3D version of same:
+    % [X_start Y_start Z_start; X_end Y_end Z_end], 
+        
+    try
+        % Check that the input has either 2 or 3 columns with exactly 2
+        % rows?
+        fcn_DebugTools_checkInputsToFunctions(zone_definition, '2or3column_of_numbers',[2 2]);
+        
+    catch
+        error('The %s input must be a zone type: either a 4x1 or 5x1 variable in the case of a point zone, or a 2x2 or 3x2 variable in the case of a segment zone. Type ''help fcn_Laps_breakDataIntoLaps'' for more details.', string_label);
+    end
+    
+    % If got here - it should be a segment_zone!
+    flag_is_a_point_zone_type = 0;
+    
+    % Set the zone values to limits of 2D
+    new_zone_definition = zone_definition; % default case
+    if isequal(size(zone_definition),[2 3])
+        warning('The function: fcn_Laps_breakDataIntoLaps does not yet support 3D zone definitions. The input zone, specified as a 3D point, is being flattened into 2D by ignoring the z-axis value.');
+        new_zone_definition = zone_definition(1:2,1:2);
+    end
+    
+    
+end
 end
