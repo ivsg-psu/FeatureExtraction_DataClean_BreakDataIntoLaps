@@ -95,6 +95,23 @@ segment_definition = [0 0; 0 1]; % Starts at [0,0], ends at [0 1]
 assert(isempty(zone_start_indices));
 assert(isempty(zone_end_indices));
 
+%% This one returns no hit, also crossed wrong way
+fig_num = 31;
+
+query_path = ...
+    [full_steps 0.4*ones_full_steps];
+
+segment_definition = [0 1; 0 0]; % Starts at [0,1], ends at [0 0]
+[zone_start_indices, zone_end_indices] = ...
+    fcn_Laps_findSegmentZoneStartStop(...
+    query_path,...
+    segment_definition,...
+    fig_num);
+
+assert(isempty(zone_start_indices));
+assert(isempty(zone_end_indices));
+
+
 %% This one returns two hits, even though crossed three times
 % One crossing is in the wrong direction!
 fig_num = 4;

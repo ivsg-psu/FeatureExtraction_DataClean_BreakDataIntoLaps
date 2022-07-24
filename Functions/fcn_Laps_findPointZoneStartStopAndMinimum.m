@@ -293,7 +293,7 @@ if flag_do_plots
     plot(query_path(:,1),query_path(:,2),'b.-','Markersize',10);
     
     % Plot the zone definition in green
-    fcn_Laps_plotPointZoneDefinition(zone_center, zone_radius,'g',fig_num);
+    fcn_Laps_plotPointZoneDefinition([zone_radius 3 zone_center],'g',fig_num);
     
     % Plot the results
     if num_zones ~= 0  % empty

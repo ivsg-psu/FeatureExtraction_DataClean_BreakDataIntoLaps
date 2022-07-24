@@ -1,6 +1,6 @@
 function h_plot = fcn_Laps_plotSegmentZoneDefinition(zone_definition,varargin)
 % fcn_Laps_plotSegmentZoneDefinition
-% Plots the zone definition given by the input variable, zone_definition.
+% Plots the segment zone definition given by the input variable, zone_definition.
 %
 % Accepts as an optional second input standard plot style specifications,
 % for example 'r-' for a red line.
@@ -47,10 +47,12 @@ function h_plot = fcn_Laps_plotSegmentZoneDefinition(zone_definition,varargin)
 %     -- wrote the code
 %     2022_04_12
 %     -- fixed minor bug with showing the arrowhead
+%     2022_07_23
+%     -- fixed minor bug with arrow being different color than line segment
+%     -- fixed major bug with arrow being in the wrong direction (!)
 
 
 flag_do_debug = 0; % Flag to plot the results for debugging
-flag_this_is_a_new_figure = 1; % Flag to check to see if this is a new figure
 flag_check_inputs = 1; % Flag to perform input checking
 
 if flag_do_debug
@@ -97,7 +99,6 @@ end
 if 3 == nargin
     fig_num = varargin{2};
     figure(fig_num);
-    flag_this_is_a_new_figure = 0;
 else    
     fig = figure;
     fig_num = fig.Number;
@@ -135,7 +136,7 @@ Yend   = zone_definition(2,2);
 % Calculate the unit vector
 start_point = mean(zone_definition,1);
 magnitude = sum((zone_definition(2,:)-zone_definition(1,:)).^2,2).^0.5;
-unit_direction = (zone_definition(2,:)-zone_definition(1,:))./magnitude*[cos(pi/2) sin(pi/2); -sin(pi/2) cos(pi/2)];
+unit_direction = (zone_definition(2,:)-zone_definition(1,:))./magnitude*[cos(pi/2) -sin(pi/2); sin(pi/2) cos(pi/2)];
 vector_with_magnitude = unit_direction*magnitude/2; % Use smaller ratio to make it look good.
 
 % Plot the line
@@ -143,6 +144,7 @@ if flag_plot_style_is_specified
     h_plot{1} = plot([Xstart Xend],[Ystart Yend],plot_style,'Markersize',20,'Linewidth',2);
 else
     h_plot{1} = plot([Xstart Xend],[Ystart Yend],'-','Linewidth',2);
+    main_color = get(h_plot{1},'Color');
 end
 
 % Plot the direction arrow
@@ -151,7 +153,7 @@ V = vector_with_magnitude(1,2);
 if flag_plot_style_is_specified
     h_plot{2} = quiver(start_point(1,1),start_point(1,2),U,V,0,plot_style,'Linewidth',2,'Markersize',20,'ShowArrowHead','on','MaxHeadSize',2);
 else
-    h_plot{2} = quiver(start_point(1,1),start_point(1,2),U,V,0,'color',[0 1 0],'Linewidth',2,'Markersize',20,'ShowArrowHead','on','MaxHeadSize',2);
+    h_plot{2} = quiver(start_point(1,1),start_point(1,2),U,V,0,'color',main_color,'Linewidth',2,'Markersize',20,'ShowArrowHead','on','MaxHeadSize',2);
 end
 
 

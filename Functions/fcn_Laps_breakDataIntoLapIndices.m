@@ -1,52 +1,55 @@
-function varargout = fcn_Laps_breakDataIntoLaps(...
-    input_traversal,...
-    start_definition,...
+function varargout = fcn_Laps_breakDataIntoLapIndices(...
+    input_path,...
+    start_zone_definition,...
     varargin)
-% fcn_Laps_breakDataIntoLaps
-% Given an input of "traversal" type, breaks data into laps using the XY
-% data of the traversal by checking whether the data meet particular
-% conditions to define the meaning of a lap. The function returns the laps
-% as an array "traversals" type, with each traversal being one lap. Any
+%fcn_Laps_breakDataIntoLapIndices
+%     fcn_Laps_breakDataIntoLapIndices(path,zone_definition) - gives
+%     indices of each lap meeting the zone definition
+%
+% Given an input of "path" type, breaks data into laps by checking whether
+% the data meet particular "zone" conditions to define the meaning of a
+% lap. The function returns the indices of each lap as a cell array. Any
 % entry and exit portions that are not full laps are also returned as
-% traversal types. If no laps are detected, then the input traversl is
-% assumed to be only an entry traversal and the lap_traversals is empty.
+% optional output arguments. If no laps are detected, then the input path
+% is assumed to be only an entry case and the cell_array_of_lap_indices is
+% empty.
 %
-% The conditions to specify a lap can be given as either (1) points or (2)
-% line segments. These conditions are used to define situations that start
-% a lap, ends a lap, or defines an excursion as defined below. The end and
-% excursion inputs are optional. If an optional end condition is not
-% specified, then the start condition is used for both the start and end
-% condition. If the excursion condition is not given, then no requirement
-% for this is needed.
+% The zone conditions to specify a lap can be given as either (1) points or
+% (2) line segments. These conditions are used to define situations that
+% start a lap, ends a lap, or defines an excursion as defined below. The
+% end and excursion inputs are optional. If an optional end condition is
+% not specified, then the start condition is used for both the start and
+% end condition. If the excursion condition is not given, then no
+% requirement for this is checked.
 %
-% The start condition defines how a lap should start, namely the conditions
-% wherein the given traversal is beginning the lap. The XY point of the
-% traversal immediately prior to the start condition being met is
-% considered the start of the lap. Note: this can cause station points to
-% be repeated if laps are stacked onto each other after partitioning.
+% The start_zone_definition condition defines how a lap should start,
+% namely the conditions wherein the given path is beginning the lap.
+% The XY point of the path immediately prior to the start condition
+% being met is considered the start of the lap. Note: this can cause
+% path indices to be repeated if laps are stacked onto each other after
+% partitioning.
 %
-% The end condition, an optional input, defines how a lap should end,
-% namely the conditions wherein the given traversal is ending the lap. The
-% XY point of the traversal immediately after to the end condition being
-% met is considered the end of the lap. Note: this can cause station points
-% to be repeated as noted in the start condition.
+% The end_zone_definition condition, an optional input, defines how a lap
+% should end, namely the conditions wherein the given path is ending
+% the lap. The XY point of the path immediately after to the end
+% condition being met is considered the end of the lap. Note: this can
+% cause indices to be repeated as noted in the start condition.
 %
-% The excursion condition, an optional input, defines a condition that must
-% be met after the start condition and before the end condition. This
-% specification allows one to define an area away from the start and end
-% condition that must be reached in order for the lap to be allowed to end.
-% The end condition immediately after the excursion is considered the end
-% of the lap.
+% The excursion_zone_definition condition, an optional input, defines a
+% condition that must be met after the start condition and before the end
+% condition. This specification allows one to define an area away from the
+% start and end condition that must be reached in order for the lap to be
+% allowed to end. The end condition immediately after the excursion is
+% considered the end of the lap.
 %
 % Of the two types of conditions, the definitions are as follows:
-% (1) For point conditions, the inputs are condition = [X Y radius] wherein
-% X and Y specify the XY coordinates for the point, and radius specifies
-% the radius from the point that the traversal must pass for the condition
-% to be met. The minimum distance from the portion of the traversal within
-% the radius to the XY point is considered the corresponding best
-% condition. Because a minimum is used, at least 3 points of the traversal
-% must be within the minimum radius, in sequence, for the condition to be
-% met.
+% (1) For point conditions, the inputs are condition = [radius num_points X
+% Y] wherein X and Y specify the XY coordinates for the point, and radius
+% specifies the radius from the point that the traversal must pass, and
+% num_points specify the number of points that must be in the zone for the
+% condition to be met. The minimum distance from the portion of the
+% traversal within the radius to the XY point is considered the
+% corresponding best condition.
 %
 % (2) For line segment conditions, the inputs are condition formatted as:
 % [X_start Y_start; X_end Y_end] wherein start denotes the starting
@@ -59,12 +62,13 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 %
 % FORMAT:
 %
-%      [lap_traversals, (entry_traversal,exit_traversal)] = ...
-%      fcn_Laps_breakDataIntoLaps(...
+%      [cell_array_of_lap_indices, ...
+%       (cell_array_of_entry_indices, cell_array_of_exit_indices)] = ...
+%      fcn_Laps_breakDataIntoLapIndices(...
 %            input_traversal,...
-%            start_definition,...
-%            (end_definition),...
-%            (excursion_definition),...
+%            start_zone_definition,...
+%            (end_zone_definition),...
+%            (excursion_zone_definition),...
 %            (fig_num));
 %
 % INPUTS:
@@ -72,15 +76,16 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 %      input_traversal: the traversal that is to be broken up into laps. It
 %      is a traversals type consistent with the Paths library of functions.
 %
-%      start_definition: the condition, defined as a point/radius or line
-%      segment, defining the start condition to break the data into laps.
-%      It is of one of two forms. 
-%      A zone defined by a center point, radius, and number of points that
-%      must past through that "circle", given in a 1-row format as:
+%      start_zone_definition: the condition, defined as a point/radius or
+%      line segment, defining the start condition to break the data into
+%      laps. It is of one of two forms. A zone defined by a center point,
+%      radius, and number of points that must past through that "circle",
+%      given in a 1-row format as:
 %
 %        [zone_radius zone_num_points zone_center_x zone_center_y] (or)
-%        [zone_radius zone_num_points zone_center_x zone_center_y zone_center_z]
-%     
+%        [zone_radius zone_num_points zone_center_x zone_center_y
+%        zone_center_z]
+%
 %      OR, a zone can be given by a segment defined by a start and end
 %      point, given by two rows.
 %
@@ -89,13 +94,13 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 %
 %      (OPTIONAL INPUTS)
 %
-%      end_definition: the condition, defined as a point/radius or line
-%      segment, defining the end condition to break the data into laps. If
-%      not specified, the start condition is used. The same type is used as
-%      the start_definition.
+%      end_zone_definition: the condition, defined as a point/radius or
+%      line segment, defining the end condition to break the data into
+%      laps. If not specified, the start condition is used. The same type
+%      is used as the start_definition.
 %
-%      excursion_definition: the condition, defined as a point/radius or
-%      line segment, defining a situation that must be met between the
+%      excursion_zone_definition: the condition, defined as a point/radius
+%      or line segment, defining a situation that must be met between the
 %      start and end conditions. If not specified, then no excursion point
 %      is used. The same type is used as the start_definition.
 %
@@ -103,15 +108,16 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 %
 % OUTPUTS:
 %
-%      lap_traversals: a structure containing the resulting laps, with each
-%      lap being a traversal
+%      cell_array_of_lap_indices: a cell array containint the indices for
+%      each lap
 %
 %      OPTIONAL OUTPUTS:
-%      entry_traversal: a structure containing the portion of the
-%      traversal that is prior to the first staring condition.
 %
-%      exit_traversal: a structure containing the portion of the
-%      traversal that is after the last ending condition.
+%      cell_array_of_entry_indices: a structure containing the indices
+%      prior to each staring condition, that are not part of a lap.
+%
+%      cell_array_of_exit_indices: a structure containing the indices after
+%      to each ending condition, that are not part of a lap.
 
 %
 % DEPENDENCIES:
@@ -120,33 +126,19 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 %      fcn_Laps_findPointZoneStartStopAndMinimum
 %      fcn_Path_convertPathToTraversalStructure
 %      fcn_DebugTools_debugPrintStringToNCharacters
-%      
+%
 % EXAMPLES:
 %
-%     See the script: script_test_fcn_Laps_breakDataIntoLaps
+%     See the script: script_test_fcn_Laps_breakDataIntoLapIndices
 %     for a full test suite.
 %
-% This function was written on 2022_04_03 by S. Brennan
+% This function was written on 2022_07_23 by S. Brennan
 % Questions or comments? sbrennan@psu.edu
 
 % Revision history:
 %
-%     2022_04_03 - sbrennan@psu.edu
-%     -- wrote the code originally
-%     2022_04_23 - sbrennan@psu.edu
-%     -- added external call to zone calculation function
-%     2022_05_21 - sbrennan@psu.edu
-%     -- cleaned up the comments
-%     -- fixed bugs in excursion zone flag shutting off code
-%     -- fixed bugs in excursion zone and end zone definitions
-%     -- fixed scalar comparison in size function of argument check
-%     2022_05_21 - sbrennan@psu.edu
-%     -- fixed plotting, made outputs variable argument types
-%     2022_07_11 - sbrennan@psu.edu
-%     -- corrected calls to zone function to allow number of points,
-%     changed format to allow 3d circles
-%     2022_07_12 - sbrennan@psu.edu
-%     -- allow zone definitions based on segments
+%     2022_07_23 - sbrennan@psu.edu
+%     -- wrote the code originally, using breakDataIntoLaps as starter
 
 % TO DO
 %
@@ -195,29 +187,30 @@ if flag_check_inputs
         error('Incorrect number of input arguments')
     end
     
-    % Check the reference_traversal variables
-    fcn_DebugTools_checkInputsToFunctions(input_traversal, 'traversal');
+    % Check the input_path to be sure it has 2 or 3 columns, minimum 2 rows
+    % or more
+    fcn_DebugTools_checkInputsToFunctions(input_path, '2or3column_of_numbers',[2 3]);
     
     % NOTE: the start_definition required input is checked below!
-        
+    
 end
 
 % Set the start values
-[flag_start_is_a_point_type, start_definition] = fcn_Laps_checkZoneType(start_definition, 'start_definition');
+[flag_start_is_a_point_type, start_zone_definition] = fcn_Laps_checkZoneType(start_zone_definition, 'start_definition');
 
 
 % The following area checks for variable argument inputs (varargin)
 
 % Does the user want to specify the end_definition?
 % Set defaults first:
-end_definition = start_definition; % Default case
+end_zone_definition = start_zone_definition; % Default case
 flag_end_is_a_point_type = flag_start_is_a_point_type; % Inheret the start case
 % Check for user input
 if 3 <= nargin
     temp = varargin{1};
     if ~isempty(temp)
         % Set the end values
-        [flag_end_is_a_point_type, end_definition] = fcn_Laps_checkZoneType(temp, 'end_definition');        
+        [flag_end_is_a_point_type, end_zone_definition] = fcn_Laps_checkZoneType(temp, 'end_definition');
     end
 end
 
@@ -228,8 +221,8 @@ if 4 <= nargin
     temp = varargin{2};
     if ~isempty(temp)
         % Set the excursion values
-        [flag_excursion_is_a_point_type, excursion_definition] = fcn_Laps_checkZoneType(temp, 'excursion_definition');            
-        flag_use_excursion_definition = 1;        
+        [flag_excursion_is_a_point_type, excursion_definition] = fcn_Laps_checkZoneType(temp, 'excursion_definition');
+        flag_use_excursion_definition = 1;
     end
 end
 
@@ -273,9 +266,9 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Fill deafults
-entry_traversal = input_traversal;
-exit_traversal = [];
-lap_traversals = [];
+cell_array_of_lap_indices = {};
+cell_array_of_entry_indices = [];
+cell_array_of_exit_indices = [];
 
 
 % Steps used:
@@ -294,8 +287,8 @@ lap_traversals = [];
 % of the path
 
 % Grab the XY data out of the variable
-path_original = [input_traversal.X input_traversal.Y];
-path_flag_array = zeros(length(input_traversal.X(:,1)),1);
+path_original = input_path(:,1:2);
+path_flag_array = zeros(length(input_path(:,1)),1);
 Npoints = length(path_original(:,1));
 
 %% Step 2
@@ -313,9 +306,9 @@ if flag_start_is_a_point_type==1
     % Among these points, find the minimum distance index. The start point
     % is the index immediately prior to the minimum.
     
-    zone_center = start_definition(1,3:end);
-    zone_radius = start_definition(1,1);
-    zone_num_points = start_definition(1,2);
+    zone_center = start_zone_definition(1,3:end);
+    zone_radius = start_zone_definition(1,1);
+    zone_num_points = start_zone_definition(1,2);
     
     [start_zone_start_indices, start_zone_end_indices, start_zone_min_indices] = ...
         fcn_Laps_findPointZoneStartStopAndMinimum(...
@@ -333,13 +326,13 @@ if flag_start_is_a_point_type==1
     end
     
 else % Define start zone and indices based on segment zone type
-
+    
     [start_zone_start_indices, start_zone_end_indices] = ...
         fcn_Laps_findSegmentZoneStartStop(...
         path_original,...
-        start_definition,...
+        start_zone_definition,...
         3333); %fig_debug_start_zone);
-    start_zone_min_indices = start_zone_start_indices;
+    start_zone_min_indices = start_zone_start_indices; %#ok<*NASGU>
     
     path_flag_array(start_zone_start_indices,1) = 1;
     
@@ -412,9 +405,9 @@ if flag_keep_going
         % minimum.
         
         
-        zone_center = end_definition(1,3:end);
-        zone_radius = end_definition(1,1);
-        zone_num_points = end_definition(1,2);
+        zone_center = end_zone_definition(1,3:end);
+        zone_radius = end_zone_definition(1,1);
+        zone_num_points = end_zone_definition(1,2);
         
         [end_zone_start_indices, end_zone_end_indices, end_zone_min_indices] = ...
             fcn_Laps_findPointZoneStartStopAndMinimum(...
@@ -428,18 +421,18 @@ if flag_keep_going
             flag_keep_going = 1;
         end
         end_indices = end_zone_min_indices + 1;
-        path_flag_array(end_indices,1) = 3; %#ok<NASGU>
+        path_flag_array(end_indices,1) = 3; 
         
     else % Segment type
         [end_zone_start_indices, end_zone_end_indices] = ...
             fcn_Laps_findSegmentZoneStartStop(...
             path_original,...
-            end_definition,...
+            end_zone_definition,...
             fig_debug_end_zone);
         end_zone_min_indices = end_zone_start_indices;
         
         end_indices = end_zone_min_indices + 1;
-        path_flag_array(end_indices,1) = 3; %#ok<NASGU>
+        path_flag_array(end_indices,1) = 3; 
         
         if ~isempty(end_zone_start_indices) % No excursion zone detected, so no laps exist
             flag_keep_going = 1;
@@ -473,64 +466,69 @@ end % Ends check to see if keep going
 
 %% Summarize where we are:
 
-print_width = 20;
-fprintf(1,'\n');
-fprintf(1,'Summary of Zone results:\n');
-fprintf(1,'Start Zone Indices:\n');
-H1 = sprintf('%s','Start');
-H2 = sprintf('%s','End');
-H3 = sprintf('%s','Minimum');
-short_H1 = fcn_DebugTools_debugPrintStringToNCharacters(H1,print_width);
-short_H2 = fcn_DebugTools_debugPrintStringToNCharacters(H2,print_width);
-short_H3 = fcn_DebugTools_debugPrintStringToNCharacters(H3,print_width);
-fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
-for ith_index = 1:length(start_zone_start_indices)
-    T1 = sprintf('%d',start_zone_start_indices(ith_index));
-    T2 = sprintf('%d',start_zone_end_indices(ith_index));
-    T3 = sprintf('%d',start_zone_min_indices(ith_index));
-    short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
-    short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
-    short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
-    fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
-end
-
-fprintf(1,'\n');
-fprintf(1,'Excursion Zone Indices:\n');
-fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
-try
-    for ith_index = 1:length(excursion_zone_start_indices)
-        T1 = sprintf('%d',excursion_zone_start_indices(ith_index));
-        T2 = sprintf('%d',excursion_zone_end_indices(ith_index));
-        T3 = sprintf('%d',excursion_zone_min_indices(ith_index));
+if flag_do_debug
+    print_width = 20;
+    fprintf(1,'\n');
+    fprintf(1,'Summary of Zone results:\n');
+    fprintf(1,'Start Zone Indices:\n');
+    H1 = sprintf('%s','Start');
+    H2 = sprintf('%s','End');
+    H3 = sprintf('%s','Minimum');
+    short_H1 = fcn_DebugTools_debugPrintStringToNCharacters(H1,print_width);
+    short_H2 = fcn_DebugTools_debugPrintStringToNCharacters(H2,print_width);
+    short_H3 = fcn_DebugTools_debugPrintStringToNCharacters(H3,print_width);
+    fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
+    for ith_index = 1:length(start_zone_start_indices)
+        T1 = sprintf('%d',start_zone_start_indices(ith_index));
+        T2 = sprintf('%d',start_zone_end_indices(ith_index));
+        T3 = sprintf('%d',start_zone_min_indices(ith_index));
         short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
         short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
         short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
         fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
     end
-catch
-    fprintf('None detected');
-end
-
-fprintf(1,'\n');
-fprintf(1,'End Zone Indices:\n');
-fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
-try
-    for ith_index = 1:length(end_zone_start_indices)
-        T1 = sprintf('%d',end_zone_start_indices(ith_index));
-        T2 = sprintf('%d',end_zone_end_indices(ith_index));
-        T3 = sprintf('%d',end_zone_min_indices(ith_index));
-        short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
-        short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
-        short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
-        fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
+    
+    fprintf(1,'\n');
+    fprintf(1,'Excursion Zone Indices:\n');
+    fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
+    try
+        for ith_index = 1:length(excursion_zone_start_indices)
+            T1 = sprintf('%d',excursion_zone_start_indices(ith_index));
+            T2 = sprintf('%d',excursion_zone_end_indices(ith_index));
+            T3 = sprintf('%d',excursion_zone_min_indices(ith_index));
+            short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
+            short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
+            short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
+            fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
+        end
+    catch
+        fprintf('None detected');
     end
-catch
-    fprintf('None detected');
+    
+    fprintf(1,'\n');
+    fprintf(1,'End Zone Indices:\n');
+    fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
+    try
+        for ith_index = 1:length(end_zone_start_indices)
+            T1 = sprintf('%d',end_zone_start_indices(ith_index));
+            T2 = sprintf('%d',end_zone_end_indices(ith_index));
+            T3 = sprintf('%d',end_zone_min_indices(ith_index));
+            short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
+            short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
+            short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
+            fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
+        end
+    catch
+        fprintf('None detected');
+    end
 end
 
 %%  Loop through each start points, checking for next excursion and end point
 
 % Initialize our test laps as a N x 3 NaN matrix to store results
+% The first column is the start index of each lap, first point in startzone
+% The second column is the first point within the excursion zone
+% The third column is the end index of each lap, last point in the endzone
 test_laps = nan(length(start_zone_start_indices),3);
 last_end = 0;
 Nlaps = 0;
@@ -560,29 +558,30 @@ for ith_start = 1:length(start_zone_start_indices)
 end
 
 %% Summarize results to this point
-
-print_width = 20;
-fprintf(1,'\n');
-fprintf(1,'Summary of Test Lap results:\n');
-H1 = sprintf('%s','Start');
-H2 = sprintf('%s','Transition');
-H3 = sprintf('%s','End');
-short_H1 = fcn_DebugTools_debugPrintStringToNCharacters(H1,print_width);
-short_H2 = fcn_DebugTools_debugPrintStringToNCharacters(H2,print_width);
-short_H3 = fcn_DebugTools_debugPrintStringToNCharacters(H3,print_width);
-fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
-for ith_index = 1:length(test_laps(:,1))
-    T1 = sprintf('%d',test_laps(ith_index,1));
-    T2 = sprintf('%d',test_laps(ith_index,2));
-    T3 = sprintf('%d',test_laps(ith_index,3));
-    short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
-    short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
-    short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
-    fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
+if flag_do_debug
+    print_width = 20;
+    fprintf(1,'\n');
+    fprintf(1,'Summary of Test Lap results:\n');
+    H1 = sprintf('%s','Start');
+    H2 = sprintf('%s','Transition');
+    H3 = sprintf('%s','End');
+    short_H1 = fcn_DebugTools_debugPrintStringToNCharacters(H1,print_width);
+    short_H2 = fcn_DebugTools_debugPrintStringToNCharacters(H2,print_width);
+    short_H3 = fcn_DebugTools_debugPrintStringToNCharacters(H3,print_width);
+    fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
+    for ith_index = 1:length(test_laps(:,1))
+        T1 = sprintf('%d',test_laps(ith_index,1));
+        T2 = sprintf('%d',test_laps(ith_index,2));
+        T3 = sprintf('%d',test_laps(ith_index,3));
+        short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
+        short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
+        short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
+        fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
+    end
+    fprintf(1,'Number of comlete laps: %d\n',Nlaps);
 end
-fprintf(1,'Number of comlete laps: %d\n',Nlaps);
 
-%% Save everything in a laps array
+%% Save everything in a laps array - this is an array of ONLY complete laps
 if Nlaps>0
     laps_array = zeros(Nlaps,3);
     current_lap = 1;
@@ -598,57 +597,61 @@ else
 end
 
 %% Summarize results to this point
-
-print_width = 20;
-fprintf(1,'\n');
-fprintf(1,'Summary of Final Lap results:\n');
-if Nlaps>0
-    H1 = sprintf('%s','Start');
-    H2 = sprintf('%s','Transition');
-    H3 = sprintf('%s','End');
-    short_H1 = fcn_DebugTools_debugPrintStringToNCharacters(H1,print_width);
-    short_H2 = fcn_DebugTools_debugPrintStringToNCharacters(H2,print_width);
-    short_H3 = fcn_DebugTools_debugPrintStringToNCharacters(H3,print_width);
-    fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
-    for ith_index = 1:length(laps_array(:,1))
-        T1 = sprintf('%d',laps_array(ith_index,1));
-        T2 = sprintf('%d',laps_array(ith_index,2));
-        T3 = sprintf('%d',laps_array(ith_index,3));
-        short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
-        short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
-        short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
-        fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
+if flag_do_debug
+    print_width = 20;
+    fprintf(1,'\n');
+    fprintf(1,'Summary of Final Lap results:\n');
+    if Nlaps>0
+        H1 = sprintf('%s','Start');
+        H2 = sprintf('%s','Transition');
+        H3 = sprintf('%s','End');
+        short_H1 = fcn_DebugTools_debugPrintStringToNCharacters(H1,print_width);
+        short_H2 = fcn_DebugTools_debugPrintStringToNCharacters(H2,print_width);
+        short_H3 = fcn_DebugTools_debugPrintStringToNCharacters(H3,print_width);
+        fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
+        for ith_index = 1:length(laps_array(:,1))
+            T1 = sprintf('%d',laps_array(ith_index,1));
+            T2 = sprintf('%d',laps_array(ith_index,2));
+            T3 = sprintf('%d',laps_array(ith_index,3));
+            short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
+            short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
+            short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
+            fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
+        end
     end
+    fprintf(1,'Number of complete laps: %d\n',Nlaps);
 end
-fprintf(1,'Number of complete laps: %d\n',Nlaps);
-
 %% Step 4
 % save results out to arrays.
 
 if flag_keep_going && Nlaps>0
     
     % Fill in the laps
-    lap_traversals = [];
+    cell_array_of_lap_indices{Nlaps} = [];
     for ith_lap = 1:Nlaps
-        lap_path = path_original(laps_array(ith_lap,1):laps_array(ith_lap,3),:);
-        lap_traversals.traversal{ith_lap} = fcn_Path_convertPathToTraversalStructure(lap_path);
+        cell_array_of_lap_indices{ith_lap} = (laps_array(ith_lap,1):laps_array(ith_lap,3))';
     end
     
     
-    % Update the fragments?   
+    % Update the fragments?
     if flag_do_start_end
-        start_path = path_original(1:laps_array(1,1),:);
-        end_path = path_original(laps_array(end,3):end,:);
+        % Initialize arrays
+        cell_array_of_entry_indices{Nlaps} = [];
+        cell_array_of_exit_indices{Nlaps} = [];
         
-        if length(start_path(:,1))>1
-            entry_traversal = fcn_Path_convertPathToTraversalStructure(start_path);
-        else
-            entry_traversal = [];
-        end
-        if length(end_path(:,1))>1
-            exit_traversal = fcn_Path_convertPathToTraversalStructure(end_path);
-        else
-            exit_traversal = [];
+        for ith_lap = 1:Nlaps
+            % First lap?
+            if ith_lap > 1
+                cell_array_of_entry_indices{ith_lap} = (laps_array(ith_lap-1,3):laps_array(ith_lap,1))';
+            else  % It is the first lap
+                cell_array_of_entry_indices{ith_lap} = (1:laps_array(ith_lap,1))';
+            end
+            % Last lap?
+            if ith_lap<Nlaps
+                cell_array_of_exit_indices{ith_lap} = (laps_array(ith_lap,3):laps_array(ith_lap+1,1))';
+            else % Yes, it is the last lap
+                cell_array_of_exit_indices{ith_lap} = (laps_array(ith_lap,3):length(input_path(:,1)))';
+            end
         end
     end
     
@@ -656,13 +659,13 @@ end % Ends check to see if keep going
 
 % Save outputs depending on which ones the user asks for
 if nargout >= 1
-    varargout{1} = lap_traversals;
+    varargout{1} = cell_array_of_lap_indices;
 end
 if nargout >=2
-   varargout{2} = entry_traversal;   
+    varargout{2} = cell_array_of_entry_indices;
 end
 if nargout >=3
-   varargout{3} = exit_traversal;   
+    varargout{3} = cell_array_of_exit_indices;
 end
 
 
@@ -683,22 +686,63 @@ if flag_do_plots
     figure(fig_num);
     clf;
     
-    
     % Everything put together
+    subplot(1,2,1);
     hold on;
     grid on
-    axis equal
     title('Results of breaking data into laps');
     
-    plot_traversals.traversal{1}     = input_traversal;
+    
+    
+    % Plot the indices per lap
+    all_ones = ones(length(input_path(:,1)),1);
+    
+    % fill in data
+    start_of_lap_x = [];
+    start_of_lap_y = [];
+    lap_x = [];
+    lap_y = [];
+    end_of_lap_x = [];
+    end_of_lap_y = [];
     for ith_lap = 1:Nlaps
-        plot_traversals.traversal{end+1} = lap_traversals.traversal{ith_lap};
-    end
-    if nargout > 1
-        plot_traversals.traversal{end+1} = entry_traversal;
-        plot_traversals.traversal{end+1} = exit_traversal;
+        start_of_lap_x = [start_of_lap_x; cell_array_of_entry_indices{ith_lap}; NaN]; %#ok<AGROW>
+        start_of_lap_y = [start_of_lap_y; all_ones(cell_array_of_entry_indices{ith_lap})*ith_lap; NaN]; %#ok<AGROW>;
+        lap_x = [lap_x; cell_array_of_lap_indices{ith_lap}; NaN]; %#ok<AGROW>
+        lap_y = [lap_y; all_ones(cell_array_of_lap_indices{ith_lap})*ith_lap; NaN]; %#ok<AGROW>;
+        end_of_lap_x = [end_of_lap_x; cell_array_of_exit_indices{ith_lap}; NaN]; %#ok<AGROW>
+        end_of_lap_y = [end_of_lap_y; all_ones(cell_array_of_exit_indices{ith_lap})*ith_lap; NaN]; %#ok<AGROW>;
     end
     
+    % Plot results
+    plot(start_of_lap_x,start_of_lap_y,'g-','Linewidth',3);
+    plot(lap_x,lap_y,'b-','Linewidth',3);
+    plot(end_of_lap_x,end_of_lap_y,'r-','Linewidth',3);
+    
+    h_legend = legend('Prelap','Lap','Postlap');
+    set(h_legend,'AutoUpdate','off');
+    
+    xlabel('Indices');
+    ylabel('Lap number');
+    axis([0 length(input_path(:,1)) 0 Nlaps+0.5]);
+    
+    
+    subplot(1,2,2);
+    % Plot the XY coordinates of the traversals
+    hold on;
+    grid on
+    title('Results of breaking data into laps');
+    axis equal
+    
+    plot_traversals.traversal{1}     = fcn_Path_convertPathToTraversalStructure(input_path);
+    for ith_lap = 1:Nlaps
+        temp_indices = cell_array_of_lap_indices{ith_lap};
+        if length(temp_indices)>1
+            dummy_traversal = fcn_Path_convertPathToTraversalStructure(input_path(temp_indices,:));
+        else
+            dummy_traversal = [];
+        end
+        plot_traversals.traversal{end+1} = dummy_traversal;
+    end
     h = fcn_Laps_plotLapsXY(plot_traversals,fig_num);
     
     % Make input be thin line
@@ -715,37 +759,39 @@ if flag_do_plots
     for ith_lap = 1:Nlaps
         legend_text = [legend_text, sprintf('Lap %d',ith_lap)]; %#ok<AGROW>
     end
-    if nargout > 1
-        legend_text = [legend_text, 'Entry'];
-        legend_text = [legend_text, 'Exit'];
-    end
     
     h_legend = legend(legend_text);
     set(h_legend,'AutoUpdate','off');
     
+    
+    
+    %     % Plot the start, excursion, and end conditions
+    %     % Start point in green
+    %     if flag_start_is_a_point_type==1
+    %         Xcenter = start_zone_definition(1,1);
+    %         Ycenter = start_zone_definition(1,2);
+    %         radius  = start_zone_definition(1,3);
+    %         INTERNAL_plot_circle(Xcenter, Ycenter, radius, [0 .7 0], 4);
+    %     end
+    %
+    %     % End point in red
+    %     if flag_end_is_a_point_type==1
+    %         Xcenter = end_definition(1,1);
+    %         Ycenter = end_definition(1,2);
+    %         radius  = end_definition(1,3);
+    %         INTERNAL_plot_circle(Xcenter, Ycenter, radius, [0.7 0 0], 2);
+    %     end
+    %     legend_text = [legend_text, 'Start condition'];
+    %     legend_text = [legend_text, 'End condition'];
+    %     h_legend = legend(legend_text);
+    %     set(h_legend,'AutoUpdate','off');
+    
+    % Plot start zone
+    h_start_zone = fcn_Laps_plotZoneDefinition(start_zone_definition,'g-',fig_num);
 
-    
-    % Plot the start, excursion, and end conditions
-    % Start point in green
-    if flag_start_is_a_point_type==1
-        Xcenter = start_definition(1,1);
-        Ycenter = start_definition(1,2);
-        radius  = start_definition(1,3);
-        INTERNAL_plot_circle(Xcenter, Ycenter, radius, [0 .7 0], 4);
-    end
-    
-    % End point in red
-    if flag_end_is_a_point_type==1
-        Xcenter = end_definition(1,1);
-        Ycenter = end_definition(1,2);
-        radius  = end_definition(1,3);
-        INTERNAL_plot_circle(Xcenter, Ycenter, radius, [0.7 0 0], 2);
-    end
-    legend_text = [legend_text, 'Start condition'];
-    legend_text = [legend_text, 'End condition'];
-    h_legend = legend(legend_text);
-    set(h_legend,'AutoUpdate','off');
-    
+    % Plot end zone
+    h_end_zone = fcn_Laps_plotZoneDefinition(end_zone_definition,'r-',fig_num);
+
     
 end
 
@@ -767,15 +813,14 @@ end % Ends main function
 % See: https://patorjk.com/software/taag/#p=display&f=Big&t=Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%§
 
-function INTERNAL_plot_circle(center_x, center_y, radius, color, linewidth)
-
-% Plot the center point
-% plot(center_x,center_y,'ro','Markersize',22);
-
-% Plot circle
-angles = 0:0.01:2*pi;
-x_circle = center_x + radius * cos(angles);
-y_circle = center_y + radius * sin(angles);
-plot(x_circle,y_circle,'color',color,'Linewidth',linewidth);
-end
-
+% function INTERNAL_plot_circle(center_x, center_y, radius, color, linewidth)
+% 
+% % Plot the center point
+% % plot(center_x,center_y,'ro','Markersize',22);
+% 
+% % Plot circle
+% angles = 0:0.01:2*pi;
+% x_circle = center_x + radius * cos(angles);
+% y_circle = center_y + radius * sin(angles);
+% plot(x_circle,y_circle,'-','color',color,'Linewidth',linewidth);
+% end

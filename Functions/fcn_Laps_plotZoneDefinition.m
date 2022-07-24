@@ -1,6 +1,5 @@
-function h_plot = fcn_Laps_plotPointZoneDefinition(zone_definition,varargin)
-% fcn_Laps_plotPointZoneDefinition
-% Plots the point zone definition given by the input variable, zone_definition.
+function h_plot = fcn_Laps_plotZoneDefinition(zone_definition,varargin)
+% fcn_Laps_plotZoneDefinition - Plots the zone definition for Laps codes
 %
 % Accepts as an optional second input standard plot style specifications,
 % for example 'r-' for a red line.
@@ -10,15 +9,13 @@ function h_plot = fcn_Laps_plotPointZoneDefinition(zone_definition,varargin)
 %
 % FORMAT: 
 %
-%       h_plot = fcn_Laps_plotPointZoneDefinition(zone_definition,{fig_num})
+%       h_plot = fcn_Laps_plotZoneDefinition(zone_definition,{fig_num})
 %
 % INPUTS:
 %
 %      zone_definition: the definition of the zone as given in a point zone
-%      style, namely:
-%           [radius num_points X Y], 
-%      where X,Y denote the coordinates of the zone center, and radius is
-%      the radius.
+%      or segment zone style. See fcn_Laps_breakDataIntoLapIndices for
+%      details.
 %
 %      (OPTIONAL INPUTS)
 %   
@@ -34,24 +31,21 @@ function h_plot = fcn_Laps_plotPointZoneDefinition(zone_definition,varargin)
 % DEPENDENCIES:
 %
 %      fcn_DebugTools_checkInputsToFunctions
+%      fcn_Laps_checkZoneType
+%      fcn_Laps_plotSegmentZoneDefinition
+%      fcn_Laps_plotPointZoneDefinition
 %
 % EXAMPLES:
 %      
-%       See the script: script_test_fcn_Laps_plotPointZoneDefinition.m for
+%       See the script: script_test_fcn_Laps_plotZoneDefinition.m for
 %       a full test suite.
 %
-% This function was written on 2022_04_10 by S. Brennan
+% This function was written on 2022_07_23 by S. Brennan
 % Questions or comments? sbrennan@psu.edu 
 
 % Revision history:
-%     2022_04_10 
+%     2022_07_23 
 %     -- wrote the code
-%     2022_04_12
-%     -- fixed minor bug with showing the arrowhead
-%     2022_07_23
-%     -- made argument list consistent with segment zone
-%     -- allow zone to be 2D or 3D
-%     -- fixed minor bug with arrow being different color than line segment
 
 
 flag_do_debug = 0; % Flag to plot the results for debugging
@@ -83,18 +77,16 @@ if flag_check_inputs == 1
         error('Incorrect number of input arguments')
     end
           
-    % Check the zone_definition input, 4 or 5 columns, 1 row
-    fcn_DebugTools_checkInputsToFunctions(zone_definition, '4or5column_of_numbers',[1 1]);
+    % note: zone definition type is checked within code below
     
 end
 
 % Check for plot style input
-flag_plot_style_is_specified = 0; % Set default flag value
+plot_style = []; % Leave it empty for defaults
 if 2 <= nargin
     temp = varargin{1};
     if ~isempty(temp)
         plot_style = temp;
-        flag_plot_style_is_specified = 1;
     end
 end
 
@@ -121,59 +113,15 @@ end
 %  |_|  |_|\__,_|_|_| |_|
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- 
 
+% What type is it?
+[flag_is_a_point_zone_type, new_zone_definition] = fcn_Laps_checkZoneType(zone_definition, 'plot_zone_definition');
 
-figure(fig_num);
-axis equal;
-grid on;
-
-% Check to see if hold is already on. If it is not, set a flag to turn it
-% off after this function is over so it doesn't affect future plotting
-flag_shut_hold_off = 0;
-if ~ishold
-    flag_shut_hold_off = 1;
-    hold on
-end
-
-% Do the plot
-radius  = zone_definition(1,1);
-Xcenter = zone_definition(1,3);
-Ycenter = zone_definition(1,4);
-
-% Plot the center point
-if flag_plot_style_is_specified
-    h_plot{1} = plot(Xcenter,Ycenter,plot_style,'Markersize',20);
-    set(h_plot{1},'Marker','+');
-else
-    h_plot{1} = plot(Xcenter,Ycenter,'+','Markersize',20);
-    main_color = get(h_plot{1},'Color');
-end
-
-% Plot circle in green
-angles = 0:0.01:2*pi;
-x_circle = Xcenter + radius * cos(angles);
-y_circle = Ycenter + radius * sin(angles);
-if flag_plot_style_is_specified
-    h_plot{2} = plot(x_circle,y_circle,plot_style,'Linewidth',2,'Markersize',20);    
-else
-    h_plot{2} = plot(x_circle,y_circle,'-','color',main_color,'Linewidth',2);
-end
-
-
-% Plot the radius arrow
-U = radius*cos(45*pi/180);
-V = radius*sin(45*pi/180);
-if flag_plot_style_is_specified
-    h_plot{3} = quiver(Xcenter,Ycenter,U,V,0,plot_style,'Linewidth',2,'Markersize',20,'ShowArrowHead','on','MaxHeadSize',2);
-else
-    h_plot{3} = quiver(Xcenter,Ycenter,U,V,0,'color',main_color,'Linewidth',2,'ShowArrowHead','on','MaxHeadSize',2);
-end
-
-
-% Shut the hold off?
-if flag_shut_hold_off
-    hold off;
+% Is it a point-zone type?
+if flag_is_a_point_zone_type
+    h_plot = fcn_Laps_plotPointZoneDefinition(new_zone_definition,plot_style,fig_num);
+else % No, it's a segment zone
+    h_plot = fcn_Laps_plotSegmentZoneDefinition(new_zone_definition,plot_style,fig_num);
 end
 
 %% Any debugging?

@@ -24,7 +24,7 @@ function laps_array = fcn_Laps_fillSampleLaps
 % EXAMPLES:
 %
 %       See the script:
-%       script_test_fcn_Path_fillSampleLaps.m for a full
+%       script_test_fcn_Laps_fillSampleLaps for a full
 %       test suite.
 %
 % This function was written on 2022_04_02 by S. Brennan
@@ -35,6 +35,8 @@ function laps_array = fcn_Laps_fillSampleLaps
 %      -- wrote the code, started with circle and figure 8 laps
 %      2022_04_03 
 %      -- added teardrop laps, manual lap
+%      2022_07_23
+%      -- typo fix in script name in comments
 
 flag_do_debug = 0; % Flag to plot the results for debugging
 flag_check_inputs = 1; % Flag to perform input checking

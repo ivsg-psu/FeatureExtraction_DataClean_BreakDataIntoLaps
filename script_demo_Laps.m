@@ -128,13 +128,24 @@ fcn_Laps_plotLapsXY(path_data,fig_num);
 % definition is shown in blue. The segment definition includes an arrow
 % that points in the direction of an allowable crossing.
 
-point_zone_definition = [-1 0 0.2];
+fig_num = 444;
+
 zone_center = [0.8 0];
 zone_radius = 2;
-fcn_Laps_plotPointZoneDefinition(zone_center, zone_radius,'g',fig_num);
+num_points = 3;
+point_zone_definition = [zone_radius num_points zone_center];
+fcn_Laps_plotPointZoneDefinition(point_zone_definition,'g',fig_num);
 
 segment_zone_definition = [0.8 0; 1.2 0];
 fcn_Laps_plotSegmentZoneDefinition(segment_zone_definition,'b',fig_num);
+
+
+%%
+% Show we can get the same plot now via a combined function
+
+fig_num = 4443;
+fcn_Laps_plotZoneDefinition(point_zone_definition,'g',fig_num);
+fcn_Laps_plotZoneDefinition(segment_zone_definition,'b',fig_num);
 
 %% Point zone evaluations
 % The function, fcn_Laps_findPointZoneStartStopAndMinimum, uses a point
@@ -299,8 +310,26 @@ assert(isequal(87,length(lap_traversals.traversal{1}.X)));
 assert(isequal(98,length(lap_traversals.traversal{2}.X)));
 assert(isequal(79,length(lap_traversals.traversal{3}.X)));
 
-%% Definition of zones
-% 
+%% Call the fcn_Laps_breakDataIntoLapIndices function, plot in figure 3
+start_definition = [10 3 0 0]; % Radius 10, 3 points must pass near [0 0]
+end_definition = [30 3 0 -60]; % Radius 30, 3 points must pass near [0,-60]
+excursion_definition = []; % empty
+fig_num = 2;
+lap_traversals = fcn_Laps_breakDataIntoLaps(...
+    single_lap.traversal{1},...
+    start_definition,...
+    end_definition,...
+    excursion_definition,...
+    fig_num);
+
+% Do we get 3 laps?
+assert(isequal(3,length(lap_traversals.traversal)));
+
+% Are the laps different lengths?
+assert(isequal(87,length(lap_traversals.traversal{1}.X)));
+assert(isequal(98,length(lap_traversals.traversal{2}.X)));
+assert(isequal(79,length(lap_traversals.traversal{3}.X)));
+
 
 %% Revision History:
 %      2022_03_27:
@@ -313,3 +342,5 @@ assert(isequal(79,length(lap_traversals.traversal{3}.X)));
 %      -- Added comments, plotting utilities for zone definitions
 %      2022_05_21
 %      -- More cleanup
+%      2022_07_23 - sbrennan@psu.edu
+%      -- Enable index-based look-up

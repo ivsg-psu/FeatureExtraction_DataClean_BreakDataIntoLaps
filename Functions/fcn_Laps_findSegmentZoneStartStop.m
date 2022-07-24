@@ -239,9 +239,17 @@ if flag_do_plots
     
     % Plot the query path in blue dots
     plot(query_path(:,1),query_path(:,2),'b.-','Markersize',10);
+
+    % Plot the start and end of query in green and red, respectively
+    plot(query_path(1,1),query_path(1,2),'go','Markersize',10);
+
+    % Plot the start and end of query in green and red, respectively
+    plot(query_path(end,1),query_path(end,2),'ro','Markersize',10);
+
     
     % Plot the zone segment in green
-    plot(segment_definition(:,1),segment_definition(:,2),'go-','Markersize',10);
+    h1 = fcn_Laps_plotZoneDefinition(segment_definition,'g-',fig_num);
+    set(h1{1},'Markersize',10);
     
     % Plot the results
     if ~isempty(distance)  % empty
