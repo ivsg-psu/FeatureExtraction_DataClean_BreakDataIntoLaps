@@ -245,7 +245,7 @@ This code is still in development (alpha testing)
 ## Contact
 Sean Brennan - sbrennan@psu.edu
 
-Project Link: [https://github.com/ivsg-psu/FeatureExtraction_Association_PointToPointAssociation](https://github.com/ivsg-psu/FeatureExtraction_Association_PointToPointAssociation)
+Project Link: [hhttps://github.com/ivsg-psu/FeatureExtraction_DataClean_BreakDataIntoLaps](https://github.com/ivsg-psu/FeatureExtraction_DataClean_BreakDataIntoLaps)
 
 
 
