@@ -123,14 +123,17 @@ The following are the top level directories within the repository:
 <ul>
 	<li>
     fcn_Laps_plotLapsXY.m : This function plots the laps.
+    <br>
     <img src=".\Images\fcn_Laps_plotLapsXY.png" alt="fcn_Laps_plotLapsXY picture" width="400" height="300">
     </li>
 	<li>
     fcn_Laps_fillSampleLaps.m : This function allows users to create dummy data to test lap functions. The test laps are difficult including situatios where laps loop back onto itself (repeatedly) and/or with separate looping structures. These challenges show that the library can work on varying and complicated data sets. NOTE: within this function, commented out typically, there is code to allow users to draw their own lap test cases.
+    <br>
     <img src=".\Images\fcn_Laps_fillSampleLaps.png" alt="fcn_Laps_fillSampleLaps picture" width="400" height="300">
     </li>
     <li>
     fcn_Laps_plotZoneDefinition.m : Plots any type of zone, allowing user-defined colors. For example, the figure below shows a radial zone for the start, and a line segment for the end.  
+    <br>
     <img src=".\Images\fcn_Laps_plotZoneDefinition.png" alt="fcn_Laps_plotZoneDefinition picture" width="400" height="300">
     </li>
     <li>
@@ -196,11 +199,7 @@ also link to more resources. -->
 2. After running the main script, you can open MATLAB and navigate to the Functions directory. All functions for this library are found in the Functions sub-folder, and each has an associated test script. Run any of the various test scripts, such as:
 
    ```sh
-   script_test_fcn_Points_pairXYdata
-   ```
-   or
-   ```sh
-   script_test_fcn_Patch_checkCollisions
+   script_test_fcn_Laps_breakDataIntoLapIndices
    ```
 For more examples, please refer to the [Documentation] 
 
