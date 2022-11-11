@@ -15,10 +15,10 @@ Search for this, and you will find!
   <h2 align="center"> FeatureExtraction_DataClean_BreakDataIntoLaps
   </h2>
 
-<img src=".\Images\Laps_MainImage.jpg" alt="main laps picture" width="960" height="540">
+<img src=".\Images\RaceTrack.jpg" alt="main laps picture" width="960" height="540">
 
   <p align="center">
-    The purpose of this code is to break data into "laps", e.g. segments of data that are defined by a clear start condition and end condition. The code finds when a given path meets the "start" condition, then meets the "end" condition, and returns every portion of the path that is inside both conditions.
+    The purpose of this code is to break data into "laps", e.g. segments of data that are defined by a clear start condition and end condition. The code finds when a given path meets the "start" condition, then meets the "end" condition, and returns every portion of the path that is inside both conditions. Advanced features of the code include the ability to return the row indices defining each lap's data, as well as the path portions prior and after the lap area in case the "run in" or "run out" areas are needed.
     <br />
     <a href="https://github.com/ivsg-psu/FeatureExtraction_Association_PointToPointAssociation"><strong>Explore the docs »</strong></a>
     <br />
@@ -70,15 +70,15 @@ Search for this, and you will find!
 
 <!--[![Product Name Screen Shot][product-screenshot]](https://example.com)-->
 
-The most common location of our testing is the Larson Test Track, and we regularly use “laps around the track” as replicates, hence the name of the library. And when not on the test track and on public roads, data often needs to be segmented from one keypoint to another, for example finding data that fits from one intersection to the next. It is impractical and dangerous to stop data collection each time a measurement area is driven. Rather, data is often collected by repeated driving of an area over/over without stopping, so the final data set may contain many replicates of the area of interest. 
+The most common location of our testing is the Larson Test Track, and we regularly use “laps around the track” as replicates, hence the name of the library. And when not on the test track and on public roads, data often needs to be segmented from one keypoint to another. For example, it is a common task to seek a subset of path data that resides only from one intersection to the next. While one could segment this data during data collection by simply stopping the vehicle recordings at each segment, it is impractical and dangerous to stop data collection at each and every possible intersection or feature point. Rather, vehicle or robot data is often collected by repeated driving of an area over/over without stopping. So, the final data set may contain many replicates of the area of interest. 
 
-This "Laps" code assists in breaking data up to specific start and end locations, for example from intersection "A" to stop sign "B". Specifically, the purpose of this code is to break data into "laps", e.g. segments of data that are defined by a clear start condition and end condition. The code finds when a given path meets the "start" condition, then meets the "end" condition, and returns every portion of the path that is inside both conditions.
+This "Laps" code assists in breaking recorded path data into paths by defining specific start and end locations, for example from intersection "A" to stop sign "B". Specifically, the purpose of this code is to break data into "laps", e.g. segments of data that are defined by a clear start condition and end condition. The code finds when a given path meets the "start" condition, then meets the "end" condition, and returns every portion of the path that is inside both conditions. There are many advanced features as well including the ability to define excursion points, the number of points that must be within a condition for it to activate, and the ability to extract the portions of the paths before and after each lap, in addition to the data for each lap.
 
 * Inputs: 
-    * a path of XY points in N x 2 format
-    * the start, end, and optional excursions can be entered as either a line segment or a point and radius. 
+    * either a "traversals" type, as explained in the Path library, or a path of XY points in N x 2 format
+    * the start, end, and optional excursions can be entered as either a line segment or a point and radius.  
 * Outputs
-    * Separate arrays of XY points, one array for each lap
+    * Separate arrays of XY points, or of indices for the lap, with one array for each lap
     * The function also can return the points that were not used for laps, e.g. the points before the first start and after the last end
 
 <!-- GETTING STARTED -->
@@ -122,17 +122,17 @@ The following are the top level directories within the repository:
 **Basic Support Functions**
 <ul>
 	<li>
-    fcn_Laps_plotLapsXY.m : This function plots the laps.
+    fcn_Laps_plotLapsXY.m : This function plots the laps. For example, the function was used to make the plot below of the last Sample laps.
     <br>
     <img src=".\Images\fcn_Laps_plotLapsXY.png" alt="fcn_Laps_plotLapsXY picture" width="400" height="300">
     </li>
 	<li>
-    fcn_Laps_fillSampleLaps.m : This function allows users to create dummy data to test lap functions. The test laps are difficult including situatios where laps loop back onto itself (repeatedly) and/or with separate looping structures. These challenges show that the library can work on varying and complicated data sets. NOTE: within this function, commented out typically, there is code to allow users to draw their own lap test cases.
+    fcn_Laps_fillSampleLaps.m : This function allows users to create dummy data to test lap functions. The test laps are in general difficult situations, including scenarios where laps loop back onto themself and/or with separate looping structures. These challenges show that the library can work on varying and complicated data sets. NOTE: within this function, commented out typically, there is code to allow users to draw their own lap test cases.
     <br>
     <img src=".\Images\fcn_Laps_fillSampleLaps.png" alt="fcn_Laps_fillSampleLaps picture" width="400" height="300">
     </li>
     <li>
-    fcn_Laps_plotZoneDefinition.m : Plots any type of zone, allowing user-defined colors. For example, the figure below shows a radial zone for the start, and a line segment for the end.  
+    fcn_Laps_plotZoneDefinition.m : Plots any type of zone, allowing user-defined colors. For example, the figure below shows a radial zone for the start, and a line segment for the end. For the line segment, an arrow is given that indicates which direction the segment must be crossed in order for the condition to be counted. 
     <br>
     <img src=".\Images\fcn_Laps_plotZoneDefinition.png" alt="fcn_Laps_plotZoneDefinition picture" width="400" height="300">
     </li>
@@ -150,25 +150,25 @@ The following are the top level directories within the repository:
 **Core Functions**
 <ul>
 	<li>
-    fcn_Laps_breakDataIntoLaps.m : This is the core function for this repo that breaks data into laps. Note: for radial zone definitions, the image illustrates how a lap starts at the first point within a start zone, and ends at the last point before exiting the end zone. The input data is a traversal type.
+    fcn_Laps_breakDataIntoLaps.m : This is the core function for this repo that breaks data into laps. Note: the example shown below uses radial zone definitions, and the results illustrate how a lap, when it is within a start zone, starts at the FIRST point within a start zone. Similarly, each lap ends at the LAST point before exiting the end zone definition. The input data is a traversal type for this particular function.
     <br>
     <img src=".\Images\fcn_Laps_breakDataIntoLaps.png" alt="fcn_Laps_breakDataIntoLaps picture" width="400" height="300">
     </li>	
 	<li>
-    fcn_Laps_checkZoneType.m : This function supports fcn_Laps_breakDataIntoLaps by checking if the input is either a point or line segment zone specification.
+    fcn_Laps_checkZoneType.m : This function supports fcn_Laps_breakDataIntoLaps by checking if the zone definition inputs are either a point or line segment zone specification.
     </li>
 	<li>
-    fcn_Laps_breakDataIntoLapIndices.m : This is a more advanced version of fcn_Laps_breakDataIntoLaps, where the outputs are the indices that apply to each lap. The input type is also easier to use, a "path" type which is just an array of [X Y]. The example here shows the use of a segment type zone for the start zone, a point-radius type zone for the end zone.
+    fcn_Laps_breakDataIntoLapIndices.m : This is a more advanced version of fcn_Laps_breakDataIntoLaps, where the outputs are the indices that apply to each lap. The input type is also easier to use, a "path" type which is just an array of [X Y]. The example here shows the use of a segment type zone for the start zone, a point-radius type zone for the end zone. The results of this function are the row indices of the data. The plot below illustrates that the function returns 3 laps in this example, and as well returns the pre-lap and post-lap data. One can observe that it is common that the prelap data for one lap (Lap 2) consists of the post-lap data for the prior lap (Lap 1). 
     <br>
     <img src=".\Images\fcn_Laps_breakDataIntoLapIndices.png" alt="fcn_Laps_breakDataIntoLapIndices picture" width="600" height="300">
     </li>	
 	<li>
-    fcn_Laps_findSegmentZoneStartStop.m : A supporting function that finds the portions of a path that meet a segment zone criteria, returning the starting/ending indices for every crossing of a segment zone.
+    fcn_Laps_findSegmentZoneStartStop.m : A supporting function that finds the portions of a path that meet a segment zone criteria, returning the starting/ending indices for every crossing of a segment zone. The crossing must cross in the correct direction, and a segment is considered crossed if either the start or end of segment lie on the segment line. This is illustrated in the challenging example shown below, where the input path (thin blue) starts at the top, and then zig-zags repeatedly over a segment definition (green). For each time the blue line crosses the line segment, that portion of the path is saved as a separate possible crossing and thus, for this example, there are 5 possible crossings.
     <br>
     <img src=".\Images\fcn_Laps_findSegmentZoneStartStop.png" alt="fcn_Laps_findSegmentZoneStartStop picture" width="400" height="300">
     </li>	
 	<li>
-    fcn_Laps_findPointZoneStartStopAndMinimum.m : A supporting function that finds the portions of a path that meet a point zone criteria, returning the starting/ending indices for every crossing of a point zone.
+    fcn_Laps_findPointZoneStartStopAndMinimum.m : A supporting function that finds the portions of a path that meet a point zone criteria, returning the starting/ending indices for every crossing of a point zone. Note that a minimum number of points must be within the zone for it to be considered activated, which is useful for real-world data (such as GPS recordings) where noise may randomly push one point of a path randomly into a zone, and then jump out. This number of points threshold can be user-defined. In the example below, the threshold is 4 points and one can see that, for a path that crosses over the zone three times, that two of the crossings are found to meet the 4-point criteria.
     <br>
     <img src=".\Images\fcn_Laps_findPointZoneStartStopAndMinimum.png" alt="fcn_Laps_findPointZoneStartStopAndMinimum picture" width="400" height="300">
     </li>	
@@ -180,6 +180,12 @@ script_test_fcn_fcnname
 ```
 where fcnname is the function name as listed above.
 
+As well, each of the functions includes a well-documented header that explains inputs and outputs. These are supported by MATLAB's help style so that one can type:
+
+```sh
+help fcn_fcnname
+```
+for any function to view function details.
 
 <!-- USAGE EXAMPLES -->
 ## Usage
@@ -196,20 +202,16 @@ also link to more resources. -->
    ```
     This exercises the main function of this code: fcn_Laps_breakDataIntoLaps
 
-2. After running the main script, you can open MATLAB and navigate to the Functions directory. All functions for this library are found in the Functions sub-folder, and each has an associated test script. Run any of the various test scripts, such as:
+2. After running the main script to define the included directories for utility functions, one can then navigate to the Functions directory and run any of the functions or scripts there as well. All functions for this library are found in the Functions sub-folder, and each has an associated test script. Run any of the various test scripts, such as:
 
    ```sh
    script_test_fcn_Laps_breakDataIntoLapIndices
    ```
-For more examples, please refer to the [Documentation] 
-
-https://github.com/ivsg-psu/FeatureExtraction_Association_PointToPointAssociation/tree/main/Documents)_
+For more examples, please refer to the [Documentation](https://github.com/ivsg-psu/FeatureExtraction_Association_PointToPointAssociation/tree/main/Documents)
 
 ### Definition of Endpoints
-So one cannot use a point location to specify start or stop locations of laps, as this specification is not useful. For real-world operations, a vehicle will rarely -- if ever -- have the same exact start and stop points despite seeming to operate on the same paths repeatedly.
-
-To fix this issue, the codeset uses two types of endpoint definitions:
-1. A point and radius. An example of this would be "travel from home" or "to grandma's house". The point "zone" specification is given by an X,Y center location and a radius in the form of [X Y radius], as a 3x1 matrix. Whenever the path passes within the radius with a specified number of points within that radius, the minimum distance point then "triggers" the zone.
+The codeset uses two types of zone definitions:
+1. A point location defined by the center and radius of the zone, and number of points that must be within this zone. An example of this would be "travel from home" or "to grandma's house". The point "zone" specification is given by an X,Y center location and a radius in the form of [X Y radius], as a 3x1 matrix. Whenever the path passes within the radius with a specified number of points within that radius, the minimum distance point then "triggers" the zone. 
 
     <img src=".\Images\point_zone_definition.png" alt="point_zone_definition picture" width="200" height="200">
 
@@ -222,13 +224,19 @@ These two conditions can be mixed and matched, so that one could, for example, f
 The two zone types above can be used to define three types of conditions:
 1. A start condition - where a lap starts. The lap does not end until and end condition is met.
 2. An end condition - where a lap ends. The lap cannot end until this condition is met.
-3. An optional excursion condition - a condition after the start point, and before the end point, that must be met before the end point is counted. 
+3. An excursion condition (optional) - a condition that must be met after the start point, and before the end point. The excursion condition must be met before the end point is counted. 
 
-Why is an excursion point needed? Consider an example: it is common for the start line of a marathon to be quite close to the start line for the practical reason that runners do not want to make long walks from one site to another either before, and definitely not after, such a race. As a consequence, it is common that, immediately after the start of the race, a runner crosses the end line before going "out" onto the main course! Someone recording the race would not want that small segment to count as a complete marathon run. Rather, one would require that the runner passed some point far away from the starting line for such a "lap" to count. Thus, one can define an excursion point as a location far out into the course that one must "hit" before the finish line is counted as the actual "finish" of the lap.
+Why is an excursion point needed? Consider an example: it is common for the start line of a marathon to be quite close to the start line, sometimes even just a few hundred feet after the start line. This setup is for the practical reason that runners do not want to make long walks to/from starting locations to finish location either before, and definitely not after, such a race. As a consequence, it is common that, immediately after the start of the race, a runner will cross the finish line before actually finishing the race. This happens in field data collection when one accidentally passes a start/end station, and then backs up the vehicle to reset. In using these data recordings, we would not want these small segment to count as a complete laps, for example the 100-ish meter distance to be counted as a marathon run. Rather, one would require that the recorded data enter some excursion zone far away from the starting line for such a "lap" to count. Thus, this laps code allows one to define an excursion point as a location far out into the course that one must "hit" before the finish line is counted as the actual "finish" of the lap.
 
-* For each lap when there are repeats, the resulting laps of data include the lead-in and fade-out data, namely the datapoint immediately before the start condition was met, and the datapoint after the end condition is met; while this does create replicate data, this allows better merging of data for repeated laps, for example averaging data exactly from start to finish.
+* For each lap when there are repeats, the resulting laps of data include the lead-in and fade-out data, namely the datapoint immediately before the start condition was met, and the datapoint after the end condition is met. THIS CREATES REPLICATE DATA. However, this allows better merging of data for repeated laps, for example averaging data exactly from start to finish, or to more exactly calculate velocities on entry and exit of a lap by using windowed averages or filters.
 
-* Points inside the lap can be set. 
+* Points inside the lap can be set for the point-type zones. These occur as optional input arguments in fcn_Laps_findPointZoneStartStopAndMinimum and in the core definition of a point zone as the 2nd argument. For example, the following code:
+
+  ```Matlab
+  start_definition = [10 3 0 0]; % Radius 10, 3 points must pass near [0 0]
+  ```
+
+  requires 3 points to occur within the start zone area. 
 
 
 <!-- LICENSE -->
