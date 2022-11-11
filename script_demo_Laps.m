@@ -117,8 +117,7 @@ for i_Path = 1:length(path_examples)
     path_data.traversal{i_Path} = traversal;
 end
 
-%%
-% Plot the results
+% Plot the results via fcn_Laps_plotLapsXY
 fig_num = 222;
 fcn_Laps_plotLapsXY(path_data,fig_num);    
 
@@ -285,14 +284,36 @@ for i_Path = 1:length(laps_array)
     data.traversal{i_Path} = traversal;
 end
 
+
+% Plot all the laps
+fig_num = 11111;
+for ith_example = 1:length(data.traversal)
+    single_lap.traversal{1} = data.traversal{ith_example};
+    fcn_Laps_plotLapsXY(single_lap,fig_num);
+end
+
 % Plot the last one
 fig_num = 1;
 single_lap.traversal{1} = data.traversal{end};
 fcn_Laps_plotLapsXY(single_lap,fig_num);
 
+%% Show fcn_Laps_plotZoneDefinition.m 
+% Plots the zone, allowing user-defined colors. For example, the figure
+% below shows a radial zone for the start, and a line segment for the end.
+start_definition = [10 3 0 0]; % Radius 10, 3 points must pass near [0 0]
+fcn_Laps_plotZoneDefinition(start_definition,'g',fig_num);
+
+end_definition = [40 -40; 80 -40]; % must cross a line segment starting at [40 -40], ending at [80 -40]
+fcn_Laps_plotZoneDefinition(end_definition,'r',fig_num);
+
 %% Call the fcn_Laps_breakDataIntoLaps function, plot in figure 2
+% Test of fcn_Laps_breakDataIntoLaps.m : This is the core function for this
+% repo that breaks data into laps. Note: for radial zone definitions, the
+% image illustrates how a lap starts at the first point within a start
+% zone, and ends at the last point before exiting the end zone.
 start_definition = [10 3 0 0]; % Radius 10, 3 points must pass near [0 0]
 end_definition = [30 3 0 -60]; % Radius 30, 3 points must pass near [0,-60]
+
 excursion_definition = []; % empty
 fig_num = 2;
 lap_traversals = fcn_Laps_breakDataIntoLaps(...

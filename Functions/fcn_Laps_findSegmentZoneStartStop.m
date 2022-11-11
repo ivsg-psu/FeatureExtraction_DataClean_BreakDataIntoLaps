@@ -82,6 +82,8 @@ function [zone_start_indices, zone_end_indices] = ...
 %     
 %     2022_07_12: 
 %     -- wrote the code originally 
+%     2022_11_10: 
+%     -- fixed bug in plotting
 
 % TO DO
 % 
@@ -124,9 +126,11 @@ if flag_check_inputs
 end
         
 % Does user want to show the plots?
+fig_num = [];
 if 3 == nargin
-    fig_num = varargin{end};
-    if ~isempty(fig_num)
+    temp = varargin{end};
+    if ~isempty(temp)
+        fig_num = temp;
         figure(fig_num);
         flag_do_plots = 1;
     end
@@ -160,10 +164,17 @@ if isequal(size(segment_definition),[2 3])
 end
 
 % Calculate the intersection points
-[distance,~, segment_numbers] = ...
-    fcn_Path_findProjectionHitOntoPath(...
-    query_path,segment_definition(1,:),segment_definition(2,:),...
-    2,fig_num);
+if ~isempty(fig_num)
+    [distance,~, segment_numbers] = ...
+        fcn_Path_findProjectionHitOntoPath(...
+        query_path,segment_definition(1,:),segment_definition(2,:),...
+        2,fig_num);
+else
+    [distance,~, segment_numbers] = ...
+        fcn_Path_findProjectionHitOntoPath(...
+        query_path,segment_definition(1,:),segment_definition(2,:),...
+        2);
+end
 
 % For debugging:
 if flag_do_debug

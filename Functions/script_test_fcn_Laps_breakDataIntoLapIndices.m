@@ -154,7 +154,7 @@ fig_num = 55;
 INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
 
 %% Call the function to show it operating, and plot in figure 6
-start_definition = [0 10; 0 -10]; % Line segment
+start_definition = [0 10; 0 -10]; % Line segment, flipped direction
 end_definition = [90 0; 110 0]; % Line segment
 excursion_definition = []; % empty
 
@@ -183,7 +183,7 @@ tempXYdata = laps_array{5};
 figure(1);
 plot(tempXYdata(:,1),tempXYdata(:,2),'-');
 
-%% Call the function to show it operating, and plot in figure 5
+%% Call the function to show it operating, and plot in figure 7
 start_definition = [20 0; -20 0]; % Line segment
 end_definition = [-120 0; -80 0]; % Line segment
 excursion_definition = []; % empty

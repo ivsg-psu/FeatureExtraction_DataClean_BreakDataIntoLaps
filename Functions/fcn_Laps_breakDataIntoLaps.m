@@ -725,22 +725,27 @@ if flag_do_plots
     
 
     
-    % Plot the start, excursion, and end conditions
+    % Plot the start, excursion, and end zones
     % Start point in green
-    if flag_start_is_a_point_type==1
-        Xcenter = start_definition(1,1);
-        Ycenter = start_definition(1,2);
-        radius  = start_definition(1,3);
-        INTERNAL_plot_circle(Xcenter, Ycenter, radius, [0 .7 0], 4);
-    end
+    fcn_Laps_plotZoneDefinition(start_definition,'g',fig_num);
+
+    %     if flag_start_is_a_point_type==1
+    %         Xcenter = start_definition(1,3);
+    %         Ycenter = start_definition(1,4);
+    %         radius  = start_definition(1,1);
+    %         INTERNAL_plot_circle(Xcenter, Ycenter, radius, [0 .7 0], 4);
+    %     end
     
     % End point in red
-    if flag_end_is_a_point_type==1
-        Xcenter = end_definition(1,1);
-        Ycenter = end_definition(1,2);
-        radius  = end_definition(1,3);
-        INTERNAL_plot_circle(Xcenter, Ycenter, radius, [0.7 0 0], 2);
-    end
+    fcn_Laps_plotZoneDefinition(end_definition,'r',fig_num);
+
+    %     if flag_end_is_a_point_type==1
+    %         Xcenter = end_definition(1,3);
+    %         Ycenter = end_definition(1,4);
+    %         radius  = end_definition(1,1);
+    %         INTERNAL_plot_circle(Xcenter, Ycenter, radius, [0.7 0 0], 2);
+    %     end
+    %
     legend_text = [legend_text, 'Start condition'];
     legend_text = [legend_text, 'End condition'];
     h_legend = legend(legend_text);
