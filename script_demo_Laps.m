@@ -33,7 +33,11 @@ clc
 % 
 % For ease of transfer, zip files of the directories used - without the
 % .git repo information, to keep them small - are referenced and are NOT
-% included in this repo.
+% included in this repo. These dependencies are to open code repos, and
+% this code accesses these and downloads, if needed, the appropriate
+% releases.
+
+
 % 
 % The following code checks to see if the folders flag has been
 % initialized, and if not, it calls the DebugTools function that loads the
