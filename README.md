@@ -88,14 +88,14 @@ To get a local copy up and running follow these simple steps.
 
 ### Installation
 
-1.  Make sure to run MATLAB 2020b or higher. Why? The "digitspattern" command used in the DebugTools was released late 2020 and this is used heavily in the Debug routines. If debugging is shut off, then earlier MATLAB versions will likely work.
+1.  Make sure to run MATLAB 2020b or higher. Why? The "digitspattern" command used in the DebugTools utilities was released late 2020 and this is used heavily in the Debug routines. If debugging is shut off, then earlier MATLAB versions will likely work, and this has been tested back to 2018 releases.
 
 2. Clone the repo
    ```sh
    git clone https://github.com/ivsg-psu/FeatureExtraction_DataClean_BreakDataIntoLaps
    ```
-3. Unzip the zip files (DebugTools and PathClassLibrary) into a Utilities folder (.\Utilities), in locations .\Utilities\DebugTools and .\Utilities\PathClassLibrary
-4. Confirm it works! Run script_demo_Laps from the root directory root location. If the code works, the script should run without errors. This script produces numerous example images such as those in this README file.
+3. Run the main code in the root of the folder (script_demo_Laps.m), this will download the required utilities for this code, unzip the zip files into a Utilities folder (.\Utilities), and update the MATLAB path to include the Utility locations. This install process will only occur the first time. Note: to force the install to occur again, delete the Utilities directory and clear all global variables in MATLAB (type: "clear global *").
+4. Confirm it works! Run script_demo_Laps. If the code works, the script should run without errors. This script produces numerous example images such as those in this README file.
 
 
 <!-- STRUCTURE OF THE REPO -->

@@ -18,7 +18,8 @@
 % groups with one grouping, or "lap", per traversal.
 
 %% Prep workspace
-clc
+clc % Clear the console
+close all % Close all figures
 
 %% Dependencies and Setup of the Code
 % The code requires several other libraries to work, namely the following
@@ -344,7 +345,7 @@ end
 
 
 % Plot all the laps
-fig_num = 11111;
+fig_num = 22323;
 for ith_example = 1:length(data.traversal)
     single_lap.traversal{1} = data.traversal{ith_example};
     fcn_Laps_plotLapsXY(single_lap,fig_num);
