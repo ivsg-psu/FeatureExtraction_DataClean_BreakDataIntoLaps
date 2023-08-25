@@ -472,59 +472,61 @@ end % Ends check to see if keep going
 
 %% Summarize where we are:
 
-print_width = 20;
-fprintf(1,'\n');
-fprintf(1,'Summary of Zone results:\n');
-fprintf(1,'Start Zone Indices:\n');
-H1 = sprintf('%s','Start');
-H2 = sprintf('%s','End');
-H3 = sprintf('%s','Minimum');
-short_H1 = fcn_DebugTools_debugPrintStringToNCharacters(H1,print_width);
-short_H2 = fcn_DebugTools_debugPrintStringToNCharacters(H2,print_width);
-short_H3 = fcn_DebugTools_debugPrintStringToNCharacters(H3,print_width);
-fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
-for ith_index = 1:length(start_zone_start_indices)
-    T1 = sprintf('%d',start_zone_start_indices(ith_index));
-    T2 = sprintf('%d',start_zone_end_indices(ith_index));
-    T3 = sprintf('%d',start_zone_min_indices(ith_index));
-    short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
-    short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
-    short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
-    fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
-end
-
-fprintf(1,'\n');
-fprintf(1,'Excursion Zone Indices:\n');
-fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
-try
-    for ith_index = 1:length(excursion_zone_start_indices)
-        T1 = sprintf('%d',excursion_zone_start_indices(ith_index));
-        T2 = sprintf('%d',excursion_zone_end_indices(ith_index));
-        T3 = sprintf('%d',excursion_zone_min_indices(ith_index));
+if flag_do_debug
+    print_width = 20;
+    fprintf(1,'\n');
+    fprintf(1,'Summary of Zone results:\n');
+    fprintf(1,'Start Zone Indices:\n');
+    H1 = sprintf('%s','Start');
+    H2 = sprintf('%s','End');
+    H3 = sprintf('%s','Minimum');
+    short_H1 = fcn_DebugTools_debugPrintStringToNCharacters(H1,print_width);
+    short_H2 = fcn_DebugTools_debugPrintStringToNCharacters(H2,print_width);
+    short_H3 = fcn_DebugTools_debugPrintStringToNCharacters(H3,print_width);
+    fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
+    for ith_index = 1:length(start_zone_start_indices)
+        T1 = sprintf('%d',start_zone_start_indices(ith_index));
+        T2 = sprintf('%d',start_zone_end_indices(ith_index));
+        T3 = sprintf('%d',start_zone_min_indices(ith_index));
         short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
         short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
         short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
         fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
     end
-catch
-    fprintf('None detected');
-end
-
-fprintf(1,'\n');
-fprintf(1,'End Zone Indices:\n');
-fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
-try
-    for ith_index = 1:length(end_zone_start_indices)
-        T1 = sprintf('%d',end_zone_start_indices(ith_index));
-        T2 = sprintf('%d',end_zone_end_indices(ith_index));
-        T3 = sprintf('%d',end_zone_min_indices(ith_index));
-        short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
-        short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
-        short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
-        fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
+    
+    fprintf(1,'\n');
+    fprintf(1,'Excursion Zone Indices:\n');
+    fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
+    try
+        for ith_index = 1:length(excursion_zone_start_indices)
+            T1 = sprintf('%d',excursion_zone_start_indices(ith_index));
+            T2 = sprintf('%d',excursion_zone_end_indices(ith_index));
+            T3 = sprintf('%d',excursion_zone_min_indices(ith_index));
+            short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
+            short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
+            short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
+            fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
+        end
+    catch
+        fprintf('None detected');
     end
-catch
-    fprintf('None detected');
+    
+    fprintf(1,'\n');
+    fprintf(1,'End Zone Indices:\n');
+    fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
+    try
+        for ith_index = 1:length(end_zone_start_indices)
+            T1 = sprintf('%d',end_zone_start_indices(ith_index));
+            T2 = sprintf('%d',end_zone_end_indices(ith_index));
+            T3 = sprintf('%d',end_zone_min_indices(ith_index));
+            short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
+            short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
+            short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
+            fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
+        end
+    catch
+        fprintf('None detected');
+    end
 end
 
 %%  Loop through each start points, checking for next excursion and end point
@@ -559,27 +561,29 @@ for ith_start = 1:length(start_zone_start_indices)
 end
 
 %% Summarize results to this point
-
-print_width = 20;
-fprintf(1,'\n');
-fprintf(1,'Summary of Test Lap results:\n');
-H1 = sprintf('%s','Start');
-H2 = sprintf('%s','Transition');
-H3 = sprintf('%s','End');
-short_H1 = fcn_DebugTools_debugPrintStringToNCharacters(H1,print_width);
-short_H2 = fcn_DebugTools_debugPrintStringToNCharacters(H2,print_width);
-short_H3 = fcn_DebugTools_debugPrintStringToNCharacters(H3,print_width);
-fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
-for ith_index = 1:length(test_laps(:,1))
-    T1 = sprintf('%d',test_laps(ith_index,1));
-    T2 = sprintf('%d',test_laps(ith_index,2));
-    T3 = sprintf('%d',test_laps(ith_index,3));
-    short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
-    short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
-    short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
-    fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
+if flag_do_debug
+    print_width = 20;
+    fprintf(1,'\n');
+    fprintf(1,'Summary of Test Lap results:\n');
+    H1 = sprintf('%s','Start');
+    H2 = sprintf('%s','Transition');
+    H3 = sprintf('%s','End');
+    short_H1 = fcn_DebugTools_debugPrintStringToNCharacters(H1,print_width);
+    short_H2 = fcn_DebugTools_debugPrintStringToNCharacters(H2,print_width);
+    short_H3 = fcn_DebugTools_debugPrintStringToNCharacters(H3,print_width);
+    fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
+    for ith_index = 1:length(test_laps(:,1))
+        T1 = sprintf('%d',test_laps(ith_index,1));
+        T2 = sprintf('%d',test_laps(ith_index,2));
+        T3 = sprintf('%d',test_laps(ith_index,3));
+        short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
+        short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
+        short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
+        fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
+    end
+    fprintf(1,'Number of comlete laps: %d\n',Nlaps);
+    
 end
-fprintf(1,'Number of comlete laps: %d\n',Nlaps);
 
 %% Save everything in a laps array
 if Nlaps>0
@@ -597,29 +601,30 @@ else
 end
 
 %% Summarize results to this point
-
-print_width = 20;
-fprintf(1,'\n');
-fprintf(1,'Summary of Final Lap results:\n');
-if Nlaps>0
-    H1 = sprintf('%s','Start');
-    H2 = sprintf('%s','Transition');
-    H3 = sprintf('%s','End');
-    short_H1 = fcn_DebugTools_debugPrintStringToNCharacters(H1,print_width);
-    short_H2 = fcn_DebugTools_debugPrintStringToNCharacters(H2,print_width);
-    short_H3 = fcn_DebugTools_debugPrintStringToNCharacters(H3,print_width);
-    fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
-    for ith_index = 1:length(laps_array(:,1))
-        T1 = sprintf('%d',laps_array(ith_index,1));
-        T2 = sprintf('%d',laps_array(ith_index,2));
-        T3 = sprintf('%d',laps_array(ith_index,3));
-        short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
-        short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
-        short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
-        fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
+if flag_do_debug
+    print_width = 20;
+    fprintf(1,'\n');
+    fprintf(1,'Summary of Final Lap results:\n');
+    if Nlaps>0
+        H1 = sprintf('%s','Start');
+        H2 = sprintf('%s','Transition');
+        H3 = sprintf('%s','End');
+        short_H1 = fcn_DebugTools_debugPrintStringToNCharacters(H1,print_width);
+        short_H2 = fcn_DebugTools_debugPrintStringToNCharacters(H2,print_width);
+        short_H3 = fcn_DebugTools_debugPrintStringToNCharacters(H3,print_width);
+        fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
+        for ith_index = 1:length(laps_array(:,1))
+            T1 = sprintf('%d',laps_array(ith_index,1));
+            T2 = sprintf('%d',laps_array(ith_index,2));
+            T3 = sprintf('%d',laps_array(ith_index,3));
+            short_T1 = fcn_DebugTools_debugPrintStringToNCharacters(T1,print_width);
+            short_T2 = fcn_DebugTools_debugPrintStringToNCharacters(T2,print_width);
+            short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
+            fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
+        end
     end
+    fprintf(1,'Number of complete laps: %d\n',Nlaps);
 end
-fprintf(1,'Number of complete laps: %d\n',Nlaps);
 
 %% Step 4
 % save results out to arrays.
