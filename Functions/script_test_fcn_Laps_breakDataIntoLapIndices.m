@@ -7,36 +7,25 @@
 
 %% Set up the workspace
 close all
-clc
 clear laps_array data single_lap
 
-%% Load some test data and plot it in figure 1 
-% Call the function to fill in an array of "path" type
-laps_array = fcn_Laps_fillSampleLaps;
 
 
-% Convert paths to traversals structures. Each traversal instance is a
-% "traversal" type, and the array called "data" below is a "traversals"
-% type.
-for i_Path = 1:length(laps_array)
-    traversal = fcn_Path_convertPathToTraversalStructure(laps_array{i_Path});
-    data.traversal{i_Path} = traversal;
-end
+%% Call the function to show it operating on the 9th data set
 
-% Plot the last one
-fig_num = 1;
-example_lap_data.traversal{1} = data.traversal{end};
-fcn_Laps_plotLapsXY(example_lap_data,fig_num);
+fig_num = 9001;
+figure(fig_num);
+clf;
 
-%% Use the last data
-tempXYdata = laps_array{end};
+dataSetNumber = 9;
 
-%% Call the function to show it operating, and plot in figure 2
+% Load some test data 
+tempXYdata = fcn_INTERNAL_loadExampleData(dataSetNumber);
+
 start_definition = [10 3 0 0]; % Radius 10, 3 points must pass near [0,0]
 end_definition = [30 3 0 -60]; % Radius 30, 3 points must pass near [0,-60]
 excursion_definition = []; % empty
 
-fig_num = 2;
 [cell_array_of_lap_indices, ...
     cell_array_of_entry_indices, cell_array_of_exit_indices] = ...
     fcn_Laps_breakDataIntoLapIndices(...
@@ -59,15 +48,30 @@ assert(isequal(88,max(cell_array_of_lap_indices{1})));
 assert(isequal(199,max(cell_array_of_lap_indices{2})));
 assert(isequal(293,max(cell_array_of_lap_indices{3})));
 
-% Plot the results
-fig_num = 22;
-INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),fig_num));
 
-%% Show how a lap is missed if start zone is not big enough
+
+% Plot the results
+if 1==0
+    fig_num = 9901;
+    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+end
+
+%% Show how a lap is missed if start zone is not big enough, 9th example data
+fig_num = 9002;
+figure(fig_num);
+clf;
+
+dataSetNumber = 9;
+
+% Load some test data 
+tempXYdata = fcn_INTERNAL_loadExampleData(dataSetNumber);
+
 start_definition = [6 3 0 0]; % Radius 10, 3 points must pass near [0,0]
 end_definition = [30 3 0 -60]; % Radius 30, 3 points must pass near [0,-60]
 excursion_definition = []; % empty
-fig_num = 3;
+
 [cell_array_of_lap_indices, ...
     cell_array_of_entry_indices, cell_array_of_exit_indices] = ...
     fcn_Laps_breakDataIntoLapIndices(...
@@ -88,16 +92,30 @@ assert(isequal(216,min(cell_array_of_lap_indices{2})));
 assert(isequal(88,max(cell_array_of_lap_indices{1})));
 assert(isequal(293,max(cell_array_of_lap_indices{2})));
 
+
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),fig_num));
+
+
 % Plot the results
-fig_num = 33;
-INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+if 1==0
+    fig_num = 9902;
+    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+end
 
+%% Show the use of segment definition, 9th example data
+fig_num = 9003;
+figure(fig_num);
+clf;
 
-%% Show the use of segment definition
+dataSetNumber = 9;
+
+% Load some test data 
+tempXYdata = fcn_INTERNAL_loadExampleData(dataSetNumber);
+
 start_definition = [10 0; -10 0]; % start at [10 0], end at [-10 0]
 end_definition = [30 3 0 -60]; % Radius 30, 3 points must pass near [0,-60]
 excursion_definition = []; % empty
-fig_num = 4;
 [cell_array_of_lap_indices, ...
     cell_array_of_entry_indices, cell_array_of_exit_indices] = ...
     fcn_Laps_breakDataIntoLapIndices(...
@@ -120,18 +138,120 @@ assert(isequal(88,max(cell_array_of_lap_indices{1})));
 assert(isequal(199,max(cell_array_of_lap_indices{2})));
 assert(isequal(293,max(cell_array_of_lap_indices{3})));
 
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),fig_num));
+
+
 % Plot the results
-fig_num = 44;
-INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+if 1==0
+    fig_num = 9903;
+    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+end
 
-%% Use a new set of laps data
-tempXYdata = laps_array{end-1};
+%% Call the function to show it operating on the 9th data set, NO PLOTTING, FAST MODE
+fig_num = 9004;
+figure(fig_num);
+close(fig_num);
 
-% Plot the dataset
-figure(1);
-plot(tempXYdata(:,1),tempXYdata(:,2),'-');
+dataSetNumber = 9;
 
-%% Call the function to show it operating, and plot in figure 5
+% Load some test data 
+tempXYdata = fcn_INTERNAL_loadExampleData(dataSetNumber);
+
+start_definition = [10 3 0 0]; % Radius 10, 3 points must pass near [0,0]
+end_definition = [30 3 0 -60]; % Radius 30, 3 points must pass near [0,-60]
+excursion_definition = []; % empty
+
+[cell_array_of_lap_indices, ...
+    cell_array_of_entry_indices, cell_array_of_exit_indices] = ...
+    fcn_Laps_breakDataIntoLapIndices(...
+    tempXYdata,...
+    start_definition,...
+    end_definition,...
+    excursion_definition,...
+    -1);
+
+% Do we get 3 laps?
+assert(isequal(3,length(cell_array_of_entry_indices)));
+
+% Are the laps starting at expected points?
+assert(isequal(2,min(cell_array_of_lap_indices{1})));
+assert(isequal(102,min(cell_array_of_lap_indices{2})));
+assert(isequal(215,min(cell_array_of_lap_indices{3})));
+
+% Are the laps ending at expected points?
+assert(isequal(88,max(cell_array_of_lap_indices{1})));
+assert(isequal(199,max(cell_array_of_lap_indices{2})));
+assert(isequal(293,max(cell_array_of_lap_indices{3})));
+
+% Make sure plot did NOT open up
+figHandles = get(groot, 'Children');
+assert(~any(figHandles==fig_num));
+
+
+% Plot the results
+if 1==0
+    fig_num = 9904;
+    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+end
+
+%% Call the function to show it operating on the 9th data set, NO PLOTTING
+fig_num = 9005;
+figure(fig_num);
+close(fig_num);
+
+dataSetNumber = 9;
+
+% Load some test data 
+tempXYdata = fcn_INTERNAL_loadExampleData(dataSetNumber);
+
+start_definition = [10 3 0 0]; % Radius 10, 3 points must pass near [0,0]
+end_definition = [30 3 0 -60]; % Radius 30, 3 points must pass near [0,-60]
+excursion_definition = []; % empty
+
+[cell_array_of_lap_indices, ...
+    cell_array_of_entry_indices, cell_array_of_exit_indices] = ...
+    fcn_Laps_breakDataIntoLapIndices(...
+    tempXYdata,...
+    start_definition,...
+    end_definition,...
+    excursion_definition,...
+    []);
+
+% Do we get 3 laps?
+assert(isequal(3,length(cell_array_of_entry_indices)));
+
+% Are the laps starting at expected points?
+assert(isequal(2,min(cell_array_of_lap_indices{1})));
+assert(isequal(102,min(cell_array_of_lap_indices{2})));
+assert(isequal(215,min(cell_array_of_lap_indices{3})));
+
+% Are the laps ending at expected points?
+assert(isequal(88,max(cell_array_of_lap_indices{1})));
+assert(isequal(199,max(cell_array_of_lap_indices{2})));
+assert(isequal(293,max(cell_array_of_lap_indices{3})));
+
+% Make sure plot did NOT open up
+figHandles = get(groot, 'Children');
+assert(~any(figHandles==fig_num));
+
+
+% Plot the results
+if 1==0
+    fig_num = 9905;
+    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+end
+
+%% Call the function with 8th example data
+fig_num = 8001;
+figure(fig_num);
+clf;
+
+dataSetNumber = 8;
+
+% Load some test data 
+tempXYdata = fcn_INTERNAL_loadExampleData(dataSetNumber);
+
 start_definition = [0 -10; 0 10]; % Line segment
 end_definition = [90 0; 110 0]; % Line segment
 excursion_definition = []; % empty
@@ -149,16 +269,30 @@ fig_num = 5;
 % Do we get 3 laps?
 assert(isequal(3,length(cell_array_of_entry_indices)));
 
-% Plot the results
-fig_num = 55;
-INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),fig_num));
 
-%% Call the function to show it operating, and plot in figure 6
+
+% Plot the results
+if 1==0
+    fig_num = 8801;
+    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+end
+
+%% Call the function to show it operating, 8th data set
+fig_num = 8002;
+figure(fig_num);
+clf;
+
+dataSetNumber = 8;
+
+% Load some test data 
+tempXYdata = fcn_INTERNAL_loadExampleData(dataSetNumber);
+
 start_definition = [0 10; 0 -10]; % Line segment, flipped direction
 end_definition = [90 0; 110 0]; % Line segment
 excursion_definition = []; % empty
 
-fig_num = 5;
 [cell_array_of_lap_indices, ...
     cell_array_of_entry_indices, cell_array_of_exit_indices] = ...
     fcn_Laps_breakDataIntoLapIndices(...
@@ -171,24 +305,29 @@ fig_num = 5;
 % Do we get 3 laps?
 assert(isequal(3,length(cell_array_of_entry_indices)));
 
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),fig_num));
+
 % Plot the results
-fig_num = 66;
-INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+if 1==0
+    fig_num = 8802;
+    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+end
 
+%% Use a new set of laps data, 5th data set
+fig_num = 5001;
+figure(fig_num);
+clf;
 
-%% Use a new set of laps data
-tempXYdata = laps_array{5};
+dataSetNumber = 5;
 
-% Plot the dataset
-figure(1);
-plot(tempXYdata(:,1),tempXYdata(:,2),'-');
+% Load some test data 
+tempXYdata = fcn_INTERNAL_loadExampleData(dataSetNumber);
 
-%% Call the function to show it operating, and plot in figure 7
 start_definition = [20 0; -20 0]; % Line segment
 end_definition = [-120 0; -80 0]; % Line segment
 excursion_definition = []; % empty
 
-fig_num = 7;
 [cell_array_of_lap_indices, ...
     cell_array_of_entry_indices, cell_array_of_exit_indices] = ...
     fcn_Laps_breakDataIntoLapIndices(...
@@ -201,16 +340,29 @@ fig_num = 7;
 % Do we get 3 laps?
 assert(isequal(3,length(cell_array_of_entry_indices)));
 
-% Plot the results
-fig_num = 77;
-INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),fig_num));
 
-%% Call the function to show it gives nothing if line segments are backwards
+% Plot the results
+if 1==0
+    fig_num = 5501;
+    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+end
+
+%% Call the function to show it gives nothing if line segments are backwards, 5th data set
+fig_num = 5002;
+figure(fig_num);
+clf;
+
+dataSetNumber = 5;
+
+% Load some test data 
+tempXYdata = fcn_INTERNAL_loadExampleData(dataSetNumber);
+
 start_definition = [20 0; -20 0]; % Line segment
 end_definition = [ -80 0; -120 0;]; % Line segment
 excursion_definition = []; % empty
 
-fig_num = 8;
 [cell_array_of_lap_indices, ...
     cell_array_of_entry_indices, cell_array_of_exit_indices] = ...
     fcn_Laps_breakDataIntoLapIndices(...
@@ -223,24 +375,30 @@ fig_num = 8;
 % Do we get 0 laps?
 assert(isequal(0,length(cell_array_of_entry_indices)));
 
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),fig_num));
+
 % Plot the results
-fig_num = 88;
-INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+if 1==0
+    fig_num = 5502;
+    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+end
 
+%% Use a new set of laps data, 6th data set
+fig_num = 6001;
+figure(fig_num);
+clf;
 
-%% Use a new set of laps data
-tempXYdata = laps_array{6};
+dataSetNumber = 6;
 
-% Plot the dataset
-figure(1);
-plot(tempXYdata(:,1),tempXYdata(:,2),'-');
+% Load some test data 
+tempXYdata = fcn_INTERNAL_loadExampleData(dataSetNumber);
 
-%% Call the function to show it operating, and plot in figure 9
+% Call the function to show it operating
 start_definition = [20 0; -20 0]; % Line segment
 end_definition = [-120 0; -80 0]; % Line segment
 excursion_definition = []; % empty
 
-fig_num = 9;
 [cell_array_of_lap_indices, ...
     cell_array_of_entry_indices, cell_array_of_exit_indices] = ...
     fcn_Laps_breakDataIntoLapIndices(...
@@ -253,17 +411,29 @@ fig_num = 9;
 % Do we get 3 laps?
 assert(isequal(3,length(cell_array_of_entry_indices)));
 
-% Plot the results
-fig_num = 99;
-INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),fig_num));
 
+% Plot the results
+if 1==0
+    fig_num = 6601;
+    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+end
 
 %% Call the function to show gives weird results with repeated start overlaps
+fig_num = 6002;
+figure(fig_num);
+clf;
+
+dataSetNumber = 6;
+
+% Load some test data 
+tempXYdata = fcn_INTERNAL_loadExampleData(dataSetNumber);
+
 start_definition = [20 0; -20 0]; % Line segment
 end_definition = []; % empty
 excursion_definition = []; % empty
 
-fig_num = 10;
 [cell_array_of_lap_indices, ...
     cell_array_of_entry_indices, cell_array_of_exit_indices] = ...
     fcn_Laps_breakDataIntoLapIndices(...
@@ -276,10 +446,14 @@ fig_num = 10;
 % Do we get 3 laps?
 assert(isequal(6,length(cell_array_of_entry_indices)));
 
-% Plot the results
-fig_num = 100;
-INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),fig_num));
 
+% Plot the results
+if 1==0
+    fig_num = 6602;
+    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+end
 
 
 
@@ -571,3 +745,40 @@ subplot(1,3,3); axis(good_axis);
 
 
 end
+
+
+%% Functions follow
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   ______                _   _
+%  |  ____|              | | (_)
+%  | |__ _   _ _ __   ___| |_ _  ___  _ __  ___
+%  |  __| | | | '_ \ / __| __| |/ _ \| '_ \/ __|
+%  | |  | |_| | | | | (__| |_| | (_) | | | \__ \
+%  |_|   \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
+%
+% See: https://patorjk.com/software/taag/#p=display&f=Big&t=Functions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%§
+%% fcn_INTERNAL_loadExampleData
+function tempXYdata = fcn_INTERNAL_loadExampleData(dataSetNumber)
+% Call the function to fill in an array of "path" type
+laps_array = fcn_Laps_fillSampleLaps(-1);
+
+
+% Convert paths to traversals structures. Each traversal instance is a
+% "traversal" type, and the array called "data" below is a "traversals"
+% type.
+for i_Path = 1:length(laps_array)
+    traversal = fcn_Path_convertPathToTraversalStructure(laps_array{i_Path});
+    data.traversal{i_Path} = traversal;
+end
+
+% Plot the last one
+if 1==0
+    example_lap_data = data.traversal{dataSetNumber};
+    fig_num = 999;
+    fcn_Laps_plotLapsXY(example_lap_data,fig_num);
+end
+
+% Use the last data
+tempXYdata = laps_array{dataSetNumber};
+end % Ends fcn_INTERNAL_loadExampleData

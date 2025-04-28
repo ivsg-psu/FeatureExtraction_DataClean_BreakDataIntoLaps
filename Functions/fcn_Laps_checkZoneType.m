@@ -1,4 +1,4 @@
-function [flag_is_a_point_zone_type, new_zone_definition] = fcn_Laps_checkZoneType(zone_definition, string_label)
+function [flag_is_a_point_zone_type, new_zone_definition] = fcn_Laps_checkZoneType(zone_definition, string_label, varargin)
 % fcn_Laps_checkZoneType
 % Checks the type of zone, returns flag of 1 if a point zone, 0 if a
 % segment zone, and in case of a 3D zone, returns the 2D zone equivalent
@@ -17,9 +17,11 @@ function [flag_is_a_point_zone_type, new_zone_definition] = fcn_Laps_checkZoneTy
 %      string_label: a string naming the variable, used for reporting
 %      mistakes
 % 
-%      (OPTIONAL INPUTS)
+%     (optional inputs)
 %
-%      (none)
+%      fig_num: a figure number to plot results. If set to -1, skips any
+%      input checking or debugging, no figures will be generated, and sets
+%      up code to maximize speed. 
 %
 % OUTPUTS:
 %
@@ -41,22 +43,47 @@ function [flag_is_a_point_zone_type, new_zone_definition] = fcn_Laps_checkZoneTy
 % This function was written on 2022_07_23 by S. Brennan
 % Questions or comments? sbrennan@psu.edu 
 
-% Revision history:
-%     
-%     2022_07_23: sbrennan@psu.edu
-%     -- wrote the code originally 
+% Revision history: 
+% 2022_07_23: sbrennan@psu.edu
+% -- wrote the code originally
+% 2025_04_25 by Sean Brennan
+% -- added global debugging options
 
 % TO DO
-% 
+% -- (add items here)
 
-flag_do_debug = 0; % Flag to show the results for debugging
-flag_do_plots = 0; % % Flag to plot the final results
-flag_check_inputs = 1; % Flag to perform input checking
+%% Debugging and Input checks
+
+% Check if flag_max_speed set. This occurs if the fig_num variable input
+% argument (varargin) is given a number of -1, which is not a valid figure
+% number.
+flag_max_speed = 0;
+if (nargin==3 && isequal(varargin{end},-1))
+    flag_do_debug = 0; % % % % Flag to plot the results for debugging
+    flag_check_inputs = 0; % Flag to perform input checking
+    flag_max_speed = 1;
+else
+    % Check to see if we are externally setting debug mode to be "on"
+    flag_do_debug = 0; % % % % Flag to plot the results for debugging
+    flag_check_inputs = 1; % Flag to perform input checking
+    MATLABFLAG_LAPS_FLAG_CHECK_INPUTS = getenv("MATLABFLAG_LAPS_FLAG_CHECK_INPUTS");
+    MATLABFLAG_LAPS_FLAG_DO_DEBUG = getenv("MATLABFLAG_LAPS_FLAG_DO_DEBUG");
+    if ~isempty(MATLABFLAG_LAPS_FLAG_CHECK_INPUTS) && ~isempty(MATLABFLAG_LAPS_FLAG_DO_DEBUG)
+        flag_do_debug = str2double(MATLABFLAG_LAPS_FLAG_DO_DEBUG);
+        flag_check_inputs  = str2double(MATLABFLAG_LAPS_FLAG_CHECK_INPUTS);
+    end
+end
+
+% flag_do_debug = 1;
 
 if flag_do_debug
     st = dbstack; %#ok<*UNRCH>
     fprintf(1,'STARTING function: %s, in file: %s\n',st(1).name,st(1).file);
+    debug_fig_num = 999978; %#ok<NASGU>
+else
+    debug_fig_num = []; %#ok<NASGU>
 end
+
 
 
 %% check input arguments
@@ -71,17 +98,31 @@ end
 %              |_|
 % See: http://patorjk.com/software/taag/#p=display&f=Big&t=Inputs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if (0==flag_max_speed)
+    if flag_check_inputs
+        % Are there the right number of inputs?
+        narginchk(2,3);
 
-if flag_check_inputs
-    % Are there the right number of inputs?
-    if nargin < 2 || nargin > 2
-        error('Incorrect number of input arguments')
+        % NOTE: zone types are checked below
+
     end
-        
-    % NOTE: zone types are checked below
-
 end
 
+% Does user want to show the plots?
+flag_do_plot = 0; % Default is no plotting
+if  3 == nargin && (0==flag_max_speed) % Only create a figure if NOT maximizing speed
+    temp = varargin{end}; % Last argument is always figure number
+    if ~isempty(temp) % Make sure the user is not giving empty input
+        fig_num = temp; %#ok<NASGU>
+        flag_do_plot = 1; % Set flag to do plotting
+    end
+else
+    if flag_do_debug % If in debug mode, do plotting but to an arbitrary figure number
+        fig = figure;
+        fig_for_debug = fig.Number; %#ok<NASGU>
+        flag_do_plot = 1;
+    end
+end
 
 %% Main code starts here
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -157,7 +198,7 @@ end
 %                            __/ |
 %                           |___/
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if flag_do_plots
+if flag_do_plot
     
     % Nothing to plot        
     

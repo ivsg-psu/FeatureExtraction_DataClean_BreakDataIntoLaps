@@ -6,16 +6,6 @@
 %     -- first write of the code
 
 close all
-clc
-
-% Create some data to plot
-full_steps = (-1:0.1:1)';
-zero_full_steps = 0*full_steps; %#ok<*NASGU>
-ones_full_steps = ones(length(full_steps(:,1)),1);
-half_steps = (-1:0.1:0)';
-zero_half_steps = 0*half_steps;
-ones_half_steps = ones(length(half_steps(:,1)),1); %#ok<*PREALL>
-
 
 %% Check assertions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -30,26 +20,20 @@ ones_half_steps = ones(length(half_steps(:,1)),1); %#ok<*PREALL>
 % See: https://patorjk.com/software/taag/#p=display&f=Big&t=Assertions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% This one returns nothing since there is no portion of the path in the
-% criteria, even though the path goes right over the criteria
-fig_num = 1;
+%% BASIC EXAMPLE: This one returns one hit
+fig_num = 1001;
+figure(fig_num);
+clf;
 
-query_path = ...
-    [full_steps 0.4*ones_full_steps];
+% Create some data to plot
+full_steps = (-1:0.1:1)';
+% zero_full_steps = 0*full_steps; 
+ones_full_steps = ones(length(full_steps(:,1)),1);
+% half_steps = (-1:0.1:0)';
+% zero_half_steps = 0*half_steps;
+% ones_half_steps = ones(length(half_steps(:,1)),1); 
 
-segment_definition = [0 0; 1 0]; % Starts at [0,0], ends at [1 0]
-[zone_start_indices, zone_end_indices] = ...
-    fcn_Laps_findSegmentZoneStartStop(...
-    query_path,...
-    segment_definition,...
-    fig_num);
-
-assert(isempty(zone_start_indices));
-assert(isempty(zone_end_indices));
-
-%% This one returns one hit
-fig_num = 1;
-
+% Create the query path
 query_path = ...
     [full_steps 0.4*ones_full_steps];
 
@@ -63,9 +47,117 @@ segment_definition = [0 0; 0 1]; % Starts at [0,0], ends at [0 1]
 assert(isequal(zone_start_indices,10));
 assert(isequal(zone_end_indices,11));
 
-%% This one returns one hit, right on start of path
-fig_num = 2;
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),fig_num));
 
+%% BASIC EXAMPLE: This one returns one hit, NO PLOTTING
+fig_num = 1002;
+figure(fig_num);
+close(fig_num);
+
+% Create some data to plot
+full_steps = (-1:0.1:1)';
+% zero_full_steps = 0*full_steps; 
+ones_full_steps = ones(length(full_steps(:,1)),1);
+% half_steps = (-1:0.1:0)';
+% zero_half_steps = 0*half_steps;
+% ones_half_steps = ones(length(half_steps(:,1)),1); 
+
+% Create the query path
+query_path = ...
+    [full_steps 0.4*ones_full_steps];
+
+segment_definition = [0 0; 0 1]; % Starts at [0,0], ends at [0 1]
+[zone_start_indices, zone_end_indices] = ...
+    fcn_Laps_findSegmentZoneStartStop(...
+    query_path,...
+    segment_definition,...
+    []);
+
+assert(isequal(zone_start_indices,10));
+assert(isequal(zone_end_indices,11));
+
+% Make sure plot did NOT open up
+figHandles = get(groot, 'Children');
+assert(~any(figHandles==fig_num));
+
+%% BASIC EXAMPLE: This one returns one hit, NO PLOTTING, FAST MODE
+fig_num = 1003;
+figure(fig_num);
+close(fig_num);
+
+% Create some data to plot
+full_steps = (-1:0.1:1)';
+% zero_full_steps = 0*full_steps; 
+ones_full_steps = ones(length(full_steps(:,1)),1);
+% half_steps = (-1:0.1:0)';
+% zero_half_steps = 0*half_steps;
+% ones_half_steps = ones(length(half_steps(:,1)),1); 
+
+% Create the query path
+query_path = ...
+    [full_steps 0.4*ones_full_steps];
+
+segment_definition = [0 0; 0 1]; % Starts at [0,0], ends at [0 1]
+[zone_start_indices, zone_end_indices] = ...
+    fcn_Laps_findSegmentZoneStartStop(...
+    query_path,...
+    segment_definition,...
+    -1);
+
+assert(isequal(zone_start_indices,10));
+assert(isequal(zone_end_indices,11));
+
+% Make sure plot did NOT open up
+figHandles = get(groot, 'Children');
+assert(~any(figHandles==fig_num));
+
+%% This one returns nothing since there is no portion of the path in the
+% criteria, even though the path goes right over the criteria
+fig_num = 2;
+figure(fig_num);
+clf;
+
+% Create some data to plot
+full_steps = (-1:0.1:1)';
+zero_full_steps = 0*full_steps; 
+ones_full_steps = ones(length(full_steps(:,1)),1);
+half_steps = (-1:0.1:0)';
+zero_half_steps = 0*half_steps;
+ones_half_steps = ones(length(half_steps(:,1)),1); 
+
+% Create the query path
+query_path = ...
+    [full_steps 0.4*ones_full_steps];
+
+segment_definition = [0 0; 1 0]; % Starts at [0,0], ends at [1 0]
+[zone_start_indices, zone_end_indices] = ...
+    fcn_Laps_findSegmentZoneStartStop(...
+    query_path,...
+    segment_definition,...
+    fig_num);
+
+assert(isempty(zone_start_indices));
+assert(isempty(zone_end_indices));
+
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),fig_num));
+
+
+%% This one returns one hit, right on start of path
+fig_num = 3;
+figure(fig_num);
+clf;
+
+% Create some data to plot
+full_steps = (-1:0.1:1)';
+% zero_full_steps = 0*full_steps; 
+ones_full_steps = ones(length(full_steps(:,1)),1);
+% half_steps = (-1:0.1:0)';
+% zero_half_steps = 0*half_steps;
+% ones_half_steps = ones(length(half_steps(:,1)),1); 
+
+% Create the query path
 query_path = ...
     [full_steps 0.4*ones_full_steps];
 
@@ -79,9 +171,23 @@ segment_definition = [-1 0; -1 1]; % Starts at [-1,0], ends at [-1 1]
 assert(isequal(zone_start_indices,1));
 assert(isequal(zone_end_indices,2));
 
-%% This one returns no hit, crossed wrong way
-fig_num = 3;
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),fig_num));
 
+%% This one returns no hit, crossed wrong way
+fig_num = 4;
+figure(fig_num);
+clf;
+
+% Create some data to plot
+full_steps = (-1:0.1:1)';
+% zero_full_steps = 0*full_steps; 
+ones_full_steps = ones(length(full_steps(:,1)),1);
+% half_steps = (-1:0.1:0)';
+% zero_half_steps = 0*half_steps;
+% ones_half_steps = ones(length(half_steps(:,1)),1); 
+
+% Create the query path
 query_path = ...
     [flipud(full_steps) 0.4*ones_full_steps];
 
@@ -95,9 +201,23 @@ segment_definition = [0 0; 0 1]; % Starts at [0,0], ends at [0 1]
 assert(isempty(zone_start_indices));
 assert(isempty(zone_end_indices));
 
-%% This one returns no hit, also crossed wrong way
-fig_num = 31;
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),fig_num));
 
+%% This one returns no hit, also crossed wrong way
+fig_num = 5;
+figure(fig_num);
+clf;
+
+% Create some data to plot
+full_steps = (-1:0.1:1)';
+% zero_full_steps = 0*full_steps; 
+ones_full_steps = ones(length(full_steps(:,1)),1);
+% half_steps = (-1:0.1:0)';
+% zero_half_steps = 0*half_steps;
+% ones_half_steps = ones(length(half_steps(:,1)),1); 
+
+% Create the query path
 query_path = ...
     [full_steps 0.4*ones_full_steps];
 
@@ -110,12 +230,24 @@ segment_definition = [0 1; 0 0]; % Starts at [0,1], ends at [0 0]
 
 assert(isempty(zone_start_indices));
 assert(isempty(zone_end_indices));
-
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),fig_num));
 
 %% This one returns two hits, even though crossed three times
 % One crossing is in the wrong direction!
-fig_num = 4;
+fig_num = 6;
+figure(fig_num);
+clf;
 
+% Create some data to plot
+full_steps = (-1:0.1:1)';
+% zero_full_steps = 0*full_steps; 
+ones_full_steps = ones(length(full_steps(:,1)),1);
+half_steps = (-1:0.1:0)';
+% zero_half_steps = 0*half_steps;
+% ones_half_steps = ones(length(half_steps(:,1)),1); 
+
+% Create the query path
 query_path = ...
     [full_steps 0.4*ones_full_steps; 
     flipud(full_steps) 0.6*ones_full_steps;
@@ -130,11 +262,23 @@ segment_definition = [0 0; 0 1]; % Starts at [0,0], ends at [0 1]
 
 assert(isequal(zone_start_indices,[10; 52]));
 assert(isequal(zone_end_indices,[11; 53]));
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),fig_num));
 
-%% This is a hard one
-% Multiple crossings
-fig_num = 5;
+%% Multiple crossings
+fig_num = 7;
+figure(fig_num);
+clf;
 
+% Create some data to plot
+% full_steps = (-1:0.1:1)';
+% zero_full_steps = 0*full_steps; 
+% ones_full_steps = ones(length(full_steps(:,1)),1);
+% half_steps = (-1:0.1:0)';
+% zero_half_steps = 0*half_steps;
+% ones_half_steps = ones(length(half_steps(:,1)),1); 
+
+% Create the query path
 query_path = ...
     [-1 2; 1 2; -1 1; 0 1; -1 0; 0 0; 1 0; 0 -1; 1 -1; -1 -2; 0 -2];
 
@@ -147,8 +291,38 @@ segment_definition = [0 -2; 0 2]; % Starts at [0,0], ends at [0 1]
 
 assert(isequal(zone_start_indices,[1; 3; 5; 8; 10]));
 assert(isequal(zone_end_indices,[2; 4; 6; 9; 11]));
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),fig_num));
 
+%% Multiple crossings, NO FIGURE
+fig_num = 8;
+figure(fig_num);
+close(fig_num);
 
+% Create some data to plot
+% full_steps = (-1:0.1:1)';
+% zero_full_steps = 0*full_steps; 
+% ones_full_steps = ones(length(full_steps(:,1)),1);
+% half_steps = (-1:0.1:0)';
+% zero_half_steps = 0*half_steps;
+% ones_half_steps = ones(length(half_steps(:,1)),1); 
+
+% Create the query path
+query_path = ...
+    [-1 2; 1 2; -1 1; 0 1; -1 0; 0 0; 1 0; 0 -1; 1 -1; -1 -2; 0 -2];
+
+segment_definition = [0 -2; 0 2]; % Starts at [0,0], ends at [0 1]
+[zone_start_indices, zone_end_indices] = ...
+    fcn_Laps_findSegmentZoneStartStop(...
+    query_path,...
+    segment_definition,...
+    []);
+
+assert(isequal(zone_start_indices,[1; 3; 5; 8; 10]));
+assert(isequal(zone_end_indices,[2; 4; 6; 9; 11]));
+% Make sure plot did NOT open up
+figHandles = get(groot, 'Children');
+assert(~any(figHandles==fig_num));
 
 %% Fail conditions
 if 1==0

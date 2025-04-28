@@ -17,125 +17,127 @@
 % thus one must be able to quickly break the code into individual data
 % groups with one grouping, or "lap", per traversal.
 
-%% Prep workspace
-clc % Clear the console
-close all % Close all figures
 
-%% Dependencies and Setup of the Code
-% The code requires several other libraries to work, namely the following
-%%
-% 
-% * DebugTools - the repo can be found at: https://github.com/ivsg-psu/Errata_Tutorials_DebugTools
-% * PathClassLibrary - the repo can be found at: https://github.com/ivsg-psu/PathPlanning_PathTools_PathClassLibrary
-% 
-% Each is automatically installed in a folder called "Utilities" under the
-% root folder, namely ./Utilities/DebugTools/ ,
-% ./Utilities/PathClassLibrary/ .
-% 
-% For ease of transfer, zip files of the directories used - without the
-% .git repo information, to keep them small - are referenced and are NOT
-% included in this repo. These dependencies are to open code repos, and
-% this code accesses these and downloads, if needed, the appropriate
-% releases.
+% Revision history:
+% 2022_03_27 - Sean Brennan
+% -- created a demo script of core debug utilities
+% 2022_04_02 - Sean Brennan
+% -- Added sample path creation
+% 2022_04_04 - Sean Brennan
+% -- Added minor edits
+% 2022_04_10 - Sean Brennan
+% -- Added comments, plotting utilities for zone definitions
+% 2022_05_21 - Sean Brennan
+% -- More cleanup
+% 2022_07_23 - Sean Brennan
+% -- Enable index-based look-up
+% 2023_02_01 - Sean Brennan
+% -- Enable web-based installs
+% 2025_04_25 - Sean Brennan
+% -- Updated header structure to enable global flagging from main script
+% -- Added global flags for setting test conditions and plotting in fcns
+% -- Updated DebugTools_v2024_12_18 dependency
+% -- Updated PathClass_v2024_03_14 dependency
+% -- Updated GetUserInputPath_v2025_04_27 dependency
+% -- Added PlotRoad_v2025_04_12 dependency
+% -- Updated headers in all functions
+% -- Added no-plot and fast-mode tests in all test scripts
+% -- Added global test script
 
+% TO-DO:
+% -- add items here
 
-% 
-% The following code checks to see if the folders flag has been
-% initialized, and if not, it calls the DebugTools function that loads the
-% path variables. It then loads the PathClassLibrary functions as well.
-% Note that the PathClass Library also has sub-utilities that are included.
-
-% USE THE FOLLOWING CODE TO ALLOW MANUAL INSTALLS OF LIBRARIES (IF PRIVATE)
-% if ~exist('flag_Laps_Folders_Initialized','var')
-%     
-%     % add necessary directories for function creation utility 
-%     %(special case because folders not added yet)
-%     debug_utility_folder = fullfile(pwd, 'Utilities', 'DebugTools');
-%     debug_utility_function_folder = fullfile(pwd, 'Utilities', 'DebugTools','Functions');
-%     debug_utility_folder_inclusion_script = fullfile(pwd, 'Utilities', 'DebugTools','Functions','fcn_DebugTools_addSubdirectoriesToPath.m');
-%     if(exist(debug_utility_folder_inclusion_script,'file'))
-%         current_location = pwd;
-%         cd(debug_utility_function_folder);
-%         fcn_DebugTools_addSubdirectoriesToPath(debug_utility_folder,{'Functions','Data'});
-%         cd(current_location);
-%     else % Throw an error?
-%         error('The necessary utilities are not found. Please add them (see README.md) and run again.');
-%     end
-%     
-%     % Now can add the Path Class Library automatically
-%     utility_folder_PathClassLibrary = fullfile(pwd, 'Utilities', 'PathClassLibrary');
-%     fcn_DebugTools_addSubdirectoriesToPath(utility_folder_PathClassLibrary,{'Functions','Utilities'});
-%     
-%     % utility_folder_GetUserInputPath = fullfile(pwd, 'Utilities', 'GetUserInputPath');
-%     % fcn_DebugTools_addSubdirectoriesToPath(utility_folder_GetUserInputPath,{'Functions','Utilities'});
-% 
-%     % Now can add all the other utilities automatically
-%     folder_LapsClassLibrary = fullfile(pwd);
-%     fcn_DebugTools_addSubdirectoriesToPath(folder_LapsClassLibrary,{'Functions'});
-% 
-%     % set a flag so we do not have to do this again
-%     flag_Laps_Folders_Initialized = 1;
-% end
-
-% Use the following code to install public libraries
-
-% List what libraries we need, and where to find the codes for each
 clear library_name library_folders library_url
 
 ith_library = 1;
-library_name{ith_library}    = 'DebugTools_v2023_01_29';
+library_name{ith_library}    = 'DebugTools_v2024_12_18';
 library_folders{ith_library} = {'Functions','Data'};
-library_url{ith_library}     = 'https://github.com/ivsg-psu/Errata_Tutorials_DebugTools/blob/main/Releases/DebugTools_v2023_01_29.zip?raw=true';
+library_url{ith_library}     = 'https://github.com/ivsg-psu/Errata_Tutorials_DebugTools/archive/refs/tags/DebugTools_v2024_12_18.zip';
 
 ith_library = ith_library+1;
-library_name{ith_library}    = 'PathClass_v2023_02_01';
-library_folders{ith_library} = {'Functions'};                                
-library_url{ith_library}     = 'https://github.com/ivsg-psu/PathPlanning_PathTools_PathClassLibrary/blob/main/Releases/PathClass_v2023_02_01.zip?raw=true';
+library_name{ith_library}    = 'PathClass_v2024_03_14';
+library_folders{ith_library} = {'Functions'};
+library_url{ith_library}     = 'https://github.com/ivsg-psu/PathPlanning_PathTools_PathClassLibrary/archive/refs/tags/PathClass_v2024_03_14.zip';
 
 ith_library = ith_library+1;
-library_name{ith_library}    = 'GetUserInputPath_v2023_02_01';
+library_name{ith_library}    = 'GetUserInputPath_v2025_04_27';
 library_folders{ith_library} = {''};
-library_url{ith_library}     = 'https://github.com/ivsg-psu/PathPlanning_PathTools_GetUserInputPath/blob/main/Releases/GetUserInputPath_v2023_02_01.zip?raw=true';
+library_url{ith_library}     = 'https://github.com/ivsg-psu/PathPlanning_PathTools_GetUserInputPath/archive/refs/tags/GetUserInputPath_v2025_04_27.zip';
 
-% Do we need to set up the work space?
-if ~exist('flag_Laps_Folders_Initialized','var')
+ith_library = ith_library+1;
+library_name{ith_library}    = 'PlotRoad_v2025_04_12';
+library_folders{ith_library} = {'Functions','Data'};
+library_url{ith_library}     = 'https://github.com/ivsg-psu/FieldDataCollection_VisualizingFieldData_PlotRoad/archive/refs/tags/PlotRoad_v2025_04_12.zip';
 
-    % Reset all flags for installs to empty
-    clear global FLAG*
+% ith_library = ith_library+1;
+% library_name{ith_library}    = 'GPSClass_v2023_04_21';
+% library_folders{ith_library} = {''};
+% library_url{ith_library}     = 'https://github.com/ivsg-psu/FieldDataCollection_GPSRelatedCodes_GPSClass/archive/refs/tags/GPSClass_v2023_04_21.zip';
+%
+% ith_library = ith_library+1;
+% library_name{ith_library}    = 'AlignCoordinates_2023_03_29';
+% library_folders{ith_library} = {'Functions'};
+% library_url{ith_library}     = 'https://github.com/ivsg-psu/PathPlanning_GeomTools_AlignCoordinates/blob/main/Releases/AlignCoordinates_2023_03_29.zip?raw=true';
 
-    fprintf(1,'Installing utilities necessary for code ...\n');
 
-    % Dependencies and Setup of the Code
-    % This code depends on several other libraries of codes that contain
-    % commonly used functions. We check to see if these libraries are installed
-    % into our "Utilities" folder, and if not, we install them and then set a
-    % flag to not install them again.
-    
-    % Set up libraries
-    for ith_library = 1:length(library_name)
-        dependency_name = library_name{ith_library};
-        dependency_subfolders = library_folders{ith_library};
-        dependency_url = library_url{ith_library};
+%% Clear paths and folders, if needed
+if 1==1
+    clear flag_Laps_Folders_Initialized
+    fcn_INTERNAL_clearUtilitiesFromPathAndFolders;
 
-        fprintf(1,'\tAdding library: %s ...',dependency_name);
-        fcn_INTERNAL_DebugTools_installDependencies(dependency_name, dependency_subfolders, dependency_url);
-        clear dependency_name dependency_subfolders dependency_url
-        fprintf(1,'Done.\n');
-    end
-
-    % Set dependencies for this project specifically
-    fcn_DebugTools_addSubdirectoriesToPath(pwd,{'Functions','Data'});
-    
-    disp('Done setting up libraries, adding each to MATLAB path, and adding current repo folders to path.');
-    
 end
+
+%% Do we need to set up the work space?
+if ~exist('flag_Laps_Folders_Initialized','var')
+    this_project_folders = {'Functions','Data'};
+    fcn_INTERNAL_initializeUtilities(library_name,library_folders,library_url,this_project_folders);
+    flag_Laps_Folders_Initialized = 1;
+end
+
+%% Set environment flags for input checking in Laps library
+% These are values to set if we want to check inputs or do debugging
+setenv('MATLABFLAG_LAPS_FLAG_CHECK_INPUTS','1');
+setenv('MATLABFLAG_LAPS_FLAG_DO_DEBUG','0');
+
+%% Set environment flags that define the ENU origin
+% This sets the "center" of the ENU coordinate system for all plotting
+% functions
+% Location for Test Track base station
+setenv('MATLABFLAG_PLOTROAD_REFERENCE_LATITUDE','40.86368573');
+setenv('MATLABFLAG_PLOTROAD_REFERENCE_LONGITUDE','-77.83592832');
+setenv('MATLABFLAG_PLOTROAD_REFERENCE_ALTITUDE','344.189');
+
+
+%% Set environment flags for plotting
+% These are values to set if we are forcing image alignment via Lat and Lon
+% shifting, when doing geoplot. This is added because the geoplot images
+% are very, very slightly off at the test track, which is confusing when
+% plotting data
+setenv('MATLABFLAG_PLOTROAD_ALIGNMATLABLLAPLOTTINGIMAGES_LAT','-0.0000008');
+setenv('MATLABFLAG_PLOTROAD_ALIGNMATLABLLAPLOTTINGIMAGES_LON','0.0000054');
+
+%% Start of Demo Code
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%   _____ _             _            __   _____                          _____          _
+%  / ____| |           | |          / _| |  __ \                        / ____|        | |
+% | (___ | |_ __ _ _ __| |_    ___ | |_  | |  | | ___ _ __ ___   ___   | |     ___   __| | ___
+%  \___ \| __/ _` | '__| __|  / _ \|  _| | |  | |/ _ \ '_ ` _ \ / _ \  | |    / _ \ / _` |/ _ \
+%  ____) | || (_| | |  | |_  | (_) | |   | |__| |  __/ | | | | | (_) | | |___| (_) | (_| |  __/
+% |_____/ \__\__,_|_|   \__|  \___/|_|   |_____/ \___|_| |_| |_|\___/   \_____\___/ \__,_|\___|
+%
+%
+% See: http://patorjk.com/software/taag/#p=display&f=Big&t=Start%20of%20Demo%20Code
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+disp('Welcome to the demo code for the Laps library!')
 
 %% Using Zone Definitions to Define Start, End, and Excursion Locations
 % To define the start, end, and excursion locations for data, the data must
 % pass through or nearby a geolocation which is hereafter called a "zone
 % definition". There are two types of zone definitions used in this code:
 %%
-% 
+%
 % * Point methods of zone definitions - this is when a start, stop, or
 % excursion is defined by "passing by" a point. For example, if a journey
 % is said to start at someone's house and go to someone's office, then the
@@ -150,7 +152,7 @@ end
 % the line segment, in the form [Xstart Ystart; Xend Yend], thus producing
 % a 2x2 matrix. An example of a line segment definition is the start line
 % and finish line of a race.
-% 
+%
 % To illustrate both definitions, we first create some data to plot:
 
 full_steps = (-1:0.1:1)';
@@ -162,7 +164,7 @@ ones_half_steps = ones(length(half_steps(:,1)),1); %#ok<PREALL>
 path_examples{1} = [-1*ones_full_steps full_steps];
 path_examples{2} = [1*ones_full_steps full_steps];
 
-%% 
+%%
 % Each of the path_example matrices above can be plotted easily using the
 % "plotLapsXY" subfunction, but this function expects the paths to be in a
 % traversal type so that it is compatible with the Path library of
@@ -178,7 +180,7 @@ end
 
 % Plot the results via fcn_Laps_plotLapsXY
 fig_num = 222;
-fcn_Laps_plotLapsXY(path_data,fig_num);    
+fcn_Laps_plotLapsXY(path_data,fig_num);
 
 %%
 % Now, use a zone plotting tool to show the point and line-segment types of
@@ -215,7 +217,7 @@ fig_num = 1;
 query_path = ...
     [full_steps 0.4*ones_full_steps];
 
-zone_center = [0 0 0.2]; % Located at [0,0] 
+zone_center = [0 0 0.2]; % Located at [0,0]
 zone_radius = 0.2; % with radius 0.2
 [zone_start_indices, zone_end_indices, zone_min_indices] = ...
     fcn_Laps_findPointZoneStartStopAndMinimum(...
@@ -238,7 +240,7 @@ fig_num = 2;
 query_path = ...
     [full_steps 0.2*ones_full_steps];
 
-zone_center = [0 0 0.2]; % Located at [0,0] 
+zone_center = [0 0 0.2]; % Located at [0,0]
 zone_radius = 0.2; % with radius 0.2
 [zone_start_indices, zone_end_indices, zone_min_indices] = ...
     fcn_Laps_findPointZoneStartStopAndMinimum(...
@@ -257,7 +259,7 @@ assert(isempty(zone_min_indices));
 query_path = ...
     [full_steps 0.2*ones_full_steps];
 
-zone_center = [0.05 0 0.2]; % Located at [0.05,0] 
+zone_center = [0.05 0 0.2]; % Located at [0.05,0]
 zone_radius = 0.23; % with radius 0.23
 [zone_start_indices, zone_end_indices, zone_min_indices] = ...
     fcn_Laps_findPointZoneStartStopAndMinimum(...
@@ -280,7 +282,7 @@ fig_num = 3;
 query_path = ...
     [half_steps zero_half_steps];
 
-zone_center = [-0.02 0 0.2]; % Located at [-0.02,0] 
+zone_center = [-0.02 0 0.2]; % Located at [-0.02,0]
 zone_radius = 0.2; % with radius 0.2
 [zone_start_indices, zone_end_indices, zone_min_indices] = ...
     fcn_Laps_findPointZoneStartStopAndMinimum(...
@@ -329,7 +331,7 @@ assert(isequal(zone_min_indices,  [12; 31]));
 %% Create sample paths
 % To illustrate the functionality of this library, we call the library
 % function fillPathViaUserInputs which fills in an array of "path" types.
-% Load some test data and plot it in figure 1 
+% Load some test data and plot it in figure 1
 
 % Call the function to fill in an array of "path" type
 laps_array = fcn_Laps_fillSampleLaps;
@@ -356,7 +358,7 @@ fig_num = 1;
 single_lap.traversal{1} = data.traversal{end};
 fcn_Laps_plotLapsXY(single_lap,fig_num);
 
-%% Show fcn_Laps_plotZoneDefinition.m 
+%% Show fcn_Laps_plotZoneDefinition.m
 % Plots the zone, allowing user-defined colors. For example, the figure
 % below shows a radial zone for the start, and a line segment for the end.
 start_definition = [10 3 0 0]; % Radius 10, 3 points must pass near [0 0]
@@ -411,21 +413,75 @@ assert(isequal(98,length(lap_traversals.traversal{2}.X)));
 assert(isequal(79,length(lap_traversals.traversal{3}.X)));
 
 
-%% Revision History:
-%      2022_03_27:
-%      -- created a demo script of core debug utilities
-%      2022_04_02
-%      -- Added sample path creation
-%      2022_04_04
-%      -- Added minor edits
-%      2022_04_10
-%      -- Added comments, plotting utilities for zone definitions
-%      2022_05_21
-%      -- More cleanup
-%      2022_07_23 - sbrennan@psu.edu
-%      -- Enable index-based look-up
-%      2023_02_01 - sbrennan@psu.edu
-%      -- Enable web-based installs
+%% Functions follow
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   ______                _   _
+%  |  ____|              | | (_)
+%  | |__ _   _ _ __   ___| |_ _  ___  _ __  ___
+%  |  __| | | | '_ \ / __| __| |/ _ \| '_ \/ __|
+%  | |  | |_| | | | | (__| |_| | (_) | | | \__ \
+%  |_|   \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
+%
+% See: https://patorjk.com/software/taag/#p=display&f=Big&t=Functions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%§
+
+%% function fcn_INTERNAL_clearUtilitiesFromPathAndFolders
+function fcn_INTERNAL_clearUtilitiesFromPathAndFolders
+% Clear out the variables
+clear global flag* FLAG*
+clear flag*
+clear path
+
+% Clear out any path directories under Utilities
+path_dirs = regexp(path,'[;]','split');
+utilities_dir = fullfile(pwd,filesep,'Utilities');
+for ith_dir = 1:length(path_dirs)
+    utility_flag = strfind(path_dirs{ith_dir},utilities_dir);
+    if ~isempty(utility_flag)
+        rmpath(path_dirs{ith_dir});
+    end
+end
+
+% Delete the Utilities folder, to be extra clean!
+if  exist(utilities_dir,'dir')
+    [status,message,message_ID] = rmdir(utilities_dir,'s');
+    if 0==status
+        error('Unable remove directory: %s \nReason message: %s \nand message_ID: %s\n',utilities_dir, message,message_ID);
+    end
+end
+
+end % Ends fcn_INTERNAL_clearUtilitiesFromPathAndFolders
+
+%% fcn_INTERNAL_initializeUtilities
+function  fcn_INTERNAL_initializeUtilities(library_name,library_folders,library_url,this_project_folders)
+% Reset all flags for installs to empty
+clear global FLAG*
+
+fprintf(1,'Installing utilities necessary for code ...\n');
+
+% Dependencies and Setup of the Code
+% This code depends on several other libraries of codes that contain
+% commonly used functions. We check to see if these libraries are installed
+% into our "Utilities" folder, and if not, we install them and then set a
+% flag to not install them again.
+
+% Set up libraries
+for ith_library = 1:length(library_name)
+    dependency_name = library_name{ith_library};
+    dependency_subfolders = library_folders{ith_library};
+    dependency_url = library_url{ith_library};
+
+    fprintf(1,'\tAdding library: %s ...',dependency_name);
+    fcn_INTERNAL_DebugTools_installDependencies(dependency_name, dependency_subfolders, dependency_url);
+    clear dependency_name dependency_subfolders dependency_url
+    fprintf(1,'Done.\n');
+end
+
+% Set dependencies for this project specifically
+fcn_DebugTools_addSubdirectoriesToPath(pwd,this_project_folders);
+
+disp('Done setting up libraries, adding each to MATLAB path, and adding current repo folders to path.');
+end % Ends fcn_INTERNAL_initializeUtilities
 
 
 function fcn_INTERNAL_DebugTools_installDependencies(dependency_name, dependency_subfolders, dependency_url, varargin)
@@ -437,21 +493,21 @@ function fcn_INTERNAL_DebugTools_installDependencies(dependency_name, dependency
 % subfoder or any specified sub-subfolders to the MATLAB path.
 %
 % If the Utilities folder does not exist, it is created.
-% 
+%
 % If the specified code package folder and all subfolders already exist,
 % the package is not installed. Otherwise, the folders are created as
 % needed, and the package is installed.
-% 
+%
 % If one does not wish to put these codes in different directories, the
 % function can be easily modified with strings specifying the
 % desired install location.
-% 
+%
 % For path creation, if the "DebugTools" package is being installed, the
 % code installs the package, then shifts temporarily into the package to
 % complete the path definitions for MATLAB. If the DebugTools is not
 % already installed, an error is thrown as these tools are needed for the
 % path creation.
-% 
+%
 % Finally, the code sets a global flag to indicate that the folders are
 % initialized so that, in this session, if the code is called again the
 % folders will not be installed. This global flag can be overwritten by an
@@ -498,8 +554,8 @@ function fcn_INTERNAL_DebugTools_installDependencies(dependency_name, dependency
 %
 % % Define sub-subfolders that are in the code package that also need to be
 % % added to the MATLAB path after install; the package install subfolder
-% % is NOT added to path. OR: Leave empty ({}) to only add 
-% % the subfolder path without any sub-subfolder path additions. 
+% % is NOT added to path. OR: Leave empty ({}) to only add
+% % the subfolder path without any sub-subfolder path additions.
 % dependency_subfolders = {'Functions','Data'};
 %
 % % Define a universal resource locator (URL) pointing to the zip file to
@@ -516,6 +572,9 @@ function fcn_INTERNAL_DebugTools_installDependencies(dependency_name, dependency
 % Revision history:
 % 2023_01_23:
 % -- wrote the code originally
+% 2023_04_20:
+% -- improved error handling
+% -- fixes nested installs automatically
 
 % TO DO
 % -- Add input argument checking
@@ -616,15 +675,15 @@ if ~exist(flag_varname,'var') || isempty(eval(flag_varname))
 
     % Do the subfolders exist?
     flag_allFoldersThere = 1;
-    if isempty(dependency_subfolders)
+    if isempty(dependency_subfolders{1})
         flag_allFoldersThere = 0;
     else
         for ith_folder = 1:length(dependency_subfolders)
             subfolder_name = dependency_subfolders{ith_folder};
-            
+
             % Create the entire path
             subfunction_folder = fullfile(root_directory_name, 'Utilities', dependency_name,subfolder_name);
-            
+
             % Check if the folder and file exists that is typically created when
             % unzipping.
             if ~exist(subfunction_folder,'dir')
@@ -642,21 +701,66 @@ if ~exist(flag_varname,'var') || isempty(eval(flag_varname))
 
         % Is the file there?
         if ~exist(zip_file_name,'file')
-            error('The zip file: %s for dependency: %s did not download correctly. This is usually because permissions are restricted on the current directory. Check the code install (see README.md) and try again.\n',zip_file_name, dependency_name);
+            error(['The zip file: %s for dependency: %s did not download correctly.\n' ...
+                'This is usually because permissions are restricted on ' ...
+                'the current directory. Check the code install ' ...
+                '(see README.md) and try again.\n'],zip_file_name, dependency_name);
         end
 
         % Try unzipping
         unzip(zip_file_name, dependency_folder_name);
 
-        % Did this work?
+        % Did this work? If so, directory should not be empty
+        directory_contents = dir(dependency_folder_name);
+        if isempty(directory_contents)
+            error(['The necessary dependency: %s has an error in install ' ...
+                'where the zip file downloaded correctly, ' ...
+                'but the unzip operation did not put any content ' ...
+                'into the correct folder. ' ...
+                'This suggests a bad zip file or permissions error ' ...
+                'on the local computer.\n'],dependency_name);
+        end
+
+        % Check if is a nested install (for example, installing a folder
+        % "Toolsets" under a folder called "Toolsets"). This can be found
+        % if there's a folder whose name contains the dependency_name
+        flag_is_nested_install = 0;
+        for ith_entry = 1:length(directory_contents)
+            if contains(directory_contents(ith_entry).name,dependency_name)
+                if directory_contents(ith_entry).isdir
+                    flag_is_nested_install = 1;
+                    install_directory_from = fullfile(directory_contents(ith_entry).folder,directory_contents(ith_entry).name);
+                    install_files_from = fullfile(directory_contents(ith_entry).folder,directory_contents(ith_entry).name,'*.*');
+                    install_location_to = fullfile(directory_contents(ith_entry).folder);
+                end
+            end
+        end
+
+        if flag_is_nested_install
+            [status,message,message_ID] = movefile(install_files_from,install_location_to);
+            if 0==status
+                error(['Unable to move files from directory: %s\n ' ...
+                    'To: %s \n' ...
+                    'Reason message: %s\n' ...
+                    'And message_ID: %s\n'],install_files_from,install_location_to, message,message_ID);
+            end
+            [status,message,message_ID] = rmdir(install_directory_from);
+            if 0==status
+                error(['Unable remove directory: %s \n' ...
+                    'Reason message: %s \n' ...
+                    'And message_ID: %s\n'],install_directory_from,message,message_ID);
+            end
+        end
+
+        % Make sure the subfolders were created
         flag_allFoldersThere = 1;
-        if ~isempty(dependency_subfolders)
+        if ~isempty(dependency_subfolders{1})
             for ith_folder = 1:length(dependency_subfolders)
                 subfolder_name = dependency_subfolders{ith_folder};
-                
+
                 % Create the entire path
                 subfunction_folder = fullfile(root_directory_name, 'Utilities', dependency_name,subfolder_name);
-                
+
                 % Check if the folder and file exists that is typically created when
                 % unzipping.
                 if ~exist(subfunction_folder,'dir')
@@ -664,9 +768,15 @@ if ~exist(flag_varname,'var') || isempty(eval(flag_varname))
                 end
             end
         end
-        
+        % If any are not there, then throw an error
         if flag_allFoldersThere==0
-            error('The necessary dependency: %s has an error in install, or error performing an unzip operation. Check the code install (see README.md) and try again.\n',dependency_name);
+            error(['The necessary dependency: %s has an error in install, ' ...
+                'or error performing an unzip operation. The subfolders ' ...
+                'requested by the code were not found after the unzip ' ...
+                'operation. This suggests a bad zip file, or a permissions ' ...
+                'error on the local computer, or that folders are ' ...
+                'specified that are not present on the remote code ' ...
+                'repository.\n'],dependency_name);
         else
             % Clean up the zip file
             delete(zip_file_name);
@@ -694,7 +804,9 @@ if ~exist(flag_varname,'var') || isempty(eval(flag_varname))
         try
             fcn_DebugTools_addSubdirectoriesToPath(dependency_folder_name,dependency_subfolders);
         catch
-            error('Package installer requires DebugTools package to be installed first. Please install that before installing this package');
+            error(['Package installer requires DebugTools package to be ' ...
+                'installed first. Please install that before ' ...
+                'installing this package']);
         end
     end
 

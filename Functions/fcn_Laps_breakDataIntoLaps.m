@@ -99,7 +99,11 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 %      start and end conditions. If not specified, then no excursion point
 %      is used. The same type is used as the start_definition.
 %
-%      fig_num: a figure number to plot results.
+%     (optional inputs)
+%
+%      fig_num: a figure number to plot results. If set to -1, skips any
+%      input checking or debugging, no figures will be generated, and sets
+%      up code to maximize speed. 
 %
 % OUTPUTS:
 %
@@ -130,49 +134,60 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 % Questions or comments? sbrennan@psu.edu
 
 % Revision history:
-%
-%     2022_04_03 - sbrennan@psu.edu
-%     -- wrote the code originally
-%     2022_04_23 - sbrennan@psu.edu
-%     -- added external call to zone calculation function
-%     2022_05_21 - sbrennan@psu.edu
-%     -- cleaned up the comments
-%     -- fixed bugs in excursion zone flag shutting off code
-%     -- fixed bugs in excursion zone and end zone definitions
-%     -- fixed scalar comparison in size function of argument check
-%     2022_05_21 - sbrennan@psu.edu
-%     -- fixed plotting, made outputs variable argument types
-%     2022_07_11 - sbrennan@psu.edu
-%     -- corrected calls to zone function to allow number of points,
-%     changed format to allow 3d circles
-%     2022_07_12 - sbrennan@psu.edu
-%     -- allow zone definitions based on segments
+% 2022_04_03 - sbrennan@psu.edu
+% -- wrote the code originally
+% 2022_04_23 - sbrennan@psu.edu
+% -- added external call to zone calculation function
+% 2022_05_21 - sbrennan@psu.edu
+% -- cleaned up the comments
+% -- fixed bugs in excursion zone flag shutting off code
+% -- fixed bugs in excursion zone and end zone definitions
+% -- fixed scalar comparison in size function of argument check
+% 2022_05_21 - sbrennan@psu.edu
+% -- fixed plotting, made outputs variable argument types
+% 2022_07_11 - sbrennan@psu.edu
+% -- corrected calls to zone function to allow number of points,
+% changed format to allow 3d circles
+% 2022_07_12 - sbrennan@psu.edu
+% -- allow zone definitions based on segments
+% 2025_04_25 by Sean Brennan
+% -- added global debugging options
 
 % TO DO
-%
+% -- (add items here)
 
-flag_do_debug = 0; % Flag to show the results for debugging
-flag_do_plots = 0; % % Flag to plot the final results
-flag_check_inputs = 1; % Flag to perform input checking
-flag_do_start_end = 1; % Flag to calculate the start and end segments
+%% Debugging and Input checks
 
+% Check if flag_max_speed set. This occurs if the fig_num variable input
+% argument (varargin) is given a number of -1, which is not a valid figure
+% number.
+flag_max_speed = 0;
+if (nargin==5 && isequal(varargin{end},-1))
+    flag_do_debug = 0; % % % % Flag to plot the results for debugging
+    flag_check_inputs = 0; % Flag to perform input checking
+    flag_max_speed = 1;
+else
+    % Check to see if we are externally setting debug mode to be "on"
+    flag_do_debug = 0; % % % % Flag to plot the results for debugging
+    flag_check_inputs = 1; % Flag to perform input checking
+    MATLABFLAG_LAPS_FLAG_CHECK_INPUTS = getenv("MATLABFLAG_LAPS_FLAG_CHECK_INPUTS");
+    MATLABFLAG_LAPS_FLAG_DO_DEBUG = getenv("MATLABFLAG_LAPS_FLAG_DO_DEBUG");
+    if ~isempty(MATLABFLAG_LAPS_FLAG_CHECK_INPUTS) && ~isempty(MATLABFLAG_LAPS_FLAG_DO_DEBUG)
+        flag_do_debug = str2double(MATLABFLAG_LAPS_FLAG_DO_DEBUG);
+        flag_check_inputs  = str2double(MATLABFLAG_LAPS_FLAG_CHECK_INPUTS);
+    end
+end
 
-% Tell user where we are
+% flag_do_debug = 1;
+
 if flag_do_debug
     st = dbstack; %#ok<*UNRCH>
     fprintf(1,'STARTING function: %s, in file: %s\n',st(1).name,st(1).file);
+    debug_fig_num = 999978; %#ok<NASGU>
+else
+    debug_fig_num = []; %#ok<NASGU>
 end
 
-% Setup figures if there is debugging
-if flag_do_debug
-    fig_debug_start_zone = 3333;
-    fig_debug_excursion_zone = 3334;
-    fig_debug_end_zone = 3335;
-else
-    fig_debug_start_zone = [];
-    fig_debug_excursion_zone = [];
-    fig_debug_end_zone = [];
-end
 
 %% check input arguments
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -189,17 +204,17 @@ end
 
 
 %% Check inputs?
-if flag_check_inputs
-    % Are there the right number of inputs?
-    if nargin < 2 || nargin > 5
-        error('Incorrect number of input arguments')
+if (0==flag_max_speed)
+    if flag_check_inputs
+        % Are there the right number of inputs?
+        narginchk(2,5);
+
+        % Check the reference_traversal variables
+        fcn_DebugTools_checkInputsToFunctions(input_traversal, 'traversal');
+
+        % NOTE: the start_definition required input is checked below!
+
     end
-    
-    % Check the reference_traversal variables
-    fcn_DebugTools_checkInputsToFunctions(input_traversal, 'traversal');
-    
-    % NOTE: the start_definition required input is checked below!
-        
 end
 
 % Set the start values
@@ -234,19 +249,25 @@ if 4 <= nargin
 end
 
 % Does user want to show the plots?
-if 5 == nargin
-    fig_num = varargin{end};
-    if ~isempty(fig_num)
-        figure(fig_num);
-        flag_do_plots = 1;
+flag_do_plot = 0; % Default is no plotting
+if  5 == nargin && (0==flag_max_speed) % Only create a figure if NOT maximizing speed
+    temp = varargin{end}; % Last argument is always figure number
+    if ~isempty(temp) % Make sure the user is not giving empty input
+        fig_num = temp;
+        flag_do_plot = 1; % Set flag to do plotting
     end
 else
-    if flag_do_debug
+    if flag_do_debug % If in debug mode, do plotting but to an arbitrary figure number
         fig = figure;
-        fig_num = fig.Number;
-        flag_do_plots = 1;
+        fig_for_debug = fig.Number; %#ok<NASGU>
+        flag_do_plot = 1;
     end
 end
+
+% For debugging
+fig_debug_start_zone = [];
+fig_debug_end_zone = [];
+flag_do_start_end = 1; % Flag to calculate the start and end segments
 
 % Check the outputs
 nargoutchk(0,3)
@@ -337,7 +358,8 @@ else % Define start zone and indices based on segment zone type
     [start_zone_start_indices, start_zone_end_indices] = ...
         fcn_Laps_findSegmentZoneStartStop(...
         path_original,...
-        start_definition); %fig_debug_start_zone);
+        start_definition,...
+        fig_debug_start_zone);
     start_zone_min_indices = start_zone_start_indices;
     
     path_flag_array(start_zone_start_indices,1) = 1;
@@ -493,7 +515,7 @@ if flag_do_debug
         short_T3 = fcn_DebugTools_debugPrintStringToNCharacters(T3,print_width);
         fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
     end
-    
+
     fprintf(1,'\n');
     fprintf(1,'Excursion Zone Indices:\n');
     fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
@@ -510,7 +532,7 @@ if flag_do_debug
     catch
         fprintf('None detected');
     end
-    
+
     fprintf(1,'\n');
     fprintf(1,'End Zone Indices:\n');
     fprintf(1,'%s %s %s\n',short_H1, short_H2, short_H3);
@@ -582,7 +604,6 @@ if flag_do_debug
         fprintf(1,'%s %s %s\n',short_T1, short_T2, short_T3);
     end
     fprintf(1,'Number of comlete laps: %d\n',Nlaps);
-    
 end
 
 %% Save everything in a laps array
@@ -601,6 +622,7 @@ else
 end
 
 %% Summarize results to this point
+
 if flag_do_debug
     print_width = 20;
     fprintf(1,'\n');
@@ -681,7 +703,7 @@ end
 %                            __/ |
 %                           |___/
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if flag_do_plots
+if flag_do_plot
     
     % plot the final XY result
     figure(fig_num);
@@ -776,7 +798,7 @@ end % Ends main function
 % See: https://patorjk.com/software/taag/#p=display&f=Big&t=Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%§
 
-function INTERNAL_plot_circle(center_x, center_y, radius, color, linewidth)
+function INTERNAL_plot_circle(center_x, center_y, radius, color, linewidth) %#ok<DEFNU>
 
 % Plot the center point
 % plot(center_x,center_y,'ro','Markersize',22);

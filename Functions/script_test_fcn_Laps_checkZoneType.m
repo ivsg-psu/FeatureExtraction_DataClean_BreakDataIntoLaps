@@ -7,7 +7,6 @@
 
 %% Set up the workspace
 close all
-clc
 
 
 %% Check assertions for basic path operations and function testing
@@ -24,9 +23,13 @@ clc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% This is a standard call for point-type
+fig_num = 1;
+figure(fig_num);
+clf;
+
 input_start_zone_definition = [2 3 0 0]; % Radius of 2, 3 points, centered at 0 0
 [flag_start_is_a_point_type, output_start_zone_definition] = ...
-    fcn_Laps_checkZoneType(input_start_zone_definition, 'start_definition');
+    fcn_Laps_checkZoneType(input_start_zone_definition, 'start_definition', fig_num);
 
 % Make sure its type is correct
 assert(isequal(1,flag_start_is_a_point_type))
@@ -34,16 +37,69 @@ assert(isequal(1,flag_start_is_a_point_type))
 % Make sure the output is correct
 assert(isequal(output_start_zone_definition,[2 3 0 0]))
 
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),fig_num));
+
 %% This is a standard call for segment-type
+fig_num = 2;
+figure(fig_num);
+clf;
+
 input_start_zone_definition = [2 3; 0 0]; % starts at 2 3, ends at 0 0
 [flag_start_is_a_point_type, output_start_zone_definition] = ...
-    fcn_Laps_checkZoneType(input_start_zone_definition, 'start_definition');
+    fcn_Laps_checkZoneType(input_start_zone_definition, 'start_definition', fig_num);
 
 % Make sure its type is correct
 assert(isequal(0,flag_start_is_a_point_type))
 
 % Make sure the output is correct
 assert(isequal(output_start_zone_definition,[2 3; 0 0]))
+
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),fig_num));
+
+%% This is a standard call for segment-type, NO FIGURE
+fig_num = 3;
+figure(fig_num);
+close(fig_num);
+
+input_start_zone_definition = [2 3; 0 0]; % starts at 2 3, ends at 0 0
+[flag_start_is_a_point_type, output_start_zone_definition] = ...
+    fcn_Laps_checkZoneType(input_start_zone_definition, 'start_definition', []);
+
+% Make sure its type is correct
+assert(isequal(0,flag_start_is_a_point_type))
+
+% Make sure the output is correct
+assert(isequal(output_start_zone_definition,[2 3; 0 0]))
+
+
+% Make sure plot did NOT open up
+figHandles = get(groot, 'Children');
+assert(~any(figHandles==fig_num));
+
+%% This is a standard call for segment-type, NO FIGURE, FAST MODE
+fig_num = 4;
+figure(fig_num);
+close(fig_num);
+
+input_start_zone_definition = [2 3; 0 0]; % starts at 2 3, ends at 0 0
+[flag_start_is_a_point_type, output_start_zone_definition] = ...
+    fcn_Laps_checkZoneType(input_start_zone_definition, 'start_definition', -1);
+
+% Make sure its type is correct
+assert(isequal(0,flag_start_is_a_point_type))
+
+% Make sure the output is correct
+assert(isequal(output_start_zone_definition,[2 3; 0 0]))
+
+
+% Make sure plot did NOT open up
+figHandles = get(groot, 'Children');
+assert(~any(figHandles==fig_num));
+
+
+
 
 %% Fail conditions
 if 1==0

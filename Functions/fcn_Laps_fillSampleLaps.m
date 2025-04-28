@@ -1,15 +1,19 @@
-function laps_array = fcn_Laps_fillSampleLaps
+function laps_array = fcn_Laps_fillSampleLaps(varargin)
 % fcn_Path_fillSampleLaps
 % Produces dummy data to test lap functions. Note: can go into the function
 % and change flag to allow user-selected paths.
 %
 % FORMAT:
 %
-%       laps_array = fcn_Laps_fillSampleLaps
+%       laps_array = fcn_Laps_fillSampleLaps((fig_num))
 %
 % INPUTS:
 %
-%      (none)
+%     (optional inputs)
+%
+%      fig_num: a figure number to plot results. If set to -1, skips any
+%      input checking or debugging, no figures will be generated, and sets
+%      up code to maximize speed. 
 %
 % OUTPUTS:
 %
@@ -31,21 +35,52 @@ function laps_array = fcn_Laps_fillSampleLaps
 % Questions or comments? sbrennan@psu.edu
 
 % Revision history:
-%      2022_04_02 
-%      -- wrote the code, started with circle and figure 8 laps
-%      2022_04_03 
-%      -- added teardrop laps, manual lap
-%      2022_07_23
-%      -- typo fix in script name in comments
+% 2022_04_02
+% -- wrote the code, started with circle and figure 8 laps
+% 2022_04_03
+% -- added teardrop laps, manual lap
+% 2022_07_23
+% -- typo fix in script name in comments
+% 2025_04_27 by Sean Brennan
+% -- added figure number optional input
+% -- added plotting
+% 2025_04_27 by Sean Brennan
+% -- added global debugging options
 
-flag_do_debug = 0; % Flag to plot the results for debugging
-flag_check_inputs = 1; % Flag to perform input checking
+% TO DO
+% -- rewrite to move plotting to debug area only
+
+%% Debugging and Input checks
+
+% Check if flag_max_speed set. This occurs if the fig_num variable input
+% argument (varargin) is given a number of -1, which is not a valid figure
+% number.
+flag_max_speed = 0;
+if (nargin==1 && isequal(varargin{end},-1))
+    flag_do_debug = 0; % Flag to plot the results for debugging
+    flag_check_inputs = 0; % Flag to perform input checking
+    flag_max_speed = 1;
+else
+    % Check to see if we are externally setting debug mode to be "on"
+    flag_do_debug = 0; % Flag to plot the results for debugging
+    flag_check_inputs = 1; % Flag to perform input checking
+    MATLABFLAG_LAPS_FLAG_CHECK_INPUTS = getenv("MATLABFLAG_LAPS_FLAG_CHECK_INPUTS");
+    MATLABFLAG_LAPS_FLAG_DO_DEBUG = getenv("MATLABFLAG_LAPS_FLAG_DO_DEBUG");
+    if ~isempty(MATLABFLAG_LAPS_FLAG_CHECK_INPUTS) && ~isempty(MATLABFLAG_LAPS_FLAG_DO_DEBUG)
+        flag_do_debug = str2double(MATLABFLAG_LAPS_FLAG_DO_DEBUG);
+        flag_check_inputs  = str2double(MATLABFLAG_LAPS_FLAG_CHECK_INPUTS);
+    end
+end
+
+% flag_do_debug = 1;
 
 if flag_do_debug
     st = dbstack; %#ok<*UNRCH>
     fprintf(1,'STARTING function: %s, in file: %s\n',st(1).name,st(1).file);
+    debug_fig_num = 999978; %#ok<NASGU>
+else
+    debug_fig_num = []; %#ok<NASGU>
 end
-
 
 %% check input arguments
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -60,12 +95,29 @@ end
 % See: http://patorjk.com/software/taag/#p=display&f=Big&t=Inputs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if flag_check_inputs == 1
-    % Are there the right number of inputs?
-    if  nargin > 0
-        error('Incorrect number of input arguments')
+if (0==flag_max_speed)
+    if flag_check_inputs == 1
+        % Are there the right number of inputs?
+        narginchk(0,1);
+
     end
-    
+end
+
+
+% Does user want to show the plots?
+flag_do_plot = 0; % Default is no plotting
+if  1 == nargin && (0==flag_max_speed) % Only create a figure if NOT maximizing speed
+    temp = varargin{end}; % Last argument is always figure number
+    if ~isempty(temp) % Make sure the user is not giving empty input
+        fig_num = temp;
+        flag_do_plot = 1; % Set flag to do plotting
+    end
+else
+    if flag_do_debug % If in debug mode, do plotting but to an arbitrary figure number
+        fig = figure;
+        fig_for_debug = fig.Number; %#ok<NASGU>
+        flag_do_plot = 1;
+    end
 end
 
 %% Solve for the circle
@@ -582,20 +634,33 @@ laps_array{end+1} = [
 %                            __/ |
 %                           |___/
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if flag_do_debug
-    % Prep a figure location
-    close all
-    figure(1);
+if flag_do_plot
+    % Prep a figure
+    figure(fig_num);
     clf;
-    hold on;
-    grid minor;
-  
-    % Show result
+
+    tiledlayout('flow');
+
+    % Show results
     for ith_Lap = 1:length(laps_array)
+
+        nexttile
+
+        hold on;
+        axis equal;
+        grid on;
+        grid minor;        
+        
+  
         plot(laps_array{ith_Lap}(:,1),laps_array{ith_Lap}(:,2),'-');
         text(laps_array{ith_Lap}(1,1),laps_array{ith_Lap}(1,2),'Start');
-    end
+        title(sprintf('Demo lap %.0d',ith_Lap))
 
+        xlabel('X [m]');
+        ylabel('Y [m]');
+        
+    end
+    sgtitle('All demonstration laps');
 end
 
 if flag_do_debug

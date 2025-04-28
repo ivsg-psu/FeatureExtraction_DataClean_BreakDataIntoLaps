@@ -136,34 +136,44 @@ function varargout = fcn_Laps_breakDataIntoLapIndices(...
 % Questions or comments? sbrennan@psu.edu
 
 % Revision history:
-%
-%     2022_07_23 - sbrennan@psu.edu
-%     -- wrote the code originally, using breakDataIntoLaps as starter
+% 2022_07_23 - sbrennan@psu.edu
+% -- wrote the code originally, using breakDataIntoLaps as starter
+% 2025_04_25 by Sean Brennan
+% -- added global debugging options
 
 % TO DO
-%
+% -- (add items here)
 
-flag_do_debug = 0; % Flag to show the results for debugging
-flag_do_plots = 0; % % Flag to plot the final results
-flag_check_inputs = 1; % Flag to perform input checking
-flag_do_start_end = 1; % Flag to calculate the start and end segments
+%% Debugging and Input checks
 
+% Check if flag_max_speed set. This occurs if the fig_num variable input
+% argument (varargin) is given a number of -1, which is not a valid figure
+% number.
+flag_max_speed = 0;
+if (nargin==5 && isequal(varargin{end},-1))
+    flag_do_debug = 0; % % % % Flag to plot the results for debugging
+    flag_check_inputs = 0; % Flag to perform input checking
+    flag_max_speed = 1;
+else
+    % Check to see if we are externally setting debug mode to be "on"
+    flag_do_debug = 0; % % % % Flag to plot the results for debugging
+    flag_check_inputs = 1; % Flag to perform input checking
+    MATLABFLAG_LAPS_FLAG_CHECK_INPUTS = getenv("MATLABFLAG_LAPS_FLAG_CHECK_INPUTS");
+    MATLABFLAG_LAPS_FLAG_DO_DEBUG = getenv("MATLABFLAG_LAPS_FLAG_DO_DEBUG");
+    if ~isempty(MATLABFLAG_LAPS_FLAG_CHECK_INPUTS) && ~isempty(MATLABFLAG_LAPS_FLAG_DO_DEBUG)
+        flag_do_debug = str2double(MATLABFLAG_LAPS_FLAG_DO_DEBUG);
+        flag_check_inputs  = str2double(MATLABFLAG_LAPS_FLAG_CHECK_INPUTS);
+    end
+end
 
-% Tell user where we are
+% flag_do_debug = 1;
+
 if flag_do_debug
     st = dbstack; %#ok<*UNRCH>
     fprintf(1,'STARTING function: %s, in file: %s\n',st(1).name,st(1).file);
-end
-
-% Setup figures if there is debugging
-if flag_do_debug
-    fig_debug_start_zone = 3333;
-    fig_debug_excursion_zone = 3334;
-    fig_debug_end_zone = 3335;
+    debug_fig_num = 999978; 
 else
-    fig_debug_start_zone = [];
-    fig_debug_excursion_zone = [];
-    fig_debug_end_zone = [];
+    debug_fig_num = []; 
 end
 
 %% check input arguments
@@ -181,19 +191,52 @@ end
 
 
 %% Check inputs?
-if flag_check_inputs
-    % Are there the right number of inputs?
-    if nargin < 2 || nargin > 5
-        error('Incorrect number of input arguments')
+if (0==flag_max_speed)
+    if flag_check_inputs
+        % Are there the right number of inputs?
+        narginchk(2,5);
+
+        % Check the input_path to be sure it has 2 or 3 columns, minimum 2 rows
+        % or more
+        fcn_DebugTools_checkInputsToFunctions(input_path, '2or3column_of_numbers',[2 3]);
+
+        % NOTE: the start_definition required input is checked below!
+
     end
-    
-    % Check the input_path to be sure it has 2 or 3 columns, minimum 2 rows
-    % or more
-    fcn_DebugTools_checkInputsToFunctions(input_path, '2or3column_of_numbers',[2 3]);
-    
-    % NOTE: the start_definition required input is checked below!
-    
 end
+
+% Does user want to show the plots?
+flag_do_plot = 0; % Default is no plotting
+if  5 == nargin && (0==flag_max_speed) % Only create a figure if NOT maximizing speed
+    temp = varargin{end}; % Last argument is always figure number
+    if ~isempty(temp) % Make sure the user is not giving empty input
+        fig_num = temp;
+        flag_do_plot = 1; % Set flag to do plotting
+    end
+else
+    if flag_do_debug % If in debug mode, do plotting but to an arbitrary figure number
+        fig = figure;
+        fig_for_debug = fig.Number; 
+        flag_do_plot = 1;
+    end
+end
+
+% For debugging
+fig_debug_start_zone = [];
+fig_debug_end_zone = [];
+flag_do_start_end = 1; % Flag to calculate the start and end segments
+
+%% Start of main code
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   __  __       _
+%  |  \/  |     (_)
+%  | \  / | __ _ _ _ __
+%  | |\/| |/ _` | | '_ \
+%  | |  | | (_| | | | | |
+%  |_|  |_|\__,_|_|_| |_|
+%
+%See: http://patorjk.com/software/taag/#p=display&f=Big&t=Main
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%§
 
 % Set the start values
 [flag_start_is_a_point_type, start_zone_definition] = fcn_Laps_checkZoneType(start_zone_definition, 'start_definition');
@@ -227,17 +270,18 @@ if 4 <= nargin
 end
 
 % Does user want to show the plots?
-if 5 == nargin
-    fig_num = varargin{end};
-    if ~isempty(fig_num)
-        figure(fig_num);
-        flag_do_plots = 1;
+flag_do_plot = 0; % Default is no plotting
+if  5 == nargin && (0==flag_max_speed) % Only create a figure if NOT maximizing speed
+    temp = varargin{end}; % Last argument is always figure number
+    if ~isempty(temp) % Make sure the user is not giving empty input
+        fig_num = temp;
+        flag_do_plot = 1; % Set flag to do plotting
     end
 else
-    if flag_do_debug
+    if flag_do_debug % If in debug mode, do plotting but to an arbitrary figure number
         fig = figure;
-        fig_num = fig.Number;
-        flag_do_plots = 1;
+        fig_for_debug = fig.Number; 
+        flag_do_plot = 1;
     end
 end
 
@@ -680,7 +724,7 @@ end
 %                            __/ |
 %                           |___/
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if flag_do_plots
+if flag_do_plot
     
     % plot the final XY result
     figure(fig_num);
@@ -714,11 +758,11 @@ if flag_do_plots
     end
     
     % Plot results
-    plot(start_of_lap_x,start_of_lap_y,'g-','Linewidth',3);
-    plot(lap_x,lap_y,'b-','Linewidth',3);
-    plot(end_of_lap_x,end_of_lap_y,'r-','Linewidth',3);
+    plot(start_of_lap_x,start_of_lap_y,'g-','Linewidth',3,'DisplayName','Prelap');
+    plot(lap_x,lap_y,'b-','Linewidth',3,'DisplayName','Lap');
+    plot(end_of_lap_x,end_of_lap_y,'r-','Linewidth',3,'DisplayName','Postlap');
     
-    h_legend = legend('Prelap','Lap','Postlap');
+    h_legend = legend;
     set(h_legend,'AutoUpdate','off');
     
     xlabel('Indices');
