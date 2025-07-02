@@ -2,8 +2,10 @@
 % Tests fcn_Laps_plotLapsXY
        
 % Revision history:
-%      2022_04_02
-%      -- first write of the code
+% 2022_04_02 - S. Brennan
+% -- first write of the code
+% 2025_07_02 - S. Brennan
+% -- Removed traversal input type and replaced with cell array of paths
 
 close all
 
@@ -14,19 +16,12 @@ figure(fig_num);
 clf;
 
 % Fill in some dummy data
-laps = fcn_Laps_fillSampleLaps;
+cellArrayOfPaths = fcn_Laps_fillSampleLaps;
  
-
-% Convert laps into traversals
-for i_traveral = 1:length(laps)
-    traversal = fcn_Path_convertPathToTraversalStructure(laps{i_traveral});
-    data.traversal{i_traveral} = traversal;
-end
-
 
 % to show that it will auto-label the axes and create a new figure (NOT
 % figure 11 here) to plot the data.
-fcn_Laps_plotLapsXY(data);
+fcn_Laps_plotLapsXY(cellArrayOfPaths);
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),fig_num));
@@ -37,19 +32,11 @@ figure(fig_num);
 clf;
 
 % Fill in some dummy data
-laps = fcn_Laps_fillSampleLaps;
- 
-
-% Convert laps into traversals
-for i_traveral = 1:length(laps)
-    traversal = fcn_Path_convertPathToTraversalStructure(laps{i_traveral});
-    data.traversal{i_traveral} = traversal;
-end
-
+cellArrayOfPaths = fcn_Laps_fillSampleLaps;
 
 figure(11);
 % axes if figure is already given and it puts the plots into this figure.
-fcn_Laps_plotLapsXY(data,fig_num);
+fcn_Laps_plotLapsXY(cellArrayOfPaths,fig_num);
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),fig_num));

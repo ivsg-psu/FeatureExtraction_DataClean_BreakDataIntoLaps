@@ -94,11 +94,7 @@ function [zone_start_indices, zone_end_indices, zone_min_indices] = ...
 % DEPENDENCIES:
 %
 %      fcn_DebugTools_checkInputsToFunctions
-%
-%      fcn_Path_calcSingleTraversalStandardDeviation
-%      fcn_Path_findOrthogonalTraversalVectorsAtStations
-%      fcn_Path_convertPathToTraversalStructure
-%      fcn_Path_plotTraversalsXY
+%      fcn_Laps_plotPointZoneDefinition
 %
 % EXAMPLES:
 %

@@ -1,4 +1,4 @@
-function h = fcn_Laps_plotLapsXY(traversals,varargin)
+function h = fcn_Laps_plotLapsXY(cellArrayOfPaths,varargin)
 % fcn_Laps_plotLapsXY
 % Plots the XY positions of all laps existing in a data structure. This is
 % just a modified version of fcn_Path_plotTraversalsXY from the "Path"
@@ -7,16 +7,15 @@ function h = fcn_Laps_plotLapsXY(traversals,varargin)
 %
 % FORMAT: 
 %
-%       h = fcn_Laps_plotLapsXY(traversals,{fig_num})
+%       h = fcn_Laps_plotLapsXY(cellArrayOfPaths,{fig_num})
 %
 % INPUTS:
 %
-%      data: a structure containing subfields of station and Yaw in the
-%      following form
-%           data.traversal{ith_lap}.X
-%           data.traversal{ith_lap}.Y
-%      Note that ith_lap denotes an array of laps. Each lap will be
-%      plotted separately.
+%      cellArrayOfPaths: a cell array of paths to be averaged with each
+%      other. Each path is a N x 2 or N x 3 set of coordinates
+%      representing the [X Y] or [X Y Z] coordinates, in sequence, of a
+%      path. The averaging works best if each path starts and stops in
+%      approximately the same area and with similar orientations.
 %
 %     (optional inputs)
 %
@@ -45,6 +44,8 @@ function h = fcn_Laps_plotLapsXY(traversals,varargin)
 % -- wrote the code
 % 2025_04_25 by Sean Brennan
 % -- added global debugging options
+% 2025_07_02 - S. Brennan
+% -- Removed traversal input type and replaced with cell array of paths
 
 % TO DO
 % -- (add items here)
@@ -99,8 +100,15 @@ if (0==flag_max_speed)
         % Are there the right number of inputs?
         narginchk(1,2);
 
-        % Check the data input
-        % fcn_Path_checkInputsToFunctions(traversals, 'traversals');
+        % Check the cellArrayOfPaths input
+        if ~iscell(cellArrayOfPaths)
+            error('cellArrayOfPaths input must be a cell type');
+        end
+        for ith_cell = 1:length(cellArrayOfPaths)
+            if ~isempty(cellArrayOfPaths{ith_cell})
+                fcn_DebugTools_checkInputsToFunctions(cellArrayOfPaths{ith_cell}, 'path2or3D');
+            end
+        end
 
     end
 end
@@ -143,6 +151,21 @@ end
 figure(fig_num);
 axis equal;
 
+% Count number of non-empty entries
+Nnotempty = 0;
+for ith_cell = 1:length(cellArrayOfPaths)
+    if ~isempty(cellArrayOfPaths{ith_cell})
+        Nnotempty = ith_cell;
+    end
+end
+
+
+goodCellArray = cell(Nnotempty,1);
+for jth_entry = 1:Nnotempty
+    goodCellArray{jth_entry,1} = cellArrayOfPaths{jth_entry,1};
+end
+cellArrayOfPaths = goodCellArray;
+
 % Check to see if hold is already on. If it is not, set a flag to turn it
 % off after this function is over so it doesn't affect future plotting
 flag_shut_hold_off = 0;
@@ -151,22 +174,22 @@ if ~ishold
     hold on
 end
 
-NumTraversals = length(traversals.traversal);
-h = zeros(NumTraversals,1);
-for ith_lap= 1:NumTraversals
-    if ~isempty(traversals.traversal{ith_lap})
-        h(ith_lap) = plot(traversals.traversal{ith_lap}.X,traversals.traversal{ith_lap}.Y,'-o');
+NumPaths = length(cellArrayOfPaths);
+h = zeros(NumPaths,1);
+for ith_lap= 1:NumPaths
+    if ~isempty(cellArrayOfPaths{ith_lap})
+        h(ith_lap) = plot(cellArrayOfPaths{ith_lap}(:,1),cellArrayOfPaths{ith_lap}(:,2),'-o');
     else
         h(ith_lap) = plot(NaN,NaN,'-o');
     end
 end
 
 % Plot the start and end values as green and red respectively
-for ith_lap= 1:NumTraversals
-    if ~isempty(traversals.traversal{ith_lap})
+for ith_lap= 1:NumPaths
+    if ~isempty(cellArrayOfPaths{ith_lap})
         plot(...
-            traversals.traversal{ith_lap}.X(1,1),traversals.traversal{ith_lap}.Y(1,1),'go',...
-            traversals.traversal{ith_lap}.X(end,1),traversals.traversal{ith_lap}.Y(end,1),'ro');
+            cellArrayOfPaths{ith_lap}(1,1),cellArrayOfPaths{ith_lap}(1,2),'go',...
+            cellArrayOfPaths{ith_lap}(end,1),cellArrayOfPaths{ith_lap}(end,2),'ro');
     else
         plot(NaN,NaN,'go',NaN,NaN,'ro');
     end

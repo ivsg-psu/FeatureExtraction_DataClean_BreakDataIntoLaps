@@ -1,5 +1,5 @@
 function varargout = fcn_Laps_breakDataIntoLaps(...
-    input_traversal,...
+    input_path,...
     start_definition,...
     varargin)
 % fcn_Laps_breakDataIntoLaps
@@ -9,7 +9,7 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 % as an array "traversals" type, with each traversal being one lap. Any
 % entry and exit portions that are not full laps are also returned as
 % traversal types. If no laps are detected, then the input traversl is
-% assumed to be only an entry traversal and the lap_traversals is empty.
+% assumed to be only an entry traversal and the lap_cellArrayOfPaths is empty.
 %
 % The conditions to specify a lap can be given as either (1) points or (2)
 % line segments. These conditions are used to define situations that start
@@ -59,9 +59,9 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 %
 % FORMAT:
 %
-%      [lap_traversals, (entry_traversal,exit_traversal)] = ...
+%      [lap_cellArrayOfPaths, (entry_traversal,exit_traversal)] = ...
 %      fcn_Laps_breakDataIntoLaps(...
-%            input_traversal,...
+%            input_path,...
 %            start_definition,...
 %            (end_definition),...
 %            (excursion_definition),...
@@ -69,8 +69,9 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 %
 % INPUTS:
 %
-%      input_traversal: the traversal that is to be broken up into laps. It
-%      is a traversals type consistent with the Paths library of functions.
+%      input_path: a N x 2 or N x 3 set of coordinates
+%      representing the [X Y] or [X Y Z] coordinates, in sequence, of a
+%      path that is to be broken up into laps. 
 %
 %      start_definition: the condition, defined as a point/radius or line
 %      segment, defining the start condition to break the data into laps.
@@ -107,8 +108,8 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 %
 % OUTPUTS:
 %
-%      lap_traversals: a structure containing the resulting laps, with each
-%      lap being a traversal
+%      lap_cellArrayOfPaths: a cell array containing the resulting laps, with each
+%      lap being a path
 %
 %      OPTIONAL OUTPUTS:
 %      entry_traversal: a structure containing the portion of the
@@ -122,7 +123,6 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 %
 %      fcn_DebugTools_checkInputsToFunctions
 %      fcn_Laps_findPointZoneStartStopAndMinimum
-%      fcn_Path_convertPathToTraversalStructure
 %      fcn_DebugTools_debugPrintStringToNCharacters
 %      
 % EXAMPLES:
@@ -209,8 +209,8 @@ if (0==flag_max_speed)
         % Are there the right number of inputs?
         narginchk(2,5);
 
-        % Check the reference_traversal variables
-        fcn_DebugTools_checkInputsToFunctions(input_traversal, 'traversal');
+        % Check the input_path variables
+        fcn_DebugTools_checkInputsToFunctions(input_path, 'path2or3D');
 
         % NOTE: the start_definition required input is checked below!
 
@@ -294,9 +294,9 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Fill deafults
-entry_traversal = input_traversal;
-exit_traversal = [];
-lap_traversals = [];
+entry_path = input_path;
+exit_path = [];
+lap_cellArrayOfPaths = [];
 
 
 % Steps used:
@@ -315,8 +315,8 @@ lap_traversals = [];
 % of the path
 
 % Grab the XY data out of the variable
-path_original = [input_traversal.X input_traversal.Y];
-path_flag_array = zeros(length(input_traversal.X(:,1)),1);
+path_original = input_path;
+path_flag_array = zeros(length(input_path(:,1)),1);
 Npoints = length(path_original(:,1));
 
 %% Step 2
@@ -654,10 +654,10 @@ end
 if flag_keep_going && Nlaps>0
     
     % Fill in the laps
-    lap_traversals = [];
+    lap_cellArrayOfPaths = cell(Nlaps,1);
     for ith_lap = 1:Nlaps
         lap_path = path_original(laps_array(ith_lap,1):laps_array(ith_lap,3),:);
-        lap_traversals.traversal{ith_lap} = fcn_Path_convertPathToTraversalStructure(lap_path);
+        lap_cellArrayOfPaths{ith_lap} = lap_path;
     end
     
     
@@ -667,14 +667,14 @@ if flag_keep_going && Nlaps>0
         end_path = path_original(laps_array(end,3):end,:);
         
         if length(start_path(:,1))>1
-            entry_traversal = fcn_Path_convertPathToTraversalStructure(start_path);
+            entry_path = start_path;
         else
-            entry_traversal = [];
+            entry_path = [];
         end
         if length(end_path(:,1))>1
-            exit_traversal = fcn_Path_convertPathToTraversalStructure(end_path);
+            exit_path = end_path;
         else
-            exit_traversal = [];
+            exit_path = [];
         end
     end
     
@@ -682,13 +682,13 @@ end % Ends check to see if keep going
 
 % Save outputs depending on which ones the user asks for
 if nargout >= 1
-    varargout{1} = lap_traversals;
+    varargout{1} = lap_cellArrayOfPaths;
 end
 if nargout >=2
-   varargout{2} = entry_traversal;   
+   varargout{2} = entry_path;   
 end
 if nargout >=3
-   varargout{3} = exit_traversal;   
+   varargout{3} = exit_path;   
 end
 
 
@@ -716,16 +716,17 @@ if flag_do_plot
     axis equal
     title('Results of breaking data into laps');
     
-    plot_traversals.traversal{1}     = input_traversal;
+    plot_cellArrayOfPaths = cell(Nlaps+3,1);
+    plot_cellArrayOfPaths{1}     = input_path;
     for ith_lap = 1:Nlaps
-        plot_traversals.traversal{end+1} = lap_traversals.traversal{ith_lap};
+        plot_cellArrayOfPaths{ith_lap+1} = lap_cellArrayOfPaths{ith_lap};
     end
     if nargout > 1
-        plot_traversals.traversal{end+1} = entry_traversal;
-        plot_traversals.traversal{end+1} = exit_traversal;
+        plot_cellArrayOfPaths{Nlaps+2} = entry_path;
+        plot_cellArrayOfPaths{Nlaps+3} = exit_path;
     end
     
-    h = fcn_Laps_plotLapsXY(plot_traversals,fig_num);
+    h = fcn_Laps_plotLapsXY(plot_cellArrayOfPaths,fig_num);
     
     % Make input be thin line
     set(h(1),'Color',[0 0 0],'Marker','none','Linewidth', 0.75);

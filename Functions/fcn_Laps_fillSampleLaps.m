@@ -141,7 +141,7 @@ Nlaps = 3;
 angles_in_radians = pi/180*(-45:5:(Nlaps*360 + 45))';
 
 radius = 50; 
-laps_array{1} = radius * ( [cos(angles_in_radians) sin(angles_in_radians)] - [1 0]);
+laps_array{1,1} = radius * ( [cos(angles_in_radians) sin(angles_in_radians)] - [1 0]);
 
 
 
@@ -163,7 +163,7 @@ second_circle_XY = [2+cos(second_circle_angles_in_radians) sin(second_circle_ang
 one_lap_XY = [first_circle_XY; second_circle_XY] ;
 
 
-laps_array{2} = radius * ...
+laps_array{2,1} = radius * ...
     ([entry_XY; one_lap_XY; one_lap_XY; one_lap_XY; exit_XY]);
 
 
@@ -182,7 +182,7 @@ entry_straight_distances = (0.4:-step_distance:step_distance)';
 exit_straight_distances  = (step_distance:step_distance:0.5)';
 entry_straight = [entry_straight_distances zeros(size(entry_straight_distances))];
 exit_straight  = [exit_straight_distances zeros(size(exit_straight_distances))];
-laps_array{3} = radius * [entry_straight; left_lobe; exit_straight];
+laps_array{3,1} = radius * [entry_straight; left_lobe; exit_straight];
 
 
 
@@ -200,7 +200,7 @@ left_lobe =  [cos(angles_in_radians) sin(angles_in_radians).*(sin(angles_in_radi
 right_lobe = [-1*left_lobe(:,1) left_lobe(:,2)];
 one_lap = [left_lobe; right_lobe];
 many_laps = repmat(one_lap,Nlaps,1);
-laps_array{4} = radius * [entry_straight; many_laps; -exit_straight];
+laps_array{4,1} = radius * [entry_straight; many_laps; -exit_straight];
 
 
 
@@ -220,7 +220,7 @@ std_deviation = 3;  % Units are meters
 Nideal = length(laps_array);
 for ith_ideal = 1:Nideal
     % Convert to traversal using Path function
-    reference_path = laps_array{ith_ideal};
+    reference_path = laps_array{ith_ideal,1};
     
     % Call a Paths function to fill in the result
     random_paths = ...
@@ -231,7 +231,7 @@ for ith_ideal = 1:Nideal
         emtpy_value,... % (num_points),...
         flag_generate_random_stations,... % (flag_generate_random_stations),...
         spatial_smoothness);   % (spatial_smoothness),...
-    laps_array{Nideal+ith_ideal} = random_paths{1};
+    laps_array{Nideal+ith_ideal,1} = random_paths{1};
 end
 
 

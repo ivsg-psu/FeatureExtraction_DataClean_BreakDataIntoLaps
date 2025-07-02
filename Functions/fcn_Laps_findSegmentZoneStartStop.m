@@ -69,7 +69,8 @@ function [zone_start_indices, zone_end_indices] = ...
 % DEPENDENCIES:
 %
 %      fcn_DebugTools_checkInputsToFunctions
-%      fcn_Path_convertPathToTraversalStructure
+%      fcn_Path_findProjectionHitOntoPath
+%      fcn_Laps_plotZoneDefinition
 %      fcn_DebugTools_debugPrintStringToNCharacters
 %
 % EXAMPLES:
@@ -211,7 +212,11 @@ end
 % they are of correct length
 
 % Are zones empty?
-if ~isempty(distance)  % empty distances?
+if all(isnan(distance)) % Nan distances?
+    distance = [];
+end
+
+if ~isempty(distance) 
     
     % Find the point where segments end (its the one after the segment
     % number)
@@ -219,6 +224,7 @@ if ~isempty(distance)  % empty distances?
     
     % Convert these to vectors, 
     segment_vector = segment_definition(2,:) - segment_definition(1,:);
+
     vectors_of_path_hits = query_path(next_path_numbers,:)-query_path(segment_numbers,:);
     
     % Make sure each of the intersections is crossed the correct way by

@@ -124,7 +124,6 @@ function varargout = fcn_Laps_breakDataIntoLapIndices(...
 %
 %      fcn_DebugTools_checkInputsToFunctions
 %      fcn_Laps_findPointZoneStartStopAndMinimum
-%      fcn_Path_convertPathToTraversalStructure
 %      fcn_DebugTools_debugPrintStringToNCharacters
 %
 % EXAMPLES:
@@ -777,17 +776,18 @@ if flag_do_plot
     title('Results of breaking data into laps');
     axis equal
     
-    plot_traversals.traversal{1}     = fcn_Path_convertPathToTraversalStructure(input_path);
+    cellArrayOfPathsToPlot = cell(Nlaps+1,1);
+    cellArrayOfPathsToPlot{1,1}     = input_path;
     for ith_lap = 1:Nlaps
         temp_indices = cell_array_of_lap_indices{ith_lap};
         if length(temp_indices)>1
-            dummy_traversal = fcn_Path_convertPathToTraversalStructure(input_path(temp_indices,:));
+            dummy_path = input_path(temp_indices,:);
         else
-            dummy_traversal = [];
+            dummy_path = [];
         end
-        plot_traversals.traversal{end+1} = dummy_traversal;
+        cellArrayOfPathsToPlot{ith_lap+1,1} = dummy_path;
     end
-    h = fcn_Laps_plotLapsXY(plot_traversals,fig_num);
+    h = fcn_Laps_plotLapsXY(cellArrayOfPathsToPlot,fig_num);
     
     % Make input be thin line
     set(h(1),'Color',[0 0 0],'Marker','none','Linewidth', 0.75);

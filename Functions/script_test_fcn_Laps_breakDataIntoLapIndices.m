@@ -473,7 +473,7 @@ end
 
 % %% This one returns nothing since there is no portion of the path in the
 % % criteria
-% traversal = fcn_Path_convertPathToTraversalStructure([-1 1; 1 1]);
+% tempXYdata = [-1 1; 1 1];
 % start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
 % 
 % [lap_traversals, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLapIndices(...
@@ -485,7 +485,7 @@ end
 % assert(isempty(exit_traversal));
 % 
 % %% This one returns nothing since there is one point in criteria
-% traversal = fcn_Path_convertPathToTraversalStructure([-1 1; 0 0; 1 1]);
+% tempXYdata = [-1 1; 0 0; 1 1];
 % start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
 % [lap_traversals, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLapIndices(...
 %     traversal,...
@@ -496,7 +496,7 @@ end
 % assert(isempty(exit_traversal));
 % 
 % %% This one returns nothing since there is only two points in criteria
-% traversal = fcn_Path_convertPathToTraversalStructure([-1 1; 0 0; 0.1 0; 1 1]);
+% tempXYdata = [-1 1; 0 0; 0.1 0; 1 1];
 % start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
 % [lap_traversals, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLapIndices(...
 %     traversal,...
@@ -508,7 +508,7 @@ end
 % 
 % %% This one returns nothing since the minimum point is at the start
 % % and so there is no strong minimum inside the zone
-% traversal = fcn_Path_convertPathToTraversalStructure([-1 1; 0 0; 0.01 0; 0.02 0; 0.03 0; 1 1]);
+% tempXYdata = [-1 1; 0 0; 0.01 0; 0.02 0; 0.03 0; 1 1];
 % start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
 % [lap_traversals, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLapIndices(...
 %     traversal,...
@@ -520,7 +520,7 @@ end
 % 
 % %% This one returns nothing since the minimum point is at the end
 % % and so there is no strong minimum inside the zone
-% traversal = fcn_Path_convertPathToTraversalStructure([-1 1; -0.03 0; -0.02 0; -0.01 0; 0 0; 1 1]);
+% tempXYdata = [-1 1; -0.03 0; -0.02 0; -0.01 0; 0 0; 1 1];
 % start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
 % [lap_traversals, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLapIndices(...
 %     traversal,...
@@ -533,7 +533,7 @@ end
 % %% This one returns nothing since the path doesn't come back to start
 % % There is no end after the start
 % fig_num = 123;
-% traversal = fcn_Path_convertPathToTraversalStructure([-1 1; -0.03 0; -0.02 0; 0 0; 0.1 0; 1 1]);
+% tempXYdata = [-1 1; -0.03 0; -0.02 0; 0 0; 0.1 0; 1 1];
 % start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
 % 
 % [lap_traversals, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLapIndices(...
@@ -556,8 +556,8 @@ end
 % half_steps = (-1:0.1:0)';
 % zero_half_steps = 0*half_steps;
 % 
-% traversal = fcn_Path_convertPathToTraversalStructure(...
-%     [full_steps zero_full_steps; zero_half_steps half_steps]);
+% tempXYdata = ...
+%     [full_steps zero_full_steps; zero_half_steps half_steps];
 % 
 % start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
 % 
@@ -575,8 +575,8 @@ end
 % %% Show that the start and end points can overlap by their boundaries
 % fig_num = 1234;
 % 
-% traversal = fcn_Path_convertPathToTraversalStructure(...
-%     [full_steps zero_full_steps]);
+% tempXYdata = ...
+%     [full_steps zero_full_steps];
 % start_definition = [0.5 3 -0.5 0]; % Located at [-0.5,0] with radius 0.5, 3 points
 % end_definition = [0.5 3 0.5 0]; % Located at [0.5,0] with radius 0.5, 3 points
 % 
@@ -594,8 +594,8 @@ end
 % %% Show that the start and end points can be at the absolute ends
 % fig_num = 1234;
 % 
-% traversal = fcn_Path_convertPathToTraversalStructure(...
-%     [full_steps zero_full_steps]);
+% tempXYdata = ...
+%     [full_steps zero_full_steps];
 % 
 % start_definition = [0.5 3 -1 0]; % Located at [-1,0] with radius 0.5, 3 points
 % end_definition = [0.5 3 1 0]; % Located at [1,0] with radius 0.5, 3 points
@@ -763,21 +763,6 @@ function tempXYdata = fcn_INTERNAL_loadExampleData(dataSetNumber)
 % Call the function to fill in an array of "path" type
 laps_array = fcn_Laps_fillSampleLaps(-1);
 
-
-% Convert paths to traversals structures. Each traversal instance is a
-% "traversal" type, and the array called "data" below is a "traversals"
-% type.
-for i_Path = 1:length(laps_array)
-    traversal = fcn_Path_convertPathToTraversalStructure(laps_array{i_Path});
-    data.traversal{i_Path} = traversal;
-end
-
-% Plot the last one
-if 1==0
-    example_lap_data = data.traversal{dataSetNumber};
-    fig_num = 999;
-    fcn_Laps_plotLapsXY(example_lap_data,fig_num);
-end
 
 % Use the last data
 tempXYdata = laps_array{dataSetNumber};
