@@ -43,6 +43,8 @@
 % -- Updated headers in all functions
 % -- Added no-plot and fast-mode tests in all test scripts
 % -- Added global test script
+% 2025_07_02 - Sean Brennan
+% -- Updated PathClass_v2025_07_02 dependency
 
 % TO-DO:
 % -- add items here
@@ -55,9 +57,9 @@ library_folders{ith_library} = {'Functions','Data'};
 library_url{ith_library}     = 'https://github.com/ivsg-psu/Errata_Tutorials_DebugTools/archive/refs/tags/DebugTools_v2024_12_18.zip';
 
 ith_library = ith_library+1;
-library_name{ith_library}    = 'PathClass_v2024_03_14';
+library_name{ith_library}    = 'PathClass_v2025_07_02';
 library_folders{ith_library} = {'Functions'};
-library_url{ith_library}     = 'https://github.com/ivsg-psu/PathPlanning_PathTools_PathClassLibrary/archive/refs/tags/PathClass_v2024_03_14.zip';
+library_url{ith_library}     = 'https://github.com/ivsg-psu/PathPlanning_PathTools_PathClassLibrary/archive/refs/tags/PathClass_v2025_07_02.zip';
 
 ith_library = ith_library+1;
 library_name{ith_library}    = 'GetUserInputPath_v2025_04_27';

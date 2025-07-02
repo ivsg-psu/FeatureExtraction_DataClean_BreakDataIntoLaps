@@ -1,5 +1,5 @@
 function laps_array = fcn_Laps_fillSampleLaps(varargin)
-% fcn_Path_fillSampleLaps
+% fcn_Laps_fillSampleLaps
 % Produces dummy data to test lap functions. Note: can go into the function
 % and change flag to allow user-selected paths.
 %
@@ -22,8 +22,8 @@ function laps_array = fcn_Laps_fillSampleLaps(varargin)
 %
 % DEPENDENCIES:
 %
-%      fcn_Path_convertPathToTraversalStructure
-%      fcn_Path_fillRandomTraversalsAboutTraversal
+%      fcn_Path_fillRandomPathsAboutPath
+%      fcn_Path_fillPathViaUserInputs
 %
 % EXAMPLES:
 %
@@ -46,6 +46,9 @@ function laps_array = fcn_Laps_fillSampleLaps(varargin)
 % -- added plotting
 % 2025_04_27 by Sean Brennan
 % -- added global debugging options
+% 2025_07_02 by Sean Brennan
+% -- updated Path library calls to use paths, not traversals
+% -- updated docstrings
 
 % TO DO
 % -- rewrite to move plotting to debug area only
@@ -217,19 +220,18 @@ std_deviation = 3;  % Units are meters
 Nideal = length(laps_array);
 for ith_ideal = 1:Nideal
     % Convert to traversal using Path function
-    reference_traversal = ...
-        fcn_Path_convertPathToTraversalStructure(laps_array{ith_ideal});
+    reference_path = laps_array{ith_ideal};
     
     % Call a Paths function to fill in the result
-    random_traversals = ...
-        fcn_Path_fillRandomTraversalsAboutTraversal(...
-        reference_traversal,...
+    random_paths = ...
+        fcn_Path_fillRandomPathsAboutPath(...
+        reference_path,...
         std_deviation,... % (std_deviation),...
         num_trajectories,... % (num_trajectories),...
         emtpy_value,... % (num_points),...
         flag_generate_random_stations,... % (flag_generate_random_stations),...
         spatial_smoothness);   % (spatial_smoothness),...
-    laps_array{Nideal+ith_ideal} = [random_traversals.traversal{1}.X random_traversals.traversal{1}.Y];
+    laps_array{Nideal+ith_ideal} = random_paths{1};
 end
 
 
@@ -279,21 +281,13 @@ if 1==0
         
         pathXY = fcn_Path_fillPathViaUserInputs(fig_num);
         manual_laps_array{i_path} = pathXY;
+
+        % show results to screen
+        % disp(manual_laps_array{i_path});
+
     end
     
-    % Plot the results by converting them into traversals
-    clear data;
-    for ith_Lap = 1:length(manual_laps_array)
-        traversal = fcn_Path_convertPathToTraversalStructure(manual_laps_array{ith_Lap});
-        data.traversal{ith_Lap} = traversal;
-    end
-    
-    % Plot the results
-    fig_num = 133;
-    fcn_Path_plotTraversalsXY(data,fig_num);
-    
-    % show results to screen
-    manual_laps_array{ith_Lap} %#ok<NOPRT>
+     
 end
 
 

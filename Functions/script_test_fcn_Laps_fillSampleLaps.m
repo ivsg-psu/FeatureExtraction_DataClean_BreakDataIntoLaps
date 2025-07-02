@@ -2,8 +2,10 @@
 % tests fcn_Laps_fillSampleLaps.m
 
 % Revision history
-%     2022_04_02
-%     -- first write of the code
+% 2022_04_02 by Sean Brennan
+% -- first write of the code
+% 2025_07_02 by Sean Brennan
+% -- updated Path library calls to use paths, not traversals
 
 close all
 
