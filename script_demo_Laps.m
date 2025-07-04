@@ -45,6 +45,8 @@
 % -- Added global test script
 % 2025_07_02 - Sean Brennan
 % -- Updated PathClass_v2025_07_02 dependency
+% 2025_07_04 - Sean Brennan
+% -- Cleaned up plotting and assertion testing throughout
 
 % TO-DO:
 % -- add items here
@@ -83,7 +85,7 @@ library_url{ith_library}     = 'https://github.com/ivsg-psu/FieldDataCollection_
 
 
 %% Clear paths and folders, if needed
-if 1==1
+if 1==0
     clear flag_Laps_Folders_Initialized
     fcn_INTERNAL_clearUtilitiesFromPathAndFolders;
 
@@ -163,26 +165,17 @@ ones_full_steps = ones(length(full_steps(:,1)),1);
 half_steps = (-1:0.1:0)';
 zero_half_steps = 0*half_steps;
 ones_half_steps = ones(length(half_steps(:,1)),1); %#ok<PREALL>
+
+path_examples = cell(2,1);
 path_examples{1} = [-1*ones_full_steps full_steps];
 path_examples{2} = [1*ones_full_steps full_steps];
 
-%%
 % Each of the path_example matrices above can be plotted easily using the
-% "plotLapsXY" subfunction, but this function expects the paths to be in a
-% traversal type so that it is compatible with the Path library of
-% functions. To convert them, we use the conversion utility from the Path
-% library, convert each to "traversal" types stored in a variable called
-% path_data. We then plot the paths.
-
-clear path_data
-for i_Path = 1:length(path_examples)
-    traversal = fcn_Path_convertPathToTraversalStructure(path_examples{i_Path});
-    path_data.traversal{i_Path} = traversal;
-end
+% "plotLapsXY" subfunction
 
 % Plot the results via fcn_Laps_plotLapsXY
 fig_num = 222;
-fcn_Laps_plotLapsXY(path_data,fig_num);
+fcn_Laps_plotLapsXY(path_examples,fig_num);
 
 %%
 % Now, use a zone plotting tool to show the point and line-segment types of
@@ -339,26 +332,16 @@ assert(isequal(zone_min_indices,  [12; 31]));
 laps_array = fcn_Laps_fillSampleLaps;
 
 
-% Use Path library functions to onvert paths to traversals structures. Each
-% traversal instance is a "traversal" type, and the array called "data"
-% below is a "traversals" type.
-for i_Path = 1:length(laps_array)
-    traversal = fcn_Path_convertPathToTraversalStructure(laps_array{i_Path});
-    data.traversal{i_Path} = traversal;
-end
-
-
-% Plot all the laps
+% Plot all the laps one at a time
 fig_num = 22323;
-for ith_example = 1:length(data.traversal)
-    single_lap.traversal{1} = data.traversal{ith_example};
-    fcn_Laps_plotLapsXY(single_lap,fig_num);
+for ith_example = 1:length(laps_array)
+    single_lap = laps_array{ith_example};
+    fcn_Laps_plotLapsXY({single_lap},fig_num);
 end
 
-% Plot the last one
-fig_num = 1;
-single_lap.traversal{1} = data.traversal{end};
-fcn_Laps_plotLapsXY(single_lap,fig_num);
+% Plot all the laps at once
+fig_num = 22324;
+fcn_Laps_plotLapsXY(laps_array,fig_num);
 
 %% Show fcn_Laps_plotZoneDefinition.m
 % Plots the zone, allowing user-defined colors. For example, the figure
@@ -380,40 +363,57 @@ end_definition = [30 3 0 -60]; % Radius 30, 3 points must pass near [0,-60]
 excursion_definition = []; % empty
 fig_num = 2;
 lap_traversals = fcn_Laps_breakDataIntoLaps(...
-    single_lap.traversal{1},...
+    laps_array{1},...
     start_definition,...
     end_definition,...
     excursion_definition,...
     fig_num);
 
 % Do we get 3 laps?
-assert(isequal(3,length(lap_traversals.traversal)));
+assert(isequal(3,length(lap_traversals)));
 
-% Are the laps different lengths?
-assert(isequal(87,length(lap_traversals.traversal{1}.X)));
-assert(isequal(98,length(lap_traversals.traversal{2}.X)));
-assert(isequal(79,length(lap_traversals.traversal{3}.X)));
 
-%% Call the fcn_Laps_breakDataIntoLapIndices function, plot in figure 3
-start_definition = [10 3 0 0]; % Radius 10, 3 points must pass near [0 0]
+%% Show the use of segment definition
+fig_num = 10004;
+titleString = sprintf('DEMO case: Show the use of segment definition');
+fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
+figure(fig_num); clf;
+
+dataSetNumber = 9;
+
+% Load some test data by calling the function to fill in an array of "path" type
+laps_array = fcn_Laps_fillSampleLaps(-1);
+
+% Use the last data
+tempXYdata = laps_array{dataSetNumber};
+
+start_definition = [10 0; -10 0]; % start at [10 0], end at [-10 0]
 end_definition = [30 3 0 -60]; % Radius 30, 3 points must pass near [0,-60]
 excursion_definition = []; % empty
-fig_num = 2;
-lap_traversals = fcn_Laps_breakDataIntoLaps(...
-    single_lap.traversal{1},...
+
+[lap_cellArrayOfPaths, entry_traversal, exit_traversal] = fcn_Laps_breakDataIntoLaps(...
+    tempXYdata,...
     start_definition,...
     end_definition,...
     excursion_definition,...
     fig_num);
 
-% Do we get 3 laps?
-assert(isequal(3,length(lap_traversals.traversal)));
 
-% Are the laps different lengths?
-assert(isequal(87,length(lap_traversals.traversal{1}.X)));
-assert(isequal(98,length(lap_traversals.traversal{2}.X)));
-assert(isequal(79,length(lap_traversals.traversal{3}.X)));
+% Check variable types
+assert(iscell(lap_cellArrayOfPaths));
+assert(isnumeric(entry_traversal));
+assert(isnumeric(exit_traversal));
 
+% Check variable sizes
+Nlaps = 3;
+assert(isequal(Nlaps,length(lap_cellArrayOfPaths))); 
+
+assert(isequal(86,length(lap_cellArrayOfPaths{1}(:,1))));
+assert(isequal(97,length(lap_cellArrayOfPaths{2}(:,1))));
+assert(isequal(78,length(lap_cellArrayOfPaths{3}(:,1))));
+
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),fig_num));
 
 %% Functions follow
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -123,7 +123,9 @@ function varargout = fcn_Laps_breakDataIntoLapIndices(...
 % DEPENDENCIES:
 %
 %      fcn_DebugTools_checkInputsToFunctions
+%      fcn_Laps_checkZoneType
 %      fcn_Laps_findPointZoneStartStopAndMinimum
+%      fcn_Laps_findSegmentZoneStartStop
 %      fcn_DebugTools_debugPrintStringToNCharacters
 %
 % EXAMPLES:
@@ -139,17 +141,21 @@ function varargout = fcn_Laps_breakDataIntoLapIndices(...
 % -- wrote the code originally, using breakDataIntoLaps as starter
 % 2025_04_25 by Sean Brennan
 % -- added global debugging options
+% 2025_07_03 - S. Brennan
+% -- cleanup of Debugging area codes
+% -- turn on fast mode for Path calls
 
-% TO DO
-% -- (add items here)
+% TO-DO
+% (none)
 
 %% Debugging and Input checks
 
 % Check if flag_max_speed set. This occurs if the fig_num variable input
 % argument (varargin) is given a number of -1, which is not a valid figure
 % number.
-flag_max_speed = 0;
-if (nargin==5 && isequal(varargin{end},-1))
+MAX_NARGIN = 5; % The largest Number of argument inputs to the function
+flag_max_speed = 0; % The default. This runs code with all error checking
+if (nargin==MAX_NARGIN && isequal(varargin{end},-1))
     flag_do_debug = 0; % % % % Flag to plot the results for debugging
     flag_check_inputs = 0; % Flag to perform input checking
     flag_max_speed = 1;
@@ -157,17 +163,17 @@ else
     % Check to see if we are externally setting debug mode to be "on"
     flag_do_debug = 0; % % % % Flag to plot the results for debugging
     flag_check_inputs = 1; % Flag to perform input checking
-    MATLABFLAG_LAPS_FLAG_CHECK_INPUTS = getenv("MATLABFLAG_LAPS_FLAG_CHECK_INPUTS");
-    MATLABFLAG_LAPS_FLAG_DO_DEBUG = getenv("MATLABFLAG_LAPS_FLAG_DO_DEBUG");
-    if ~isempty(MATLABFLAG_LAPS_FLAG_CHECK_INPUTS) && ~isempty(MATLABFLAG_LAPS_FLAG_DO_DEBUG)
-        flag_do_debug = str2double(MATLABFLAG_LAPS_FLAG_DO_DEBUG);
-        flag_check_inputs  = str2double(MATLABFLAG_LAPS_FLAG_CHECK_INPUTS);
+    MATLABFLAG_PATHCLASS_FLAG_CHECK_INPUTS = getenv("MATLABFLAG_PATHCLASS_FLAG_CHECK_INPUTS");
+    MATLABFLAG_PATHCLASS_FLAG_DO_DEBUG = getenv("MATLABFLAG_PATHCLASS_FLAG_DO_DEBUG");
+    if ~isempty(MATLABFLAG_PATHCLASS_FLAG_CHECK_INPUTS) && ~isempty(MATLABFLAG_PATHCLASS_FLAG_DO_DEBUG)
+        flag_do_debug = str2double(MATLABFLAG_PATHCLASS_FLAG_DO_DEBUG);
+        flag_check_inputs  = str2double(MATLABFLAG_PATHCLASS_FLAG_CHECK_INPUTS);
     end
 end
 
 % flag_do_debug = 1;
 
-if flag_do_debug
+if flag_do_debug % If debugging is on, print on entry/exit to the function
     st = dbstack; %#ok<*UNRCH>
     fprintf(1,'STARTING function: %s, in file: %s\n',st(1).name,st(1).file);
     debug_fig_num = 999978; 
@@ -175,7 +181,7 @@ else
     debug_fig_num = []; 
 end
 
-%% check input arguments
+%% check input arguments?
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   _____                   _
 %  |_   _|                 | |
@@ -187,36 +193,25 @@ end
 %              |_|
 % See: http://patorjk.com/software/taag/#p=display&f=Big&t=Inputs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-%% Check inputs?
-if (0==flag_max_speed)
+if 0==flag_max_speed
     if flag_check_inputs
         % Are there the right number of inputs?
-        narginchk(2,5);
+        narginchk(2,MAX_NARGIN);
 
         % Check the input_path to be sure it has 2 or 3 columns, minimum 2 rows
         % or more
         fcn_DebugTools_checkInputsToFunctions(input_path, '2or3column_of_numbers',[2 3]);
-
-        % NOTE: the start_definition required input is checked below!
-
     end
 end
 
 % Does user want to show the plots?
-flag_do_plot = 0; % Default is no plotting
-if  5 == nargin && (0==flag_max_speed) % Only create a figure if NOT maximizing speed
-    temp = varargin{end}; % Last argument is always figure number
-    if ~isempty(temp) % Make sure the user is not giving empty input
+flag_do_plots = 0; % Default is to NOT show plots
+if (0==flag_max_speed) && (MAX_NARGIN == nargin) 
+    temp = varargin{end};
+    if ~isempty(temp) % Did the user NOT give an empty figure number?
         fig_num = temp;
-        flag_do_plot = 1; % Set flag to do plotting
-    end
-else
-    if flag_do_debug % If in debug mode, do plotting but to an arbitrary figure number
-        fig = figure;
-        fig_for_debug = fig.Number; 
-        flag_do_plot = 1;
+        figure(fig_num);
+        flag_do_plots = 1;
     end
 end
 
@@ -225,7 +220,7 @@ fig_debug_start_zone = [];
 fig_debug_end_zone = [];
 flag_do_start_end = 1; % Flag to calculate the start and end segments
 
-%% Start of main code
+%% Main code
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   __  __       _
 %  |  \/  |     (_)
@@ -238,7 +233,7 @@ flag_do_start_end = 1; % Flag to calculate the start and end segments
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%§
 
 % Set the start values
-[flag_start_is_a_point_type, start_zone_definition] = fcn_Laps_checkZoneType(start_zone_definition, 'start_definition');
+[flag_start_is_a_point_type, start_zone_definition] = fcn_Laps_checkZoneType(start_zone_definition, 'start_definition', -1);
 
 
 % The following area checks for variable argument inputs (varargin)
@@ -252,7 +247,7 @@ if 3 <= nargin
     temp = varargin{1};
     if ~isempty(temp)
         % Set the end values
-        [flag_end_is_a_point_type, end_zone_definition] = fcn_Laps_checkZoneType(temp, 'end_definition');
+        [flag_end_is_a_point_type, end_zone_definition] = fcn_Laps_checkZoneType(temp, 'end_definition', -1);
     end
 end
 
@@ -263,7 +258,7 @@ if 4 <= nargin
     temp = varargin{2};
     if ~isempty(temp)
         % Set the excursion values
-        [flag_excursion_is_a_point_type, excursion_definition] = fcn_Laps_checkZoneType(temp, 'excursion_definition');
+        [flag_excursion_is_a_point_type, excursion_definition] = fcn_Laps_checkZoneType(temp, 'excursion_definition',-1);
         flag_use_excursion_definition = 1;
     end
 end
@@ -310,8 +305,8 @@ end
 
 % Fill deafults
 cell_array_of_lap_indices = {};
-cell_array_of_entry_indices = [];
-cell_array_of_exit_indices = [];
+cell_array_of_entry_indices = {};
+cell_array_of_exit_indices = {};
 
 
 % Steps used:
@@ -359,7 +354,7 @@ if flag_start_is_a_point_type==1
         zone_center,...
         zone_radius,...
         zone_num_points,...
-        fig_debug_start_zone);
+        -1);
     
     start_indices = start_zone_min_indices + 1;
     path_flag_array(start_indices,1) = 1;
@@ -374,7 +369,7 @@ else % Define start zone and indices based on segment zone type
         fcn_Laps_findSegmentZoneStartStop(...
         path_original,...
         start_zone_definition,...
-        fig_debug_start_zone);
+        -1);
     start_zone_min_indices = start_zone_start_indices; %#ok<*NASGU>
     
     path_flag_array(start_zone_start_indices,1) = 1;
@@ -408,7 +403,7 @@ if flag_keep_going
                 zone_center,...
                 zone_radius,...
                 zone_num_points,...
-                fig_debug_excursion_zone);
+                -1);
             
             if ~isempty(excursion_zone_start_indices) % No minimum detected, so no laps exist
                 flag_keep_going = 1;
@@ -420,7 +415,7 @@ if flag_keep_going
                 fcn_Laps_findSegmentZoneStartStop(...
                 path_original,...
                 excursion_definition,...
-                fig_debug_excursion_zone);
+                -1);
             excursion_zone_min_indices = excursion_zone_start_indices;
             
             path_flag_array(excursion_zone_min_indices,1) = 2;
@@ -458,7 +453,7 @@ if flag_keep_going
             zone_center,...
             zone_radius,...
             zone_num_points,...
-            fig_debug_end_zone);
+            -1);
         
         if ~isempty(end_zone_start_indices) % No minimum detected, so no laps exist
             flag_keep_going = 1;
@@ -471,7 +466,7 @@ if flag_keep_going
             fcn_Laps_findSegmentZoneStartStop(...
             path_original,...
             end_zone_definition,...
-            fig_debug_end_zone);
+            -1);
         end_zone_min_indices = end_zone_start_indices;
         
         end_indices = end_zone_min_indices + 1;

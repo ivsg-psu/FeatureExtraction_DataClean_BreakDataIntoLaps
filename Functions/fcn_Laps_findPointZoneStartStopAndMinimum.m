@@ -113,17 +113,21 @@ function [zone_start_indices, zone_end_indices, zone_min_indices] = ...
 % definition, separating out radius, and allowing 3-D paths
 % 2025_04_25 by Sean Brennan
 % -- added global debugging options
+% 2025_07_03 - S. Brennan
+% -- cleanup of Debugging area codes
+% -- turn on fast mode for Path calls
 
-% TO DO
-% -- (add items here)
+% TO-DO
+% (none)
 
 %% Debugging and Input checks
 
 % Check if flag_max_speed set. This occurs if the fig_num variable input
 % argument (varargin) is given a number of -1, which is not a valid figure
 % number.
-flag_max_speed = 0;
-if (nargin==5 && isequal(varargin{end},-1))
+MAX_NARGIN = 5; % The largest Number of argument inputs to the function
+flag_max_speed = 0; % The default. This runs code with all error checking
+if (nargin==MAX_NARGIN && isequal(varargin{end},-1))
     flag_do_debug = 0; % % % % Flag to plot the results for debugging
     flag_check_inputs = 0; % Flag to perform input checking
     flag_max_speed = 1;
@@ -131,17 +135,17 @@ else
     % Check to see if we are externally setting debug mode to be "on"
     flag_do_debug = 0; % % % % Flag to plot the results for debugging
     flag_check_inputs = 1; % Flag to perform input checking
-    MATLABFLAG_LAPS_FLAG_CHECK_INPUTS = getenv("MATLABFLAG_LAPS_FLAG_CHECK_INPUTS");
-    MATLABFLAG_LAPS_FLAG_DO_DEBUG = getenv("MATLABFLAG_LAPS_FLAG_DO_DEBUG");
-    if ~isempty(MATLABFLAG_LAPS_FLAG_CHECK_INPUTS) && ~isempty(MATLABFLAG_LAPS_FLAG_DO_DEBUG)
-        flag_do_debug = str2double(MATLABFLAG_LAPS_FLAG_DO_DEBUG);
-        flag_check_inputs  = str2double(MATLABFLAG_LAPS_FLAG_CHECK_INPUTS);
+    MATLABFLAG_PATHCLASS_FLAG_CHECK_INPUTS = getenv("MATLABFLAG_PATHCLASS_FLAG_CHECK_INPUTS");
+    MATLABFLAG_PATHCLASS_FLAG_DO_DEBUG = getenv("MATLABFLAG_PATHCLASS_FLAG_DO_DEBUG");
+    if ~isempty(MATLABFLAG_PATHCLASS_FLAG_CHECK_INPUTS) && ~isempty(MATLABFLAG_PATHCLASS_FLAG_DO_DEBUG)
+        flag_do_debug = str2double(MATLABFLAG_PATHCLASS_FLAG_DO_DEBUG);
+        flag_check_inputs  = str2double(MATLABFLAG_PATHCLASS_FLAG_CHECK_INPUTS);
     end
 end
 
 % flag_do_debug = 1;
 
-if flag_do_debug
+if flag_do_debug % If debugging is on, print on entry/exit to the function
     st = dbstack; %#ok<*UNRCH>
     fprintf(1,'STARTING function: %s, in file: %s\n',st(1).name,st(1).file);
     debug_fig_num = 999978; %#ok<NASGU>
@@ -149,8 +153,7 @@ else
     debug_fig_num = []; %#ok<NASGU>
 end
 
-
-%% check input arguments
+%% check input arguments?
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   _____                   _
 %  |_   _|                 | |
@@ -162,10 +165,10 @@ end
 %              |_|
 % See: http://patorjk.com/software/taag/#p=display&f=Big&t=Inputs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if (0==flag_max_speed)
+if 0==flag_max_speed
     if flag_check_inputs
         % Are there the right number of inputs?
-        narginchk(3,5);
+        narginchk(3,MAX_NARGIN);
 
         % Check the query_path input, 2 or 3 columns, 1 or more rows
         fcn_DebugTools_checkInputsToFunctions(query_path, '2or3column_of_numbers',[1 2]);
@@ -178,7 +181,7 @@ if (0==flag_max_speed)
 
     end
 end
-        
+       
 % Check for variable argument inputs (varargin)
 minimum_number_of_indices_in_zone = 3; % Set default value
 if 4 <= nargin
@@ -192,18 +195,13 @@ if 4 <= nargin
 end
 
 % Does user want to show the plots?
-flag_do_plot = 0; % Default is no plotting
-if  5 == nargin && (0==flag_max_speed) % Only create a figure if NOT maximizing speed
-    temp = varargin{end}; % Last argument is always figure number
-    if ~isempty(temp) % Make sure the user is not giving empty input
+flag_do_plots = 0; % Default is to NOT show plots
+if (0==flag_max_speed) && (MAX_NARGIN == nargin) 
+    temp = varargin{end};
+    if ~isempty(temp) % Did the user NOT give an empty figure number?
         fig_num = temp;
-        flag_do_plot = 1; % Set flag to do plotting
-    end
-else
-    if flag_do_debug % If in debug mode, do plotting but to an arbitrary figure number
-        fig = figure;
-        fig_for_debug = fig.Number; %#ok<NASGU>
-        flag_do_plot = 1;
+        figure(fig_num);
+        flag_do_plots = 1;
     end
 end
 
@@ -302,20 +300,85 @@ end % Ends if check to see if zones are empty
 %                            __/ |
 %                           |___/
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if flag_do_plot
+if flag_do_plots
+
+    % Prep the figure for plotting
+    temp_h = figure(fig_num);
+    flag_rescale_axis = 0;
+    if isempty(get(temp_h,'Children'))
+        flag_rescale_axis = 1;
+    end      
     
-    % plot the final XY result
-    figure(fig_num);
-    clf;
-    hold on;
-    grid on
-    axis equal
+    % Is this 2D or 3D?
+    dimension_of_points = length(query_path(1,:));
+
+    % Find size of plotting domain
+    allPoints = [query_path; zone_center(1,1:2); 
+        zone_center(1,1)+zone_radius zone_center(1,2);...
+        zone_center(1,1)-zone_radius zone_center(1,2);...
+        zone_center(1,1) zone_center(1,2)+zone_radius;...
+        zone_center(1,1) zone_center(1,2)-zone_radius;...
+        ];
+
+    max_plotValues = max(allPoints);
+    min_plotValues = min(allPoints);
+    sizePlot = max(max_plotValues) - min(min_plotValues);
+    nudge = sizePlot*0.006; %#ok<NASGU>
+
+
+    % Find size of plotting domain
+    if flag_rescale_axis
+        percent_larger = 0.1;
+        axis_range = max_plotValues - min_plotValues;
+        if (0==axis_range(1,1))
+            axis_range(1,1) = 1/percent_larger;
+        end
+        if (0==axis_range(1,2))
+            axis_range(1,2) = 1/percent_larger;
+        end
+        if dimension_of_points==3 && (0==axis_range(1,3))
+            axis_range(1,3) = 1/percent_larger;
+        end
+
+        
+        % Force the axis to be equal?
+        if 1==0
+            min_valuesInPlot = min(min_plotValues);
+            max_valuesInPlot = max(max_plotValues);
+        else
+            min_valuesInPlot = min_plotValues;
+            max_valuesInPlot = max_plotValues;
+            
+        end
+
+        % Stretch the axes
+        stretched_min_vertexValues = min_valuesInPlot - percent_larger.*axis_range;
+        stretched_max_vertexValues = max_valuesInPlot + percent_larger.*axis_range;
+        axesTogether = [stretched_min_vertexValues; stretched_max_vertexValues];
+        newAxis = reshape(axesTogether, 1, []);
+        axis(newAxis);
+
+    end
+    goodAxis = axis;
+
+    % Check to see if hold is already on. If it is not, set a flag to turn it
+    % off after this function is over so it doesn't affect future plotting
+    flag_shut_hold_off = 0;
+    if ~ishold
+        flag_shut_hold_off = 1;
+        hold on
+    end
+    
+    grid on;
+    axis equal;
     
     % Plot the query path in blue dots
-    plot(query_path(:,1),query_path(:,2),'b.-','Markersize',10);
+    plot(query_path(:,1),query_path(:,2),'b.-','Markersize',10,'LineWidth',3,'MarkerSize',20, 'DisplayName','Path');
     
     % Plot the zone definition in green
-    fcn_Laps_plotPointZoneDefinition([zone_radius 3 zone_center],'g',fig_num);
+    h_plot = fcn_Laps_plotPointZoneDefinition([zone_radius 3 zone_center],'g',fig_num);
+    set(h_plot{1},'DisplayName','Zone center');
+    set(h_plot{2},'DisplayName','Zone boundary');
     
     % Plot the results
     if num_zones ~= 0  % empty
@@ -323,7 +386,7 @@ if flag_do_plot
             % Plot the zone
             data_to_plot = query_path(...
                 zone_start_indices(ith_zone,1):zone_end_indices(ith_zone,1),:);
-            h_fig = plot(data_to_plot(:,1),data_to_plot(:,2),'o-','Markersize',15,'Linewidth',3);
+            h_fig = plot(data_to_plot(:,1),data_to_plot(:,2),'o-','Markersize',15,'Linewidth',3,'DisplayName',sprintf('Points in Zone, lap %.0f',ith_zone));
             color_value = get(h_fig,'Color');
             
             % Plot the minimum
@@ -331,11 +394,21 @@ if flag_do_plot
                 query_path(zone_min_indices(ith_zone,1),1),...
                 query_path(zone_min_indices(ith_zone,1),2),...
                 'x','Markersize',10,...            
-                'Color',color_value,'Linewidth',3);
+                'Color',color_value,'Linewidth',3,'DisplayName',sprintf('Point of min distance, lap %.0f',ith_zone));
             
         end
     end
-        
+
+    axis(goodAxis);
+    axis equal
+
+    % Shut the hold off?
+    if flag_shut_hold_off
+        hold off;
+    end
+
+    legend('Location','northeast');
+
     
 end
 
