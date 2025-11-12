@@ -161,7 +161,6 @@ if (0==flag_max_speed) && (MAX_NARGIN == nargin)
     temp = varargin{end};
     if ~isempty(temp) % Did the user NOT give an empty figure number?
         fig_num = temp;
-        figure(fig_num);
         flag_do_plots = 1;
     end
 end
@@ -183,6 +182,7 @@ zone_end_indices = [];
 
 % Make sure the segment is 2D
 if isequal(size(segment_definition),[2 3])
+    warning('backtrace','on');
     warning('The function: fcn_Laps_findSegmentZoneStartStop does not yet support 3D zone definitions. The zone, specified as a 3D point, is being flattened into 2D by ignoring the z-axis value.');
     segment_definition = segment_definition(1:2,1:2);
 end

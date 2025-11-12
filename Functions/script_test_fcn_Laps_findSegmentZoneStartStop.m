@@ -513,8 +513,6 @@ assert(~any(figHandles==fig_num));
 if 1==0
     
     %% Fails because segment_definition is not correct type
-    clc
-    
     segment_definition = [0; 1]; % Starts at ?, ends at ?
     [~, ~] = ...
         fcn_Laps_findSegmentZoneStartStop(...
@@ -523,8 +521,6 @@ if 1==0
         []);
     
     %% Warns because segment_definition is 3D
-    clc
-    
     segment_definition = [0 0 0; 1 0 0]; % Starts at [0 0 0], ends at [1 0 0]
     [~, ~] = ...
         fcn_Laps_findSegmentZoneStartStop(...

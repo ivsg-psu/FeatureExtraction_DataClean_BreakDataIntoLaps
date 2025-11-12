@@ -161,7 +161,7 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 % TO-DO
 % (none)
 
-%% Debugging and Input checks
+
 
 % Check if flag_max_speed set. This occurs if the fig_num variable input
 % argument (varargin) is given a number of -1, which is not a valid figure
@@ -255,7 +255,6 @@ if (0==flag_max_speed) && (MAX_NARGIN == nargin)
     temp = varargin{end};
     if ~isempty(temp) % Did the user NOT give an empty figure number?
         fig_num = temp;
-        figure(fig_num);
         flag_do_plots = 1;
     end
 end

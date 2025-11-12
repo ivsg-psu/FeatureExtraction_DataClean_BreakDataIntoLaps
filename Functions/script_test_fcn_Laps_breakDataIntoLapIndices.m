@@ -1129,7 +1129,6 @@ assert(~any(figHandles==fig_num));
 if 1==0
     %
         %% Fails because start_definition is not correct type
-        clc
         start_definition = [1 2];
         [lap_traversals, input_and_exit_traversals] = fcn_Laps_breakDataIntoLapIndices(...
             single_lap.traversal{1},...
@@ -1137,7 +1136,6 @@ if 1==0
 
         %% Fails because start_definition is not correct type
         % Radius input is negative
-        clc
         start_definition = [-1 2 3 4];
         [lap_traversals, input_and_exit_traversals] = fcn_Laps_breakDataIntoLapIndices(...
             single_lap.traversal{1},...
@@ -1145,7 +1143,6 @@ if 1==0
 
         %% Fails because start_definition is not correct type
         % Radius input is negative
-        clc
         start_definition = [0 2 3 4];
         [lap_traversals, input_and_exit_traversals] = fcn_Laps_breakDataIntoLapIndices(...
             single_lap.traversal{1},...
@@ -1153,7 +1150,6 @@ if 1==0
 
         %% Fails because start_definition is not correct type
         % Num_inputs input is not positive
-        clc
         start_definition = [1 0 3 4];
         [lap_traversals, input_and_exit_traversals] = fcn_Laps_breakDataIntoLapIndices(...
             single_lap.traversal{1},...
@@ -1161,7 +1157,6 @@ if 1==0
 
         %% Warning because start_definition is 3D not 2D
         % Start_zone definition is a 3D point [radius num_points X Y Z]
-        clc
         start_definition = [1 2 3 4 5];
         [lap_traversals, input_and_exit_traversals] = fcn_Laps_breakDataIntoLapIndices(...
             single_lap.traversal{1},...
@@ -1169,7 +1164,6 @@ if 1==0
 
         %% Warning because start_definition is 3D not 2D
         % Start_zone definition is a 3D point [X Y Z; X Y Z]
-        clc
         start_definition = [1 2 3; 4 5 6];
         [lap_traversals, input_and_exit_traversals] = fcn_Laps_breakDataIntoLapIndices(...
             single_lap.traversal{1},...
@@ -1177,7 +1171,6 @@ if 1==0
 
         %% Warning because end_definition is 3D not 2D
         % End_zone definition is a 3D point [radius num_points X Y Z]
-        clc
         start_definition = [1 2 3 4];
         end_definition = [1 2 3 4 5];
 
@@ -1188,7 +1181,6 @@ if 1==0
 
         %% Warning because excursion_definition is 3D not 2D
         % Excursion_zone definition is a 3D point [radius num_points X Y Z]
-        clc
         start_definition = [1 2 3 4];
         end_definition = [1 2 3 4];
         excursion_definition = [1 2 3 4 5];

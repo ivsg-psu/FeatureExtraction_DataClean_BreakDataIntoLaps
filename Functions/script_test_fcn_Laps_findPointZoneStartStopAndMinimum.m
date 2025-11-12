@@ -684,8 +684,6 @@ assert(~any(figHandles==fig_num));
 if 1==0
 
     %% Fails because zone_center is not correct type
-    clc
-
     zone_center = 0.05; % Located at ????
     zone_radius = 0.23;
     zone_num_points = 3;
@@ -700,8 +698,6 @@ if 1==0
 
 
     %% Fails because zone_center is not correct type
-    clc
-
     zone_center = [0.05 0 0 2]; % Located at ????
     zone_radius = 0.23;
     zone_num_points = 3;
@@ -716,7 +712,6 @@ if 1==0
 
 
     %% Fails because radius is negative
-    clc
     zone_center = [0.05 0]; % Located at [0.05,0]
     zone_radius = -0.23;
     zone_num_points = 3;
@@ -730,7 +725,6 @@ if 1==0
         fig_num);
 
     %% Fails because zone_num_points is negative
-    clc
     zone_center = [0.05 0]; % Located at [0.05,0]
     zone_radius = 0.23;
     zone_num_points = -3;
@@ -744,7 +738,6 @@ if 1==0
         fig_num);
 
     %% Fails because zone_num_points is not an integer
-    clc
     zone_center = [0.05 0]; % Located at [0.05,0]
     zone_radius = 0.23;
     zone_num_points = 3.2;

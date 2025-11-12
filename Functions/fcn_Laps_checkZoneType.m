@@ -115,7 +115,6 @@ if (0==flag_max_speed) && (MAX_NARGIN == nargin)
     temp = varargin{end};
     if ~isempty(temp) % Did the user NOT give an empty figure number?
         fig_num = temp;
-        figure(fig_num);
         flag_do_plots = 1;
     end
 end
@@ -148,6 +147,7 @@ try
     % Set the zone values to limits of 2D
     new_zone_definition = zone_definition; % default case
     if isequal(size(zone_definition),[1 5])
+        warning('backtrace','on');
         warning('The Laps code zone types do not yet support 3D zone definitions. The %s zone, specified as a 3D point, is being flattened into 2D by ignoring the z-axis value.', string_label);
         new_zone_definition = zone_definition(1,1:4);
     end
@@ -174,6 +174,7 @@ catch
     % Set the zone values to limits of 2D
     new_zone_definition = zone_definition; % default case
     if isequal(size(zone_definition),[2 3])
+        warning('backtrace','on');
         warning('The Laps code zone types do not yet support 3D zone definitions. The input zone, specified as a 3D point, is being flattened into 2D by ignoring the z-axis value.');
         new_zone_definition = zone_definition(1:2,1:2);
     end

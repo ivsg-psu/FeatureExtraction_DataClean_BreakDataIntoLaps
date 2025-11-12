@@ -148,7 +148,7 @@ The following are the top level directories within the repository:
 
 * [PathPlanning_PathTools_PathClassLibrary](https://github.com/ivsg-psu/PathPlanning_PathTools_PathClassLibrary) - the PathClassLibrary contains tools used to find intersections of the data with particular line segments, which is used to find start/end/excursion locations in the functions. The repo can be found at: <https://github.com/ivsg-psu/PathPlanning_PathTools_PathClassLibrary>
 
-    Each should be installed in a folder called "Utilities" under the root folder, namely ./Utilities/DebugTools/ , ./Utilities/PathClassLibrary/ . If you wish to put these codes in different directories, the main call stack in script_demo_Laps can be easily modified with strings specifying the different location, but the user will have to make these edits directly.
+    Each should be installed in a folder called "Utilities" under the root folder, namely ./Utilities/DebugTools/ , ./Utilities/PathClassLibrary/ . If you wish to put these codes in different directories, the main call stack in script_demo_(reponame) can be easily modified with strings specifying the different location, but the user will have to make these edits directly.
 
     For ease of getting started, the zip files of the directories used - without the .git repo information, to keep them small - are included in this repo.
 
@@ -324,13 +324,9 @@ for any function to view function details.
    script_demo_Laps
    ```
 
-    This exercises the main function of this code: fcn_Laps_breakDataIntoLaps
+    This exercises the main function of this code.
 
-2. After running the main script to define the included directories for utility functions, one can then navigate to the Functions directory and run any of the functions or scripts there as well. All functions for this library are found in the Functions sub-folder, and each has an associated test script. Run any of the various test scripts, such as:
-
-   ```sh
-   script_test_fcn_Laps_breakDataIntoLapIndices
-   ```
+2. After running the main script to define the included directories for utility functions, one can then navigate to the Functions directory and run any of the functions or scripts there as well. All functions for this library are found in the Functions sub-folder, and each has an associated test script. Run any of the various test scripts; each can work as a stand-alone script.
 
 <a href="#featureextraction_dataclean_breakdataintolaps">Back to top</a>
 
@@ -392,7 +388,7 @@ This code is still in development (alpha testing)
 <!-- CONTACT -->
 ## Contact
 
-Sean Brennan - sbrennan@psu.edu
+Sean Brennan - [sbrennan@psu.edu](sbrennan@psu.edu)
 
 Project Link: [hhttps://github.com/ivsg-psu/FeatureExtraction_DataClean_BreakDataIntoLaps](https://github.com/ivsg-psu/FeatureExtraction_DataClean_BreakDataIntoLaps)
 
