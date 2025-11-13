@@ -69,6 +69,12 @@
 %    %   % be more clear.
 
 
+%% Make sure we are running out of root directory
+st = dbstack; 
+thisFile = which(st(1).file);
+[filepath,name,ext] = fileparts(thisFile);
+cd(filepath);
+
 %%% START OF STANDARD INSTALLER CODE %%%%%%%%%
 
 %% Clear paths and folders, if needed

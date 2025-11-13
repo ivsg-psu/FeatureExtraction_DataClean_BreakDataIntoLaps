@@ -37,10 +37,10 @@ close all;
 fprintf(1,'Figure: 1XXXXXX: DEMO cases\n');
 
 %% DEMO case: Basic demo
-fig_num = 10001;
+figNum = 10001;
 titleString = sprintf('DEMO case: Basic demo');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 
 dataSetNumber = 9;
@@ -57,7 +57,7 @@ excursion_definition = []; % empty
     start_definition,...
     end_definition,...
     excursion_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -78,21 +78,21 @@ assert(isequal(79,length(lap_cellArrayOfPaths{3}(:,1))));
 % Are the laps starting at expected points?
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 if 1==0
     % Plot the lap traversals (should have 3)
-    fig_num = 1101;
-    fcn_Laps_plotLapsXY(lap_cellArrayOfPaths,fig_num);
+    figNum = 1101;
+    fcn_Laps_plotLapsXY(lap_cellArrayOfPaths,figNum);
 end
 
 
 %% DEMO case: Using full argument list
 % This returns the input and exit traversals
-fig_num = 10002;
+figNum = 10002;
 titleString = sprintf('DEMO case: Using full argument list');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 dataSetNumber = 9;
 
@@ -108,7 +108,7 @@ excursion_definition = []; % empty
     start_definition,...
     end_definition,...
     excursion_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -128,35 +128,35 @@ assert(isequal(2,length(entry_traversal(:,1))));
 assert(isequal(28,length(exit_traversal(:,1))));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 if 1==0
     % Plot the results
-    fig_num = 333;
-    figure(fig_num);
+    figNum = 333;
+    figure(figNum);
     subplot(1,3,1);
-    fcn_Laps_plotLapsXY(lap_cellArrayOfPaths,fig_num);
+    fcn_Laps_plotLapsXY(lap_cellArrayOfPaths,figNum);
     axis_limits = axis;
     title('All laps');
 
     subplot(1,3,2);
     single_lap.traversal{1} = entry_traversal;
-    fcn_Laps_plotLapsXY(single_lap,fig_num);
+    fcn_Laps_plotLapsXY(single_lap,figNum);
     axis(axis_limits); % Inheret axis limits from main laps plot
     title('Entry segment');
 
     subplot(1,3,3);
     single_lap.traversal{1} = exit_traversal;
-    fcn_Laps_plotLapsXY(single_lap,fig_num);
+    fcn_Laps_plotLapsXY(single_lap,figNum);
     axis(axis_limits); % Inheret axis limits from main laps plot
     title('Exit segment');    
 end
 
 %% DEMO case: Show how a lap is missed if start zone is not big enough
-fig_num = 10003;
+figNum = 10003;
 titleString = sprintf('DEMO case: Show how a lap is missed if start zone is not big enough');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 
 dataSetNumber = 9;
@@ -173,7 +173,7 @@ excursion_definition = []; % empty
     start_definition,...
     end_definition,...
     excursion_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -190,19 +190,19 @@ assert(isequal(86,length(lap_cellArrayOfPaths{1}(:,1))));
 assert(isequal(78,length(lap_cellArrayOfPaths{2}(:,1))));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 if 1==0
     % Plot the lap traversals (should have 2)
-    fig_num = 444;
-    fcn_Laps_plotLapsXY(lap_cellArrayOfPaths,fig_num);
+    figNum = 444;
+    fcn_Laps_plotLapsXY(lap_cellArrayOfPaths,figNum);
 end
 
 %% DEMO case: Show the use of segment definition
-fig_num = 10004;
+figNum = 10004;
 titleString = sprintf('DEMO case: Show the use of segment definition');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 dataSetNumber = 9;
 
@@ -219,7 +219,7 @@ excursion_definition = []; % empty
     start_definition,...
     end_definition,...
     excursion_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -237,12 +237,12 @@ assert(isequal(97,length(lap_cellArrayOfPaths{2}(:,1))));
 assert(isequal(78,length(lap_cellArrayOfPaths{3}(:,1))));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 if 1==0
     % Plot the lap traversals (should have 2)
-    fig_num = 5555;
-    fcn_Laps_plotLapsXY(lap_cellArrayOfPaths,fig_num);
+    figNum = 5555;
+    fcn_Laps_plotLapsXY(lap_cellArrayOfPaths,figNum);
 end
 
 %% Check assertions for basic path operations and function testing
@@ -260,10 +260,10 @@ end
 
 %% TEST case: Returns nothing since there is no portion of the path in the
 % criteria
-fig_num = 20001;
+figNum = 20001;
 titleString = sprintf('DEMO case: call the function to show it operating on the 9th data set');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 
 input_path = [-1 1; 1 1];
@@ -289,13 +289,13 @@ assert(isequal(entry_traversal,input_path));
 assert(isempty(exit_traversal));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% TEST case: Returns nothing since there is one point in criteria
-fig_num = 20002;
+figNum = 20002;
 titleString = sprintf('TEST case: Returns nothing since there is one point in criteria');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 input_path = [-1 1; 0 0; 1 1];
 start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
@@ -319,13 +319,13 @@ assert(isequal(entry_traversal,input_path));
 assert(isempty(exit_traversal));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% TEST case: Returns nothing since there is only two points in criteria
-fig_num = 20003;
+figNum = 20003;
 titleString = sprintf('TEST case: Returns nothing since there is only two points in criteria');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 
 
@@ -351,13 +351,13 @@ assert(isequal(entry_traversal,input_path));
 assert(isempty(exit_traversal));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% TEST case: Returns nothing since the minimum point is at the start
-fig_num = 20003;
+figNum = 20003;
 titleString = sprintf('TEST case: Returns nothing since the minimum point is at the start');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 
 % and so there is no strong minimum inside the zone
@@ -383,13 +383,13 @@ assert(isequal(entry_traversal,input_path));
 assert(isempty(exit_traversal));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% TEST case: Returns nothing since the minimum point is at the end
-fig_num = 20004;
+figNum = 20004;
 titleString = sprintf('TEST case: Returns nothing since the minimum point is at the end');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 
 % and so there is no strong minimum inside the zone
@@ -415,17 +415,17 @@ assert(isequal(entry_traversal,input_path));
 assert(isempty(exit_traversal));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% TEST case: Returns nothing since the path doesn't come back to start
-fig_num = 20005;
+figNum = 20005;
 titleString = sprintf('TEST case: Returns nothing since the path doesn''t come back to start');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 
 % There is no end after the start
-fig_num = 123;
+figNum = 123;
 input_path = [-1 1; -0.03 0; -0.02 0; 0 0; 0.1 0; 1 1];
 start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
 
@@ -434,7 +434,7 @@ start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
     start_definition,...
     [],...
     [],...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -452,13 +452,13 @@ assert(isequal(entry_traversal,input_path));
 assert(isempty(exit_traversal));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% TEST case: Returns nothing since the end is incomplete
-fig_num = 20006;
+figNum = 20006;
 titleString = sprintf('TEST case: Returns nothing since the end is incomplete');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 
 % Create some data to plot
@@ -477,7 +477,7 @@ start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
     start_definition,...
     [],...
     [],...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -495,13 +495,13 @@ assert(isequal(entry_traversal,input_path));
 assert(isempty(exit_traversal));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% TEST case: Show that the start and end points can overlap by their boundaries
-fig_num = 20007;
+figNum = 20007;
 titleString = sprintf('TEST case: Show that the start and end points can overlap by their boundaries');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 
 
@@ -522,7 +522,7 @@ end_definition = [0.5 3 0.5 0]; % Located at [0.5,0] with radius 0.5, 3 points
     start_definition,...
     end_definition,...
     [],...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -539,13 +539,13 @@ assert(isequal(Nlaps,length(lap_cellArrayOfPaths)));
 % Are the laps starting at expected points?
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% TEST case: Show that the start and end points can be at the absolute ends
-fig_num = 20008;
+figNum = 20008;
 titleString = sprintf('TEST case: Show that the start and end points can be at the absolute ends');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 
 % Create some data to plot
@@ -566,7 +566,7 @@ end_definition = [0.5 3 1 0]; % Located at [1,0] with radius 0.5, 3 points
     start_definition,...
     end_definition,...
     [],...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -582,7 +582,7 @@ assert(isequal(Nlaps,length(lap_cellArrayOfPaths)));
 % Check variable values
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 
 
@@ -605,9 +605,9 @@ close all;
 fprintf(1,'Figure: 8XXXXXX: FAST mode cases\n');
 
 %% Basic example - NO FIGURE
-fig_num = 80001;
-fprintf(1,'Figure: %.0f: FAST mode, empty fig_num\n',fig_num);
-figure(fig_num); close(fig_num);
+figNum = 80001;
+fprintf(1,'Figure: %.0f: FAST mode, empty figNum\n',figNum);
+figure(figNum); close(figNum);
 
 dataSetNumber = 9;
 
@@ -641,13 +641,13 @@ assert(isequal(79,length(lap_cellArrayOfPaths{3}(:,1))));
 
 % Make sure plot did NOT open up
 figHandles = get(groot, 'Children');
-assert(~any(figHandles==fig_num));
+assert(~any(figHandles==figNum));
 
 
 %% Basic fast mode - NO FIGURE, FAST MODE
-fig_num = 80002;
-fprintf(1,'Figure: %.0f: FAST mode, fig_num=-1\n',fig_num);
-figure(fig_num); close(fig_num);
+figNum = 80002;
+fprintf(1,'Figure: %.0f: FAST mode, figNum=-1\n',figNum);
+figure(figNum); close(figNum);
 
 dataSetNumber = 9;
 
@@ -681,14 +681,14 @@ assert(isequal(79,length(lap_cellArrayOfPaths{3}(:,1))));
 
 % Make sure plot did NOT open up
 figHandles = get(groot, 'Children');
-assert(~any(figHandles==fig_num));
+assert(~any(figHandles==figNum));
 
 
 %% Compare speeds of pre-calculation versus post-calculation versus a fast variant
-fig_num = 80003;
-fprintf(1,'Figure: %.0f: FAST mode comparisons\n',fig_num);
-figure(fig_num);
-close(fig_num);
+figNum = 80003;
+fprintf(1,'Figure: %.0f: FAST mode comparisons\n',figNum);
+figure(figNum);
+close(figNum);
 
 dataSetNumber = 9;
 
@@ -732,7 +732,7 @@ fast_method = toc;
 
 % Make sure plot did NOT open up
 figHandles = get(groot, 'Children');
-assert(~any(figHandles==fig_num));
+assert(~any(figHandles==figNum));
 
 % Plot results as bar chart
 figure(373737);
@@ -748,7 +748,7 @@ ylabel('Execution time (Milliseconds)')
 
 % Make sure plot did NOT open up
 figHandles = get(groot, 'Children');
-assert(~any(figHandles==fig_num));
+assert(~any(figHandles==figNum));
 
 
 %% BUG cases

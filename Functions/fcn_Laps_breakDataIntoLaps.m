@@ -65,7 +65,7 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 %            start_definition,...
 %            (end_definition),...
 %            (excursion_definition),...
-%            (fig_num));
+%            (figNum));
 %
 % INPUTS:
 %
@@ -100,9 +100,7 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 %      start and end conditions. If not specified, then no excursion point
 %      is used. The same type is used as the start_definition.
 %
-%     (optional inputs)
-%
-%      fig_num: a figure number to plot results. If set to -1, skips any
+%      figNum: a figure number to plot results. If set to -1, skips any
 %      input checking or debugging, no figures will be generated, and sets
 %      up code to maximize speed. 
 %
@@ -157,13 +155,16 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 % 2025_07_03 - S. Brennan
 % -- cleanup of Debugging area codes
 % -- turn on fast mode for Path calls
+% 2025_11_12 by Sean Brennan, sbrennan@psu.edu
+% - Cleaned up variable naming:
+%   % * fig_num to figNum
 
 % TO-DO
 % (none)
 
 
 
-% Check if flag_max_speed set. This occurs if the fig_num variable input
+% Check if flag_max_speed set. This occurs if the figNum variable input
 % argument (varargin) is given a number of -1, which is not a valid figure
 % number.
 MAX_NARGIN = 5; % The largest Number of argument inputs to the function
@@ -189,9 +190,9 @@ end
 if flag_do_debug % If debugging is on, print on entry/exit to the function
     st = dbstack; %#ok<*UNRCH>
     fprintf(1,'STARTING function: %s, in file: %s\n',st(1).name,st(1).file);
-    debug_fig_num = 999978; %#ok<NASGU>
+    debug_figNum = 999978; %#ok<NASGU>
 else
-    debug_fig_num = []; %#ok<NASGU>
+    debug_figNum = []; %#ok<NASGU>
 end
 
 %% check input arguments?
@@ -254,7 +255,7 @@ flag_do_plots = 0; % Default is to NOT show plots
 if (0==flag_max_speed) && (MAX_NARGIN == nargin) 
     temp = varargin{end};
     if ~isempty(temp) % Did the user NOT give an empty figure number?
-        fig_num = temp;
+        figNum = temp;
         flag_do_plots = 1;
     end
 end
@@ -700,7 +701,7 @@ end
 if flag_do_plots
     
     % plot the final XY result
-    figure(fig_num);
+    figure(figNum);
     clf;
     
     
@@ -720,7 +721,7 @@ if flag_do_plots
         plot_cellArrayOfPaths{Nlaps+3} = exit_path;
     end
     
-    h = fcn_Laps_plotLapsXY(plot_cellArrayOfPaths,fig_num);
+    h = fcn_Laps_plotLapsXY(plot_cellArrayOfPaths,figNum);
     
     % Make input be thin line
     set(h(1),'Color',[0 0 0],'Marker','.','MarkerSize',10,'Linewidth', 0.75);
@@ -748,7 +749,7 @@ if flag_do_plots
     
     % Plot the start, excursion, and end zones
     % Start point in green
-    fcn_Laps_plotZoneDefinition(start_definition,'g',fig_num);
+    fcn_Laps_plotZoneDefinition(start_definition,'g',figNum);
 
     %     if flag_start_is_a_point_type==1
     %         Xcenter = start_definition(1,3);
@@ -758,7 +759,7 @@ if flag_do_plots
     %     end
     
     % End point in red
-    fcn_Laps_plotZoneDefinition(end_definition,'r',fig_num);
+    fcn_Laps_plotZoneDefinition(end_definition,'r',figNum);
 
     %     if flag_end_is_a_point_type==1
     %         Xcenter = end_definition(1,3);
