@@ -339,7 +339,7 @@ for ith_repo = 1:length(orderedListOfRequestedInstalls)
 
         % Make sure it worked
         if ~exist(expectedDirectory,'dir')
-            error('Unable add directory: %s Must quit!\n',expectedDirectory);
+            error('Unable to add directory: %s Must quit!\n',expectedDirectory);
         else
             fprintf(1,'Done.\n');
         end
@@ -477,7 +477,7 @@ function fcn_INTERNAL_DebugTools_installDependencies(dependency_name, dependency
 %      fcn_DebugTools_installDependencies(...
 %           dependency_name, ...
 %           dependency_subfolders, ...
-%           dependency_url)
+%           dependency_url, (flag_force_creation))
 %
 % INPUTS:
 %
@@ -525,29 +525,54 @@ function fcn_INTERNAL_DebugTools_installDependencies(dependency_name, dependency
 % % Call the function to do the install
 % fcn_DebugTools_installDependencies(dependency_name, dependency_subfolders, dependency_url)
 %
+% 
+% See also: script_test_fcn_DebugTools_autoInstallRepos
+%
 % This function was written on 2023_01_23 by S. Brennan
 % Questions or comments? sbrennan@psu.edu
 
 % Revision history:
-% 2023_01_23:
+% 2025_11_11 by S. Brennan, sbrennan@psu.edu
 % -- wrote the code originally
-% 2023_04_20:
-% -- improved error handling
-% -- fixes nested installs automatically
+% 2025_11_12 by S. Brennan, sbrennan@psu.edu
+% -- updated docstrings in header due to minor issues
+% -- updated header global flags
 
 % TO DO
 % -- Add input argument checking
 
-flag_do_debug = 0; % Flag to show the results for debugging
-flag_do_plots = 0; % % Flag to plot the final results
-flag_check_inputs = 1; % Flag to perform input checking
+%% Debugging and Input checks
+
+% Check if flag_max_speed set. This occurs if the fig_num variable input
+% argument (varargin) is given a number of -1, which is not a valid figure
+% number.
+MAX_NARGIN = 4; % The largest Number of argument inputs to the function
+flag_max_speed = 0;
+if (nargin==MAX_NARGIN && isequal(varargin{end},-1))
+    flag_do_debug = 0; %     % Flag to plot the results for debugging
+    flag_check_inputs = 0; % Flag to perform input checking
+    flag_max_speed = 1;
+else
+    % Check to see if we are externally setting debug mode to be "on"
+    flag_do_debug = 0; %     % Flag to plot the results for debugging
+    flag_check_inputs = 1; % Flag to perform input checking
+    MATLABFLAG_DEBUGTOOLS_FLAG_CHECK_INPUTS = getenv("MATLABFLAG_DEBUGTOOLS_FLAG_CHECK_INPUTS");
+    MATLABFLAG_DEBUGTOOLS_FLAG_DO_DEBUG = getenv("MATLABFLAG_DEBUGTOOLS_FLAG_DO_DEBUG");
+    if ~isempty(MATLABFLAG_DEBUGTOOLS_FLAG_CHECK_INPUTS) && ~isempty(MATLABFLAG_DEBUGTOOLS_FLAG_DO_DEBUG)
+        flag_do_debug = str2double(MATLABFLAG_DEBUGTOOLS_FLAG_DO_DEBUG); 
+        flag_check_inputs  = str2double(MATLABFLAG_DEBUGTOOLS_FLAG_CHECK_INPUTS);
+    end
+end
+
+% flag_do_debug = 1;
 
 if flag_do_debug
     st = dbstack; %#ok<*UNRCH>
     fprintf(1,'STARTING function: %s, in file: %s\n',st(1).name,st(1).file);
+    debug_fig_num = 3443534;
+else
+    debug_fig_num = [];
 end
-
-
 %% check input arguments
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   _____                   _
@@ -561,9 +586,36 @@ end
 % See: http://patorjk.com/software/taag/#p=display&f=Big&t=Inputs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if flag_check_inputs
-    % Are there the right number of inputs?
-    narginchk(3,4);
+if 0 == flag_max_speed
+    if flag_check_inputs == 1
+        % Are there the right number of inputs?
+        narginchk(3,MAX_NARGIN);
+
+        % if nargin>=2
+        %     % Check the variableTypeString input, make sure it is characters
+        %     if ~ischar(variableTypeString)
+        %         error('The variableTypeString input must be a character type, for example: ''Path'' ');
+        %     end
+        % end
+
+    end
+end
+
+% Check to see if user specifies fig_num?
+flag_do_plots = 0; % Default is to NOT show plots
+if (0==flag_max_speed) && (MAX_NARGIN == nargin) 
+    temp = varargin{end};
+    if ~isempty(temp)
+        fig_num = temp;
+        flag_do_plots = 1;
+    end
+end
+
+% Setup figures if there is debugging
+if flag_do_debug
+    fig_debug = 2343432; 
+else
+    fig_debug = []; %#ok<*NASGU>
 end
 
 %% Set the global variable - need this for input checking
@@ -579,6 +631,7 @@ if nargin==4
         eval(sprintf('clear global %s',flag_varname));
     end
 end
+
 
 %% Main code starts here
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

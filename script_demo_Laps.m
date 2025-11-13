@@ -60,6 +60,12 @@
 % -  Fixed extra "figure(fig_num);" that was in Input section of all fcns
 % -  Cleaned up README.md a bit including lint, simplification of commands.
 % (new release)
+%
+% 2025_11_13 - S. Brennan
+% - updated script_test_all_functions
+% - updated header flags for clearing path, to do fast checking without
+%   % skipping
+% (new release)
 
 % TO-DO:
 % -  2025_11_12 by Sean Brennan, sbrennan@psu.edu
@@ -78,10 +84,11 @@ cd(filepath);
 %%% START OF STANDARD INSTALLER CODE %%%%%%%%%
 
 %% Clear paths and folders, if needed
-if 1==0
+if 1==1
     clear flag_Laps_Folders_Initialized
+end
+if 1==0
     fcn_INTERNAL_clearUtilitiesFromPathAndFolders;
-
 end
 
 %% Install dependencies
