@@ -1,11 +1,19 @@
 % script_test_fcn_Laps_checkZoneType.m
 % tests fcn_Laps_checkZoneType.m
 
-% Revision history
-% 2022_07_23 - sbrennan@psu.edu
-% -- wrote the code originally, using breakDataIntoLaps as starter
-% 2025_07_03 - S. Brennan, sbrennan@psu.edu
-% -- standardized headers on all test scripts
+% REVISION HISTORY:
+%
+% 2022_07_23 by Sean Brennan, sbrennan@psu.edu
+% - wrote the code originally, using breakDataIntoLaps as starter
+% 
+% 2025_07_03 by Sean Brennan, sbrennan@psu.edu
+% - standardized headers on all test scripts
+
+% TO-DO:
+%
+% 2025_11_21 by Sean Brennan, sbrennan@psu.edu
+% - (fill in items here)
+
 
 %% Set up the workspace
 close all
@@ -29,15 +37,15 @@ close all;
 fprintf(1,'Figure: 1XXXXXX: DEMO cases\n');
 
 %% DEMO case: Multiple laps
-fig_num = 10001;
+figNum = 10001;
 titleString = sprintf('DEMO case: Multiple laps');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 
 input_start_zone_definition = [2 3 0 0]; % Radius of 2, 3 points, centered at 0 0
 [flag_start_is_a_point_type, output_start_zone_definition] = ...
-    fcn_Laps_checkZoneType(input_start_zone_definition, 'start_definition', fig_num);
+    fcn_Laps_checkZoneType(input_start_zone_definition, 'start_definition', figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -48,18 +56,18 @@ assert(isequal(1,flag_start_is_a_point_type))
 assert(isequal(output_start_zone_definition,[2 3 0 0]))
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% DEMO case: Standard call for segment-type
-fig_num = 10002;
+figNum = 10002;
 titleString = sprintf('DEMO case: Standard call for segment-type');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 
 input_start_zone_definition = [2 3; 0 0]; % starts at 2 3, ends at 0 0
 [flag_start_is_a_point_type, output_start_zone_definition] = ...
-    fcn_Laps_checkZoneType(input_start_zone_definition, 'start_definition', fig_num);
+    fcn_Laps_checkZoneType(input_start_zone_definition, 'start_definition', figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -70,7 +78,7 @@ assert(isequal(0,flag_start_is_a_point_type))
 assert(isequal(output_start_zone_definition,[2 3; 0 0]))
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 %% Fast Mode Tests
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -90,9 +98,9 @@ close all;
 fprintf(1,'Figure: 8XXXXXX: FAST mode cases (there are no fast modes for plotting functions) \n');
 
 %% Basic example - NO FIGURE
-fig_num = 80001;
-fprintf(1,'Figure: %.0f: FAST mode, empty fig_num\n',fig_num);
-figure(fig_num); close(fig_num);
+figNum = 80001;
+fprintf(1,'Figure: %.0f: FAST mode, empty figNum\n',figNum);
+figure(figNum); close(figNum);
 
 input_start_zone_definition = [2 3 0 0]; % Radius of 2, 3 points, centered at 0 0
 [flag_start_is_a_point_type, output_start_zone_definition] = ...
@@ -106,13 +114,13 @@ assert(isequal(output_start_zone_definition,[2 3 0 0]))
 
 % Make sure plot did NOT open up
 figHandles = get(groot, 'Children');
-assert(~any(figHandles==fig_num));
+assert(~any(figHandles==figNum));
 
 
 %% Basic fast mode - NO FIGURE, FAST MODE
-fig_num = 80002;
-fprintf(1,'Figure: %.0f: FAST mode, fig_num=-1\n',fig_num);
-figure(fig_num); close(fig_num);
+figNum = 80002;
+fprintf(1,'Figure: %.0f: FAST mode, figNum=-1\n',figNum);
+figure(figNum); close(figNum);
 
 input_start_zone_definition = [2 3 0 0]; % Radius of 2, 3 points, centered at 0 0
 [flag_start_is_a_point_type, output_start_zone_definition] = ...
@@ -126,14 +134,14 @@ assert(isequal(output_start_zone_definition,[2 3 0 0]))
 
 % Make sure plot did NOT open up
 figHandles = get(groot, 'Children');
-assert(~any(figHandles==fig_num));
+assert(~any(figHandles==figNum));
 
 
 %% Compare speeds of pre-calculation versus post-calculation versus a fast variant
-fig_num = 80003;
-fprintf(1,'Figure: %.0f: FAST mode comparisons\n',fig_num);
-figure(fig_num);
-close(fig_num);
+figNum = 80003;
+fprintf(1,'Figure: %.0f: FAST mode comparisons\n',figNum);
+figure(figNum);
+close(figNum);
 
 input_start_zone_definition = [2 3 0 0]; % Radius of 2, 3 points, centered at 0 0
 
@@ -160,7 +168,7 @@ fast_method = toc;
 
 % Make sure plot did NOT open up
 figHandles = get(groot, 'Children');
-assert(~any(figHandles==fig_num));
+assert(~any(figHandles==figNum));
 
 % Plot results as bar chart
 figure(373737);
@@ -176,7 +184,7 @@ ylabel('Execution time (Milliseconds)')
 
 % Make sure plot did NOT open up
 figHandles = get(groot, 'Children');
-assert(~any(figHandles==fig_num));
+assert(~any(figHandles==figNum));
 
 
 %% BUG cases

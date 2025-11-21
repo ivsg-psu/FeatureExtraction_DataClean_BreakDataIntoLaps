@@ -1,11 +1,19 @@
 % script_test_fcn_Laps_findSegmentZoneStartStop.m
 % tests fcn_Laps_findSegmentZoneStartStop.m
 
-% Revision history
-% 2022_07_12
-% -- first write of the code
-% 2025_07_03 - S. Brennan, sbrennan@psu.edu
-% -- standardized headers on all test scripts
+% REVISION HISTORY:
+%
+% 2022_07_12 by Sean Brennan, sbrennan@psu.edu
+% - first write of the code
+% 
+% 2025_07_03 by Sean Brennan, sbrennan@psu.edu
+% - standardized headers on all test scripts
+
+% TO-DO:
+%
+% 2025_11_21 by Sean Brennan, sbrennan@psu.edu
+% - (fill in items here)
+
 
 %% Set up the workspace
 close all
@@ -29,10 +37,10 @@ close all;
 fprintf(1,'Figure: 1XXXXXX: DEMO cases\n');
 
 %% DEMO case: Basic demo
-fig_num = 10001;
+figNum = 10001;
 titleString = sprintf('DEMO case: Basic demo');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 
 % Create some data to plot
@@ -52,7 +60,7 @@ segment_definition = [0 0; 0 1]; % Starts at [0,0], ends at [0 1]
     fcn_Laps_findSegmentZoneStartStop(...
     query_path,...
     segment_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -74,15 +82,15 @@ assert(isequal(zone_start_indices,10));
 assert(isequal(zone_end_indices,11));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 
 
 %% DEMO case: Returns nothing since there is no portion of the path in the criteria even though the path goes right over the criteria
-fig_num = 10002;
+figNum = 10002;
 titleString = sprintf('DEMO case: Returns nothing since there is no portion of the path in the criteria even though the path goes right over the criteria');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 % Create some data to plot
 full_steps = (-1:0.1:1)';
@@ -101,7 +109,7 @@ segment_definition = [0 0; 1 0]; % Starts at [0,0], ends at [1 0]
     fcn_Laps_findSegmentZoneStartStop(...
     query_path,...
     segment_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -116,14 +124,14 @@ assert(isempty(zone_end_indices));
 % (no values because is empty)
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 
 %% DEMO case: Returns one hit, right on start of path
-fig_num = 10003;
+figNum = 10003;
 titleString = sprintf('DEMO case: Returns one hit, right on start of path');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 % Create some data to plot
 full_steps = (-1:0.1:1)';
@@ -142,7 +150,7 @@ segment_definition = [-1 0; -1 1]; % Starts at [-1,0], ends at [-1 1]
     fcn_Laps_findSegmentZoneStartStop(...
     query_path,...
     segment_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -164,14 +172,14 @@ assert(isequal(zone_start_indices,1));
 assert(isequal(zone_end_indices,2));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 
 %% DEMO case: Returns no hit, crossed wrong way
-fig_num = 10004;
+figNum = 10004;
 titleString = sprintf('DEMO case: Returns no hit, crossed wrong way');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 % Create some data to plot
 full_steps = (-1:0.1:1)';
@@ -190,7 +198,7 @@ segment_definition = [0 0; 0 1]; % Starts at [0,0], ends at [0 1]
     fcn_Laps_findSegmentZoneStartStop(...
     query_path,...
     segment_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -205,13 +213,13 @@ assert(isempty(zone_end_indices));
 % (no values because is empty)
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% DEMO case: Returns no hit, also crossed wrong way
-fig_num = 10005;
+figNum = 10005;
 titleString = sprintf('DEMO case: Returns no hit, also crossed wrong way');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 % Create some data to plot
 full_steps = (-1:0.1:1)';
@@ -230,7 +238,7 @@ segment_definition = [0 1; 0 0]; % Starts at [0,1], ends at [0 0]
     fcn_Laps_findSegmentZoneStartStop(...
     query_path,...
     segment_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -245,14 +253,14 @@ assert(isempty(zone_end_indices));
 % (no values because is empty)
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% DEMO case: Returns two hits, even though crossed three times since only 2 crossings in correct direction
 % One crossing is in the wrong direction!
-fig_num = 10006;
+figNum = 10006;
 titleString = sprintf('DEMO case: Returns two hits, even though crossed three times since only 2 crossings in correct direction');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 % Create some data to plot
 full_steps = (-1:0.1:1)';
@@ -273,7 +281,7 @@ segment_definition = [0 0; 0 1]; % Starts at [0,0], ends at [0 1]
     fcn_Laps_findSegmentZoneStartStop(...
     query_path,...
     segment_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -295,14 +303,14 @@ assert(isequal(zone_start_indices,[10; 52]));
 assert(isequal(zone_end_indices,[11; 53]));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 
 %% DEMO case: Multiple crossings
-fig_num = 10007;
+figNum = 10007;
 titleString = sprintf('DEMO case: Multiple crossings');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 % Create the query path
 query_path = ...
@@ -313,7 +321,7 @@ segment_definition = [0 -2; 0 2]; % Starts at [0,0], ends at [0 1]
     fcn_Laps_findSegmentZoneStartStop(...
     query_path,...
     segment_definition,...
-    fig_num);
+    figNum);
 sgtitle(titleString, 'Interpreter','none');
 
 % Check variable types
@@ -334,7 +342,7 @@ assert(isequal(zone_start_indices,[1; 3; 5; 8; 10]));
 assert(isequal(zone_end_indices,[2; 4; 6; 9; 11]));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 
 %% Fast Mode Tests
@@ -356,9 +364,9 @@ close all;
 fprintf(1,'Figure: 8XXXXXX: FAST mode cases (there are no fast modes for plotting functions) \n');
 
 %% Basic example - NO FIGURE
-fig_num = 80001;
-fprintf(1,'Figure: %.0f: FAST mode, empty fig_num\n',fig_num);
-figure(fig_num); close(fig_num);
+figNum = 80001;
+fprintf(1,'Figure: %.0f: FAST mode, empty figNum\n',figNum);
+figure(figNum); close(figNum);
 
 % Create the query path
 query_path = ...
@@ -390,13 +398,13 @@ assert(isequal(zone_end_indices,[2; 4; 6; 9; 11]));
 
 % Make sure plot did NOT open up
 figHandles = get(groot, 'Children');
-assert(~any(figHandles==fig_num));
+assert(~any(figHandles==figNum));
 
 
 %% Basic fast mode - NO FIGURE, FAST MODE
-fig_num = 80002;
-fprintf(1,'Figure: %.0f: FAST mode, fig_num=-1\n',fig_num);
-figure(fig_num); close(fig_num);
+figNum = 80002;
+fprintf(1,'Figure: %.0f: FAST mode, figNum=-1\n',figNum);
+figure(figNum); close(figNum);
 
 % Create the query path
 query_path = ...
@@ -428,14 +436,14 @@ assert(isequal(zone_end_indices,[2; 4; 6; 9; 11]));
 
 % Make sure plot did NOT open up
 figHandles = get(groot, 'Children');
-assert(~any(figHandles==fig_num));
+assert(~any(figHandles==figNum));
 
 
 %% Compare speeds of pre-calculation versus post-calculation versus a fast variant
-fig_num = 80003;
-fprintf(1,'Figure: %.0f: FAST mode comparisons\n',fig_num);
-figure(fig_num);
-close(fig_num);
+figNum = 80003;
+fprintf(1,'Figure: %.0f: FAST mode comparisons\n',figNum);
+figure(figNum);
+close(figNum);
 
 % Create the query path
 query_path = ...
@@ -472,7 +480,7 @@ fast_method = toc;
 
 % Make sure plot did NOT open up
 figHandles = get(groot, 'Children');
-assert(~any(figHandles==fig_num));
+assert(~any(figHandles==figNum));
 
 % Plot results as bar chart
 figure(373737);
@@ -488,7 +496,7 @@ ylabel('Execution time (Milliseconds)')
 
 % Make sure plot did NOT open up
 figHandles = get(groot, 'Children');
-assert(~any(figHandles==fig_num));
+assert(~any(figHandles==figNum));
 
 
 %% BUG cases

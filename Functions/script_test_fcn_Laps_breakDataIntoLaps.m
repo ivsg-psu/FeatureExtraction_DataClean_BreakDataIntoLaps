@@ -1,19 +1,29 @@
 % script_test_fcn_Laps_breakDataIntoLaps.m
 % tests fcn_Laps_breakDataIntoLaps.m
 
-% Revision history
-% 2022_04_03
-% -- first write of the code
-% 2022_04_03
-% -- added external call to zone calculation function
-% 2022_07_11 - sbrennan@psu.edu
-% -- corrected calls to zone function to allow number of points,
+% REVISION HISTORY:
+%
+% 2022_04_03 by Sean Brennan, sbrennan@psu.edu
+% - first write of the code
+% 
+% 2022_04_03 by Sean Brennan, sbrennan@psu.edu
+% - added external call to zone calculation function
+% 
+% 2022_07_11 by Sean Brennan, sbrennan@psu.edu
+% - corrected calls to zone function to allow number of points,
 % changed format to allow 3d circles
-% 2025_07_03 - S. Brennan
-% -- cleanup of Debugging area codes
-% -- turn on fast mode for Path calls
-% 2025_07_03 - S. Brennan, sbrennan@psu.edu
-% -- standardized headers on all test scripts
+% 
+% 2025_07_03 by Sean Brennan, sbrennan@psu.edu
+% - cleanup of Debugging area codes
+% - turn on fast mode for Path calls
+% 
+% 2025_07_03 by Sean Brennan, sbrennan@psu.edu
+% - standardized headers on all test scripts
+
+% TO-DO:
+%
+% 2025_11_21 by Sean Brennan, sbrennan@psu.edu
+% - (fill in items here)
 
 %% Set up the workspace
 close all

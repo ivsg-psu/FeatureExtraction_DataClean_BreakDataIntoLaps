@@ -1,13 +1,22 @@
 % script_test_fcn_Laps_plotTraversalsXY.m
 % Tests fcn_Laps_plotLapsXY
        
-% Revision history:
-% 2022_04_02 - S. Brennan
-% -- first write of the code
-% 2025_07_02 - S. Brennan
-% -- Removed traversal input type and replaced with cell array of paths
-% 2025_07_03 - S. Brennan, sbrennan@psu.edu
-% -- standardized headers on all test scripts
+% REVISION HISTORY:
+%
+% 2022_04_02 by Sean Brennan, sbrennan@psu.edu
+% - first write of the code
+% 
+% 2025_07_02 by Sean Brennan, sbrennan@psu.edu
+% - Removed traversal input type and replaced with cell array of paths
+% 
+% 2025_07_03 by Sean Brennan, sbrennan@psu.edu
+% - standardized headers on all test scripts
+
+% TO-DO:
+%
+% 2025_11_21 by Sean Brennan, sbrennan@psu.edu
+% - (fill in items here)
+
 
 %% Set up the workspace
 close all
@@ -31,10 +40,10 @@ close all;
 fprintf(1,'Figure: 1XXXXXX: DEMO cases\n');
 
 %% DEMO case: Basic demo
-fig_num = 10001;
+figNum = 10001;
 titleString = sprintf('DEMO case: Basic demo');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 
 % Fill in some dummy data
@@ -43,30 +52,30 @@ cellArrayOfPaths = fcn_Laps_fillSampleLaps;
 
 % to show that it will auto-label the axes and create a new figure (NOT
 % figure 11 here) to plot the data.
-fcn_Laps_plotLapsXY(cellArrayOfPaths, fig_num);
+fcn_Laps_plotLapsXY(cellArrayOfPaths, figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% DEMO case: Specify the figure number to show that it will NOT auto-label
-fig_num = 10002;
+figNum = 10002;
 titleString = sprintf('DEMO case: Specify the figure number to show that it will NOT auto-label');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 % Fill in some dummy data
 cellArrayOfPaths = fcn_Laps_fillSampleLaps;
 
 figure(11);
 % axes if figure is already given and it puts the plots into this figure.
-fcn_Laps_plotLapsXY(cellArrayOfPaths,fig_num);
+fcn_Laps_plotLapsXY(cellArrayOfPaths,figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% Fast Mode Tests
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -87,9 +96,9 @@ close all;
 fprintf(1,'Figure: 8XXXXXX: FAST mode cases (there are no fast modes for plotting functions) \n');
 % 
 % %% Basic example - NO FIGURE
-% fig_num = 80001;
-% fprintf(1,'Figure: %.0f: FAST mode, empty fig_num\n',fig_num);
-% figure(fig_num); close(fig_num);
+% figNum = 80001;
+% fprintf(1,'Figure: %.0f: FAST mode, empty figNum\n',figNum);
+% figure(figNum); close(figNum);
 % 
 % dataSetNumber = 9;
 % 
@@ -133,13 +142,13 @@ fprintf(1,'Figure: 8XXXXXX: FAST mode cases (there are no fast modes for plottin
 % 
 % % Make sure plot did NOT open up
 % figHandles = get(groot, 'Children');
-% assert(~any(figHandles==fig_num));
+% assert(~any(figHandles==figNum));
 % 
 % 
 % %% Basic fast mode - NO FIGURE, FAST MODE
-% fig_num = 80002;
-% fprintf(1,'Figure: %.0f: FAST mode, fig_num=-1\n',fig_num);
-% figure(fig_num); close(fig_num);
+% figNum = 80002;
+% fprintf(1,'Figure: %.0f: FAST mode, figNum=-1\n',figNum);
+% figure(figNum); close(figNum);
 % 
 % dataSetNumber = 9;
 % 
@@ -183,14 +192,14 @@ fprintf(1,'Figure: 8XXXXXX: FAST mode cases (there are no fast modes for plottin
 % 
 % % Make sure plot did NOT open up
 % figHandles = get(groot, 'Children');
-% assert(~any(figHandles==fig_num));
+% assert(~any(figHandles==figNum));
 % 
 % 
 % %% Compare speeds of pre-calculation versus post-calculation versus a fast variant
-% fig_num = 80003;
-% fprintf(1,'Figure: %.0f: FAST mode comparisons\n',fig_num);
-% figure(fig_num);
-% close(fig_num);
+% figNum = 80003;
+% fprintf(1,'Figure: %.0f: FAST mode comparisons\n',figNum);
+% figure(figNum);
+% close(figNum);
 % 
 % dataSetNumber = 9;
 % 
@@ -236,7 +245,7 @@ fprintf(1,'Figure: 8XXXXXX: FAST mode cases (there are no fast modes for plottin
 % 
 % % Make sure plot did NOT open up
 % figHandles = get(groot, 'Children');
-% assert(~any(figHandles==fig_num));
+% assert(~any(figHandles==figNum));
 % 
 % % Plot results as bar chart
 % figure(373737);
@@ -252,7 +261,7 @@ fprintf(1,'Figure: 8XXXXXX: FAST mode cases (there are no fast modes for plottin
 % 
 % % Make sure plot did NOT open up
 % figHandles = get(groot, 'Children');
-% assert(~any(figHandles==fig_num));
+% assert(~any(figHandles==figNum));
 
 
 %% BUG cases

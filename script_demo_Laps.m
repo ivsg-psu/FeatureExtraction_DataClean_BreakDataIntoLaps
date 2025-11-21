@@ -17,62 +17,78 @@
 % thus one must be able to quickly break the code into individual data
 % groups with one grouping, or "lap", per traversal.
 
-% Revision history:
-% 2022_03_27 - Sean Brennan
-% -  created a demo script of core debug utilities
-% 2022_04_02 - Sean Brennan
-% -  Added sample path creation
-% 2022_04_04 - Sean Brennan
-% -  Added minor edits
-% 2022_04_10 - Sean Brennan
-% -  Added comments, plotting utilities for zone definitions
-% 2022_05_21 - Sean Brennan
-% -  More cleanup
-% 2022_07_23 - Sean Brennan
-% -  Enable index-based look-up
-% 2023_02_01 - Sean Brennan
-% -  Enable web-based installs
-% 2025_04_25 - Sean Brennan
-% -  Updated header structure to enable global flagging from main script
-% -  Added global flags for setting test conditions and plotting in fcns
-% -  Updated DebugTools_v2024_12_18 dependency
-% -  Updated PathClass_v2024_03_14 dependency
-% -  Updated GetUserInputPath_v2025_04_27 dependency
-% -  Added PlotRoad_v2025_04_12 dependency
-% -  Updated headers in all functions
-% -  Added no-plot and fast-mode tests in all test scripts
-% -  Added global test script
-% 2025_07_02 - Sean Brennan
+% REVISION HISTORY:
+% 
+% 2022_03_27 by Sean Brennan, sbrennan@psu.edu
+% - Created a demo script of core debug utilities
+% 
+% 2022_04_02 by Sean Brennan, sbrennan@psu.edu
+% - Added sample path creation
+% 
+% 2022_04_04 by Sean Brennan, sbrennan@psu.edu
+% - Added minor edits
+% 
+% 2022_04_10 by Sean Brennan, sbrennan@psu.edu
+% - Added comments, plotting utilities for zone definitions
+% 
+% 2022_05_21 by Sean Brennan, sbrennan@psu.edu
+% - More cleanup
+% 
+% 2022_07_23 by Sean Brennan, sbrennan@psu.edu
+% - Enable index-based look-up
+% 
+% 2023_02_01 by Sean Brennan, sbrennan@psu.edu
+% - Enable web-based installs
+% 
+% 205_04_25 by Sean Brennan, sbrennan@psu.edu
+% - Updated header structure to enable global flagging from main script
+% - Added global flags for setting test conditions and plotting in fcns
+% - Updated DebugTools_v2024_12_18 dependency
+% - Updated PathClass_v2024_03_14 dependency
+% - Updated GetUserInputPath_v2025_04_27 dependency
+% - Added PlotRoad_v2025_04_12 dependency
+% - Updated headers in all functions
+% - Added no-plot and fast-mode tests in all test scripts
+% - Added global test script
+% 
+% 2025_07_02 by Sean Brennan, sbrennan@psu.edu
 % -  Updated PathClass_v2025_07_02 dependency
-% 2025_07_04 - Sean Brennan
+% 
+% 2025_07_04 by Sean Brennan, sbrennan@psu.edu
 % -  Cleaned up plotting and assertion testing throughout
 % (new release)
 %
-% 2025_11_12 - Sean Brennan, sbrennan@psu.edu
-% -  Updated installer to use fcn_DebugTools_autoInstallRepos
-% -  Updated script_test_all_functions to current release from DebugTools
-% -  Cleared out clc / clear all commands in scripts and functions:
-%    % * script_test_fcn_Laps_breakDataIntoLapIndices
-%    % * script_test_fcn_Laps_breakDataIntoLaps
-%    % * script_test_fcn_Laps_findPointZoneStartStopAndMinimum
-%    % * script_test_fcn_Laps_findSegmentZoneStartStop
-% -  Fixed missing "warning('backtrace','on');" in several files
-% -  Fixed extra "figure(fig_num);" that was in Input section of all fcns
-% -  Cleaned up README.md a bit including lint, simplification of commands.
+% 2025_11_12 by Sean Brennan, sbrennan@psu.edu
+% - Updated installer to use fcn_DebugTools_autoInstallRepos
+% - Updated script_test_all_functions to current release from DebugTools
+% - Cleared out clc / clear all commands in scripts and functions:
+%   % * script_test_fcn_Laps_breakDataIntoLapIndices
+%   % * script_test_fcn_Laps_breakDataIntoLaps
+%   % * script_test_fcn_Laps_findPointZoneStartStopAndMinimum
+%   % * script_test_fcn_Laps_findSegmentZoneStartStop
+% - Fixed missing "warning('backtrace','on');" in several files
+% - Fixed extra "figure(figNum);" that was in Input section of all fcns
+% - Cleaned up README.md a bit including lint, simplification of commands.
 % (new release)
 %
-% 2025_11_13 - S. Brennan
-% - updated script_test_all_functions
-% - updated header flags for clearing path, to do fast checking without
+% 2025_11_13 by Sean Brennan, sbrennan@psu.edu
+% - Updated script_test_all_functions
+% - Updated header flags for clearing path, to do fast checking without
 %   % skipping
 % (new release)
+%
+% 2025_11_21 by Sean Brennan, sbrennan@psu.edu
+% - Updated rev list on files to standard format
+% - Replaced all fig+_num with figNum
+% (new release)
+
 
 % TO-DO:
-% -  2025_11_12 by Sean Brennan, sbrennan@psu.edu
-%    % * Main code runs, but could use some better outputs to workspace via
-%    %   % fprintf.
-%    % * Not the greatest money plot outputs in main script - these could
-%    %   % be more clear.
+% - 2025_11_12 by Sean Brennan, sbrennan@psu.edu
+%   % * Main code runs, but could use some better outputs to workspace via
+%   %   % fprintf.
+%   % * Not the greatest money plot outputs in main script - these could
+%   %   % be more clear.
 
 
 %% Make sure we are running out of root directory
@@ -87,8 +103,14 @@ cd(filepath);
 if 1==1
     clear flag_Laps_Folders_Initialized
 end
+
 if 1==0
     fcn_INTERNAL_clearUtilitiesFromPathAndFolders;
+end
+
+if 1==0
+    % Resets all paths to factory default
+    restoredefaultpath;
 end
 
 %% Install dependencies
@@ -224,8 +246,8 @@ path_examples{2} = [1*ones_full_steps full_steps];
 % "plotLapsXY" subfunction
 
 % Plot the results via fcn_Laps_plotLapsXY
-fig_num = 222;
-fcn_Laps_plotLapsXY(path_examples,fig_num);
+figNum = 222;
+fcn_Laps_plotLapsXY(path_examples,figNum);
 
 %%
 % Now, use a zone plotting tool to show the point and line-segment types of
@@ -233,31 +255,31 @@ fcn_Laps_plotLapsXY(path_examples,fig_num);
 % definition is shown in blue. The segment definition includes an arrow
 % that points in the direction of an allowable crossing.
 
-fig_num = 444;
+figNum = 444;
 
 zone_center = [0.8 0];
 zone_radius = 2;
 num_points = 3;
 point_zone_definition = [zone_radius num_points zone_center];
-fcn_Laps_plotPointZoneDefinition(point_zone_definition,'g',fig_num);
+fcn_Laps_plotPointZoneDefinition(point_zone_definition,'g',figNum);
 
 segment_zone_definition = [0.8 0; 1.2 0];
-fcn_Laps_plotSegmentZoneDefinition(segment_zone_definition,'b',fig_num);
+fcn_Laps_plotSegmentZoneDefinition(segment_zone_definition,'b',figNum);
 
 
 %%
 % Show we can get the same plot now via a combined function
 
-fig_num = 4443;
-fcn_Laps_plotZoneDefinition(point_zone_definition,'g',fig_num);
-fcn_Laps_plotZoneDefinition(segment_zone_definition,'b',fig_num);
+figNum = 4443;
+fcn_Laps_plotZoneDefinition(point_zone_definition,'g',figNum);
+fcn_Laps_plotZoneDefinition(segment_zone_definition,'b',figNum);
 
 %% Point zone evaluations
 % The function, fcn_Laps_findPointZoneStartStopAndMinimum, uses a point
 % zone evaluation to determine portions of a segment that are within a
 % point zone definition. For example, if the path does not cross into the
 % zone, nothing is returned:
-fig_num = 1;
+figNum = 1;
 
 query_path = ...
     [full_steps 0.4*ones_full_steps];
@@ -270,7 +292,7 @@ zone_radius = 0.2; % with radius 0.2
     zone_center,...
     zone_radius,...
     [],...
-    fig_num);
+    figNum);
 
 assert(isempty(zone_start_indices));
 assert(isempty(zone_end_indices));
@@ -280,7 +302,7 @@ assert(isempty(zone_min_indices));
 % And, the default is that three points must be within the zone. So, if a
 % path only crosses one or two points, then nothing is returned.
 
-fig_num = 2;
+figNum = 2;
 
 query_path = ...
     [full_steps 0.2*ones_full_steps];
@@ -293,7 +315,7 @@ zone_radius = 0.2; % with radius 0.2
     zone_center,...
     zone_radius,...
     [],...
-    fig_num);
+    figNum);
 
 assert(isempty(zone_start_indices));
 assert(isempty(zone_end_indices));
@@ -312,7 +334,7 @@ zone_radius = 0.23; % with radius 0.23
     zone_center,...
     zone_radius,...
     [],...
-    fig_num);
+    figNum);
 
 assert(isempty(zone_start_indices));
 assert(isempty(zone_end_indices));
@@ -322,7 +344,7 @@ assert(isempty(zone_min_indices));
 %%
 % But, if a path crosses the zone with at least three points, then the
 % indices of the start, end, and minimum of the path are returned.
-fig_num = 3;
+figNum = 3;
 
 query_path = ...
     [half_steps zero_half_steps];
@@ -335,7 +357,7 @@ zone_radius = 0.2; % with radius 0.2
     zone_center,...
     zone_radius,...
     [],...
-    fig_num);
+    figNum);
 
 assert(isequal(zone_start_indices,9));
 assert(isequal(zone_end_indices,11));
@@ -352,7 +374,7 @@ zero_half_steps = 0*half_steps;
 ones_half_steps = ones(length(half_steps(:,1)),1);
 
 minimum_number_of_indices_in_zone = 3;
-fig_num = 5;
+figNum = 5;
 
 
 query_path = ...
@@ -366,7 +388,7 @@ zone_radius = 0.23;
     zone_center,...
     zone_radius,...
     minimum_number_of_indices_in_zone,...
-    fig_num);
+    figNum);
 
 assert(isequal(zone_start_indices,[10; 30]));
 assert(isequal(zone_end_indices,  [13; 33]));
@@ -383,24 +405,24 @@ laps_array = fcn_Laps_fillSampleLaps;
 
 
 % Plot all the laps one at a time
-fig_num = 22323;
+figNum = 22323;
 for ith_example = 1:length(laps_array)
     single_lap = laps_array{ith_example};
-    fcn_Laps_plotLapsXY({single_lap},fig_num);
+    fcn_Laps_plotLapsXY({single_lap},figNum);
 end
 
 % Plot all the laps at once
-fig_num = 22324;
-fcn_Laps_plotLapsXY(laps_array,fig_num);
+figNum = 22324;
+fcn_Laps_plotLapsXY(laps_array,figNum);
 
 %% Show fcn_Laps_plotZoneDefinition.m
 % Plots the zone, allowing user-defined colors. For example, the figure
 % below shows a radial zone for the start, and a line segment for the end.
 start_definition = [10 3 0 0]; % Radius 10, 3 points must pass near [0 0]
-fcn_Laps_plotZoneDefinition(start_definition,'g',fig_num);
+fcn_Laps_plotZoneDefinition(start_definition,'g',figNum);
 
 end_definition = [40 -40; 80 -40]; % must cross a line segment starting at [40 -40], ending at [80 -40]
-fcn_Laps_plotZoneDefinition(end_definition,'r',fig_num);
+fcn_Laps_plotZoneDefinition(end_definition,'r',figNum);
 
 %% Call the fcn_Laps_breakDataIntoLaps function, plot in figure 2
 % Test of fcn_Laps_breakDataIntoLaps.m : This is the core function for this
@@ -411,23 +433,23 @@ start_definition = [10 3 0 0]; % Radius 10, 3 points must pass near [0 0]
 end_definition = [30 3 0 -60]; % Radius 30, 3 points must pass near [0,-60]
 
 excursion_definition = []; % empty
-fig_num = 2;
+figNum = 2;
 lap_traversals = fcn_Laps_breakDataIntoLaps(...
     laps_array{1},...
     start_definition,...
     end_definition,...
     excursion_definition,...
-    fig_num);
+    figNum);
 
 % Do we get 3 laps?
 assert(isequal(3,length(lap_traversals)));
 
 
 %% Show the use of segment definition
-fig_num = 10004;
+figNum = 10004;
 titleString = sprintf('DEMO case: Show the use of segment definition');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 dataSetNumber = 9;
 
@@ -446,7 +468,7 @@ excursion_definition = []; % empty
     start_definition,...
     end_definition,...
     excursion_definition,...
-    fig_num);
+    figNum);
 
 
 % Check variable types
@@ -463,7 +485,7 @@ assert(isequal(97,length(lap_cellArrayOfPaths{2}(:,1))));
 assert(isequal(78,length(lap_cellArrayOfPaths{3}(:,1))));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% Functions follow
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -1,11 +1,19 @@
 % script_test_fcn_Laps_findPointZoneStartStopAndMinimum.m
 % tests fcn_Laps_findPointZoneStartStopAndMinimum.m
 
-% Revision history
-% 2022_04_08
-% -- first write of the code
-% 2025_07_03 - S. Brennan, sbrennan@psu.edu
-% -- standardized headers on all test scripts
+% REVISION HISTORY:
+%
+% 2022_04_08 by Sean Brennan, sbrennan@psu.edu
+% - first write of the code
+% 
+% 2025_07_03 by Sean Brennan, sbrennan@psu.edu
+% - standardized headers on all test scripts
+
+% TO-DO:
+%
+% 2025_11_21 by Sean Brennan, sbrennan@psu.edu
+% - (fill in items here)
+
 
 %% Set up the workspace
 close all
@@ -29,10 +37,10 @@ close all;
 fprintf(1,'Figure: 1XXXXXX: DEMO cases\n');
 
 %% DEMO case: Returns the last three points
-fig_num = 10001;
+figNum = 10001;
 titleString = sprintf('DEMO case: Returns the last three points');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 
 % Create some data to plot
@@ -55,7 +63,7 @@ zone_radius = 0.2;
     zone_center,...
     zone_radius,...
     [],...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -84,15 +92,15 @@ assert(isequal(zone_end_indices,11));
 assert(isequal(zone_min_indices,11));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 
 %% DEMO case: Returns nothing since there is no portion of the path in the
 % criteria, even though the path goes right over the criteria
-fig_num = 10002;
+figNum = 10002;
 titleString = sprintf('DEMO case: Returns nothing since there is no portion of the path in the');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 % Create some data to plot
 full_steps = (-1:0.1:1)';
@@ -113,7 +121,7 @@ zone_radius = 0.2;   % Radius is 0.2
     zone_center,...
     zone_radius,...
     [],...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -131,15 +139,15 @@ assert(isempty(zone_min_indices));
 % (all are empty)
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 
 
 %% DEMO case: returns nothing since there is one portion of the path in the criteria
-fig_num = 10003;
+figNum = 10003;
 titleString = sprintf('DEMO case: returns nothing since there is one portion of the path in the criteria');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 % Create some data to plot
 full_steps = (-1:0.1:1)';
@@ -160,7 +168,7 @@ zone_radius = 0.2;   % Radius is 0.2
     zone_center,...
     zone_radius,...
     [],...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -178,13 +186,13 @@ assert(isempty(zone_min_indices));
 % (all are empty)
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% DEMO case: returns nothing since there are only two points only within boundary, the default requires 3
-fig_num = 10004;
+figNum = 10004;
 titleString = sprintf('DEMO case: returns nothing since there are only two points only within boundary, the default requires 3');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 % Create some data to plot
 full_steps = (-1:0.1:1)';
@@ -207,7 +215,7 @@ zone_radius = 0.23;
     zone_center,...
     zone_radius,...
     [],...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -225,15 +233,15 @@ assert(isempty(zone_min_indices));
 % (all are empty)
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 
 
 %% DEMO case: Returns nothing since there is only two points the path in the criteria. The third point is not strictly within the radius
-fig_num = 10004;
+figNum = 10004;
 titleString = sprintf('DEMO case: Returns nothing since there is only two points the path in the criteria. The third point is not strictly within the radius');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 % Create some data to plot
 full_steps = (-1:0.1:1)';
@@ -255,7 +263,7 @@ zone_radius = 0.2;
     zone_center,...
     zone_radius,...
     [],...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -273,7 +281,7 @@ assert(isempty(zone_min_indices));
 % (all are empty)
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 
 
@@ -281,10 +289,10 @@ assert(isequal(get(gcf,'Number'),fig_num));
 
 % Show that the previous one that failed now works if lower number to 2
 % points in the zone
-fig_num = 10005;
+figNum = 10005;
 titleString = sprintf('DEMO case: Show effect of minimum_number_of_indices_in_zone');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 
 % Create some data to plot
@@ -310,7 +318,7 @@ zone_num_points = 2;
     zone_center,...
     zone_radius,...
     zone_num_points,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -339,13 +347,13 @@ assert(isequal(zone_end_indices,12));
 assert(isequal(zone_min_indices,12));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% DEMO case: the previous one that worked now fails if raise number to 4 points in the zone
-fig_num = 10006;
+figNum = 10006;
 titleString = sprintf('DEMO case: the previous one that worked now fails if raise number to 4 points in the zone');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 
 % Create some data to plot
@@ -371,7 +379,7 @@ zone_num_points = 4;
     zone_center,...
     zone_radius,...
     zone_num_points,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -389,14 +397,14 @@ assert(isempty(zone_min_indices));
 % (all are empty)
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 
 %% DEMO case: Multiple laps
-fig_num = 10007;
+figNum = 10007;
 titleString = sprintf('DEMO case: Multiple laps');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 % Create some data to plot
 full_steps = (-1:0.1:1)';
@@ -420,7 +428,7 @@ zone_num_points = 3;
     zone_center,...
     zone_radius,...
     zone_num_points,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -449,7 +457,7 @@ assert(isequal(zone_end_indices,  [13; 33]));
 assert(isequal(zone_min_indices,  [12; 31]));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 
 %% Fast Mode Tests
@@ -471,9 +479,9 @@ close all;
 fprintf(1,'Figure: 8XXXXXX: FAST mode cases\n');
 
 %% Basic example - NO FIGURE
-fig_num = 80001;
-fprintf(1,'Figure: %.0f: FAST mode, empty fig_num\n',fig_num);
-figure(fig_num); close(fig_num);
+figNum = 80001;
+fprintf(1,'Figure: %.0f: FAST mode, empty figNum\n',figNum);
+figure(figNum); close(figNum);
 
 % Create some data to plot
 full_steps = (-1:0.1:1)';
@@ -526,13 +534,13 @@ assert(isequal(zone_min_indices,  [12; 31]));
 
 % Make sure plot did NOT open up
 figHandles = get(groot, 'Children');
-assert(~any(figHandles==fig_num));
+assert(~any(figHandles==figNum));
 
 
 %% Basic fast mode - NO FIGURE, FAST MODE
-fig_num = 80002;
-fprintf(1,'Figure: %.0f: FAST mode, fig_num=-1\n',fig_num);
-figure(fig_num); close(fig_num);
+figNum = 80002;
+fprintf(1,'Figure: %.0f: FAST mode, figNum=-1\n',figNum);
+figure(figNum); close(figNum);
 
 % Create some data to plot
 full_steps = (-1:0.1:1)';
@@ -585,14 +593,14 @@ assert(isequal(zone_min_indices,  [12; 31]));
 
 % Make sure plot did NOT open up
 figHandles = get(groot, 'Children');
-assert(~any(figHandles==fig_num));
+assert(~any(figHandles==figNum));
 
 
 %% Compare speeds of pre-calculation versus post-calculation versus a fast variant
-fig_num = 80003;
-fprintf(1,'Figure: %.0f: FAST mode comparisons\n',fig_num);
-figure(fig_num);
-close(fig_num);
+figNum = 80003;
+fprintf(1,'Figure: %.0f: FAST mode comparisons\n',figNum);
+figure(figNum);
+close(figNum);
 
 % Create some data to plot
 full_steps = (-1:0.1:1)';
@@ -643,7 +651,7 @@ fast_method = toc;
 
 % Make sure plot did NOT open up
 figHandles = get(groot, 'Children');
-assert(~any(figHandles==fig_num));
+assert(~any(figHandles==figNum));
 
 % Plot results as bar chart
 figure(373737);
@@ -659,7 +667,7 @@ ylabel('Execution time (Milliseconds)')
 
 % Make sure plot did NOT open up
 figHandles = get(groot, 'Children');
-assert(~any(figHandles==fig_num));
+assert(~any(figHandles==figNum));
 
 
 %% BUG cases
@@ -694,7 +702,7 @@ if 1==0
         zone_center,...
         zone_radius,...
         zone_num_points,...
-        fig_num);
+        figNum);
 
 
     %% Fails because zone_center is not correct type
@@ -708,7 +716,7 @@ if 1==0
         zone_center,...
         zone_radius,...
         zone_num_points,...
-        fig_num);
+        figNum);
 
 
     %% Fails because radius is negative
@@ -722,7 +730,7 @@ if 1==0
         zone_center,...
         zone_radius,...
         zone_num_points,...
-        fig_num);
+        figNum);
 
     %% Fails because zone_num_points is negative
     zone_center = [0.05 0]; % Located at [0.05,0]
@@ -735,7 +743,7 @@ if 1==0
         zone_center,...
         zone_radius,...
         zone_num_points,...
-        fig_num);
+        figNum);
 
     %% Fails because zone_num_points is not an integer
     zone_center = [0.05 0]; % Located at [0.05,0]
@@ -748,7 +756,7 @@ if 1==0
         zone_center,...
         zone_radius,...
         zone_num_points,...
-        fig_num);
+        figNum);
 
 
 end

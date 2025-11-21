@@ -1,11 +1,19 @@
 % script_test_fcn_Laps_breakDataIntoLapIndices.m
 % tests fcn_Laps_breakDataIntoLapIndices.m
 
-% Revision history
-% 2022_07_23 - sbrennan@psu.edu
-% -- wrote the code originally, using breakDataIntoLaps as starter
-% 2025_07_03 - S. Brennan, sbrennan@psu.edu
-% -- standardized headers on all test scripts
+% REVISION HISTORY:
+%
+% 2022_07_23 by Sean Brennan, sbrennan@psu.edu
+% - wrote the code originally, using breakDataIntoLaps as starter
+% 
+% 2025_07_03 by Sean Brennan, sbrennan@psu.edu
+% - standardized headers on all test scripts
+
+% TO-DO:
+%
+% 2025_11_21 by Sean Brennan, sbrennan@psu.edu
+% - (fill in items here)
+
 
 %% Set up the workspace
 close all
@@ -29,10 +37,10 @@ close all;
 fprintf(1,'Figure: 1XXXXXX: DEMO cases\n');
 
 %% DEMO case: call the function to show it operating on the 9th data set
-fig_num = 10001;
+figNum = 10001;
 titleString = sprintf('DEMO case: call the function to show it operating on the 9th data set');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 dataSetNumber = 9;
 
@@ -50,7 +58,7 @@ excursion_definition = []; % empty
     start_definition,...
     end_definition,...
     excursion_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -77,20 +85,20 @@ assert(isequal(199,max(cell_array_of_lap_indices{2})));
 assert(isequal(293,max(cell_array_of_lap_indices{3})));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 
 % Plot the results
 if 1==0
-    fig_num = 9901;
-    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+    figNum = 9901;
+    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,figNum);
 end
 
 %% DEMO case: show how a lap is missed if start zone is not big enough, 9th example data
-fig_num = 10002;
+figNum = 10002;
 titleString = sprintf('DEMO case: show how a lap is missed if start zone is not big enough, 9th example data');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 dataSetNumber = 9;
 
@@ -108,7 +116,7 @@ excursion_definition = []; % empty
     start_definition,...
     end_definition,...
     excursion_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -133,19 +141,19 @@ assert(isequal(88,max(cell_array_of_lap_indices{1})));
 assert(isequal(293,max(cell_array_of_lap_indices{2})));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 % Plot the results
 if 1==0
-    fig_num = 9902;
-    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+    figNum = 9902;
+    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,figNum);
 end
 
 %% DEMO case: show the use of segment definition, 9th example data
-fig_num = 10003;
+figNum = 10003;
 titleString = sprintf('DEMO case: show the use of segment definition, 9th example data');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 dataSetNumber = 9;
 
@@ -162,7 +170,7 @@ excursion_definition = []; % empty
     start_definition,...
     end_definition,...
     excursion_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -189,20 +197,20 @@ assert(isequal(199,max(cell_array_of_lap_indices{2})));
 assert(isequal(293,max(cell_array_of_lap_indices{3})));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 % Plot the results
 if 1==0
-    fig_num = 9903;
-    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+    figNum = 9903;
+    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,figNum);
 end
 
 
 %% DEMO case: call the function with 8th example data
-fig_num = 10004;
+figNum = 10004;
 titleString = sprintf('DEMO case: call the function with 8th example data');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 dataSetNumber = 8;
 
@@ -213,7 +221,7 @@ start_definition = [0 -10; 0 10]; % Line segment
 end_definition = [90 0; 110 0]; % Line segment
 excursion_definition = []; % empty
 
-fig_num = 5;
+figNum = 5;
 [cell_array_of_lap_indices, ...
     cell_array_of_entry_indices, cell_array_of_exit_indices] = ...
     fcn_Laps_breakDataIntoLapIndices(...
@@ -221,7 +229,7 @@ fig_num = 5;
     start_definition,...
     end_definition,...
     excursion_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -248,19 +256,19 @@ assert(isequal(261,max(cell_array_of_lap_indices{2})));
 assert(isequal(405,max(cell_array_of_lap_indices{3})));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 % Plot the results
 if 1==0
-    fig_num = 8801;
-    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+    figNum = 8801;
+    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,figNum);
 end
 
 %% DEMO case: call the function to show it operating, 8th data set
-fig_num = 10005;
+figNum = 10005;
 titleString = sprintf('DEMO case: call the function to show it operating, 8th data set');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 dataSetNumber = 8;
 
@@ -278,7 +286,7 @@ excursion_definition = []; % empty
     start_definition,...
     end_definition,...
     excursion_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -305,19 +313,19 @@ assert(isequal(261,max(cell_array_of_lap_indices{2})));
 assert(isequal(405,max(cell_array_of_lap_indices{3})));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 % Plot the results
 if 1==0
-    fig_num = 8802;
-    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+    figNum = 8802;
+    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,figNum);
 end
 
 %% DEMO case: use a new set of laps data, 5th data set
-fig_num = 10006;
+figNum = 10006;
 titleString = sprintf('DEMO case: use a new set of laps data, 5th data set');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 dataSetNumber = 5;
 
@@ -335,7 +343,7 @@ excursion_definition = []; % empty
     start_definition,...
     end_definition,...
     excursion_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -362,19 +370,19 @@ assert(isequal(118,max(cell_array_of_lap_indices{2})));
 assert(isequal(190,max(cell_array_of_lap_indices{3})));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 % Plot the results
 if 1==0
-    fig_num = 5501;
-    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+    figNum = 5501;
+    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,figNum);
 end
 
 %% DEMO case: call the function to show it gives nothing if line segments are backwards, 5th data set
-fig_num = 10007;
+figNum = 10007;
 titleString = sprintf('DEMO case: call the function to show it gives nothing if line segments are backwards, 5th data set');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 dataSetNumber = 5;
 
@@ -392,7 +400,7 @@ excursion_definition = []; % empty
     start_definition,...
     end_definition,...
     excursion_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -412,19 +420,19 @@ assert(isequal(Nlaps,length(cell_array_of_exit_indices)));
 assert(isempty(cell_array_of_lap_indices));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 % Plot the results
 if 1==0
-    fig_num = 5502;
-    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+    figNum = 5502;
+    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,figNum);
 end
 
 %% DEMO case: use a new set of laps data, 6th data set
-fig_num = 10008;
+figNum = 10008;
 titleString = sprintf('DEMO case: use a new set of laps data, 6th data set');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 dataSetNumber = 6;
 
@@ -443,7 +451,7 @@ excursion_definition = []; % empty
     start_definition,...
     end_definition,...
     excursion_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -470,20 +478,20 @@ assert(isequal(190,max(cell_array_of_lap_indices{2})));
 assert(isequal(334,max(cell_array_of_lap_indices{3})));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 
 % Plot the results
 if 1==0
-    fig_num = 6601;
-    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+    figNum = 6601;
+    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,figNum);
 end
 
 %% DEMO case: call the function to show gives weird results if start overlaps path twice
-fig_num = 10009;
+figNum = 10009;
 titleString = sprintf('DEMO case: call the function to show gives weird results if start overlaps path twice');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 dataSetNumber = 6;
 
@@ -501,7 +509,7 @@ excursion_definition = []; % empty
     start_definition,...
     end_definition,...
     excursion_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -532,12 +540,12 @@ for ith_lap = 1:Nlaps
 end
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 % Plot the results
 if 1==0
-    fig_num = 6602;
-    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num);
+    figNum = 6602;
+    INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,figNum);
 end
 
 
@@ -561,10 +569,10 @@ close all;
 fprintf(1,'Figure: 2XXXXXX: TEST mode cases\n');
 
 %% TEST case: This one returns nothing since there is no portion of the path in criteria
-fig_num = 20001;
+figNum = 20001;
 titleString = sprintf('TEST case: This one returns nothing since there is no portion of the path in criteria');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 tempXYdata = [-1 1; 1 1];
 start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
@@ -578,7 +586,7 @@ excursion_definition = [];
     start_definition,...
     end_definition,...
     excursion_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -593,14 +601,14 @@ assert(isequal(Nlaps,length(cell_array_of_exit_indices)));
 assert(isempty(cell_array_of_lap_indices));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 
 %% TEST case: This one returns nothing since there is one point in criteria
-fig_num = 20002;
+figNum = 20002;
 titleString = sprintf('TEST case: This one returns nothing since there is one point in criteria');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 tempXYdata = [-1 1; 0 0; 1 1];
 start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
@@ -614,7 +622,7 @@ excursion_definition = [];
     start_definition,...
     end_definition,...
     excursion_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -629,13 +637,13 @@ assert(isequal(Nlaps,length(cell_array_of_exit_indices)));
 assert(isempty(cell_array_of_lap_indices));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% TEST case: This one returns nothing since there is only two points in criteria
-fig_num = 20003;
+figNum = 20003;
 titleString = sprintf('TEST case: This one returns nothing since there is only two points in criteria');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 tempXYdata = [-1 1; 0 0; 0.1 0; 1 1];
 start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
@@ -649,7 +657,7 @@ excursion_definition = [];
     start_definition,...
     end_definition,...
     excursion_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -664,14 +672,14 @@ assert(isequal(Nlaps,length(cell_array_of_exit_indices)));
 assert(isempty(cell_array_of_lap_indices));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% TEST case: returns nothing since the minimum point is at the start
 % and so there is no strong minimum inside the zone
-fig_num = 20004;
+figNum = 20004;
 titleString = sprintf('TEST case: returns nothing since the minimum point is at the start');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 
 tempXYdata = [-1 1; 0 0; 0.01 0; 0.02 0; 0.03 0; 1 1];
@@ -686,7 +694,7 @@ excursion_definition = [];
     start_definition,...
     end_definition,...
     excursion_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -701,14 +709,14 @@ assert(isequal(Nlaps,length(cell_array_of_exit_indices)));
 assert(isempty(cell_array_of_lap_indices));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% TEST case: returns nothing since the minimum point is at the end
 % and so there is no strong minimum inside the zone
-fig_num = 20005;
+figNum = 20005;
 titleString = sprintf('TEST case: returns nothing since the minimum point is at the end');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 tempXYdata = [-1 1; -0.03 0; -0.02 0; -0.01 0; 0 0; 1 1];
 start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
@@ -722,7 +730,7 @@ excursion_definition = [];
     start_definition,...
     end_definition,...
     excursion_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -737,13 +745,13 @@ assert(isequal(Nlaps,length(cell_array_of_exit_indices)));
 assert(isempty(cell_array_of_lap_indices));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% TEST case: returns nothing since the path doesn't return to start and no end spec given
-fig_num = 20006;
+figNum = 20006;
 titleString = sprintf('TEST case: returns nothing since the path doesn''t return to start and no end spec given');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 tempXYdata = [-1 1; -0.03 0; -0.02 0; 0 0; 0.1 0; 1 1];
 start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
@@ -757,7 +765,7 @@ excursion_definition = [];
     start_definition,...
     end_definition,...
     excursion_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -772,13 +780,13 @@ assert(isequal(Nlaps,length(cell_array_of_exit_indices)));
 assert(isempty(cell_array_of_lap_indices));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% TEST case: returns nothing since the end is incomplete
-fig_num = 20007;
+figNum = 20007;
 titleString = sprintf('TEST case: returns nothing since the end is incomplete');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 
 % Create some data to plot
@@ -800,7 +808,7 @@ excursion_definition = [];
     start_definition,...
     end_definition,...
     excursion_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -815,13 +823,13 @@ assert(isequal(Nlaps,length(cell_array_of_exit_indices)));
 assert(isempty(cell_array_of_lap_indices));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% TEST case: Show that start and end points can overlap by their boundaries
-fig_num = 20008;
+figNum = 20008;
 titleString = sprintf('TEST case: Show that start and end points can overlap by their boundaries');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 
 % Create some data to plot
@@ -843,7 +851,7 @@ excursion_definition = []; % empty
     start_definition,...
     end_definition,...
     excursion_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -866,14 +874,14 @@ assert(isequal(2,min(cell_array_of_lap_indices{1})));
 assert(isequal(20,max(cell_array_of_lap_indices{1})));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 
 %% TEST case: show that the start and end points can be at the absolute ends
-fig_num = 20009;
+figNum = 20009;
 titleString = sprintf('TEST case: show that the start and end points can be at the absolute ends');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 
 % Create some data to plot
@@ -895,7 +903,7 @@ excursion_definition = []; % empty
     start_definition,...
     end_definition,...
     excursion_definition,...
-    fig_num);
+    figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -918,7 +926,7 @@ assert(isequal(1,min(cell_array_of_lap_indices{1})));
 assert(isequal(21,max(cell_array_of_lap_indices{1})));
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% Fast Mode Tests
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -939,9 +947,9 @@ close all;
 fprintf(1,'Figure: 8XXXXXX: FAST mode cases\n');
 
 %% Basic example - NO FIGURE
-fig_num = 80001;
-fprintf(1,'Figure: %.0f: FAST mode, empty fig_num\n',fig_num);
-figure(fig_num); close(fig_num);
+figNum = 80001;
+fprintf(1,'Figure: %.0f: FAST mode, empty figNum\n',figNum);
+figure(figNum); close(figNum);
 
 dataSetNumber = 9;
 
@@ -985,13 +993,13 @@ assert(isequal(293,max(cell_array_of_lap_indices{3})));
 
 % Make sure plot did NOT open up
 figHandles = get(groot, 'Children');
-assert(~any(figHandles==fig_num));
+assert(~any(figHandles==figNum));
 
 
 %% Basic fast mode - NO FIGURE, FAST MODE
-fig_num = 80002;
-fprintf(1,'Figure: %.0f: FAST mode, fig_num=-1\n',fig_num);
-figure(fig_num); close(fig_num);
+figNum = 80002;
+fprintf(1,'Figure: %.0f: FAST mode, figNum=-1\n',figNum);
+figure(figNum); close(figNum);
 
 dataSetNumber = 9;
 
@@ -1035,14 +1043,14 @@ assert(isequal(293,max(cell_array_of_lap_indices{3})));
 
 % Make sure plot did NOT open up
 figHandles = get(groot, 'Children');
-assert(~any(figHandles==fig_num));
+assert(~any(figHandles==figNum));
 
 
 %% Compare speeds of pre-calculation versus post-calculation versus a fast variant
-fig_num = 80003;
-fprintf(1,'Figure: %.0f: FAST mode comparisons\n',fig_num);
-figure(fig_num);
-close(fig_num);
+figNum = 80003;
+fprintf(1,'Figure: %.0f: FAST mode comparisons\n',figNum);
+figure(figNum);
+close(figNum);
 
 dataSetNumber = 9;
 
@@ -1088,7 +1096,7 @@ fast_method = toc;
 
 % Make sure plot did NOT open up
 figHandles = get(groot, 'Children');
-assert(~any(figHandles==fig_num));
+assert(~any(figHandles==figNum));
 
 % Plot results as bar chart
 figure(373737);
@@ -1104,7 +1112,7 @@ ylabel('Execution time (Milliseconds)')
 
 % Make sure plot did NOT open up
 figHandles = get(groot, 'Children');
-assert(~any(figHandles==fig_num));
+assert(~any(figHandles==figNum));
 
 
 %% BUG cases
@@ -1205,8 +1213,8 @@ end
 % See: https://patorjk.com/software/taag/#p=display&f=Big&t=Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%§
 
-function INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,fig_num)
-figure(fig_num);
+function INTERNAL_plot_results(tempXYdata,cell_array_of_entry_indices,cell_array_of_lap_indices,cell_array_of_exit_indices,figNum)
+figure(figNum);
 clf
 
 % Make first subplot

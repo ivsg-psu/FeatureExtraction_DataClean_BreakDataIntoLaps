@@ -133,34 +133,47 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 % This function was written on 2022_04_03 by S. Brennan
 % Questions or comments? sbrennan@psu.edu
 
-% Revision history:
-% 2022_04_03 - sbrennan@psu.edu
-% -- wrote the code originally
-% 2022_04_23 - sbrennan@psu.edu
-% -- added external call to zone calculation function
-% 2022_05_21 - sbrennan@psu.edu
-% -- cleaned up the comments
-% -- fixed bugs in excursion zone flag shutting off code
-% -- fixed bugs in excursion zone and end zone definitions
-% -- fixed scalar comparison in size function of argument check
-% 2022_05_21 - sbrennan@psu.edu
-% -- fixed plotting, made outputs variable argument types
-% 2022_07_11 - sbrennan@psu.edu
-% -- corrected calls to zone function to allow number of points,
-% changed format to allow 3d circles
-% 2022_07_12 - sbrennan@psu.edu
-% -- allow zone definitions based on segments
+% REVISION HISTORY:
+%
+% 2022_04_03 by Sean Brennan, sbrennan@psu.edu
+% - wrote the code originally
+% 
+% 2022_04_23 by Sean Brennan, sbrennan@psu.edu
+% - added external call to zone calculation function
+% 
+% 2022_05_21 by Sean Brennan, sbrennan@psu.edu
+% - cleaned up the comments
+% - fixed bugs in excursion zone flag shutting off code
+% - fixed bugs in excursion zone and end zone definitions
+% - fixed scalar comparison in size function of argument check
+% 
+% 2022_05_21 by Sean Brennan, sbrennan@psu.edu
+% - fixed plotting, made outputs variable argument types
+% 
+% 2022_07_11 by Sean Brennan, sbrennan@psu.edu
+% - corrected calls to zone function to allow number of points,
+%   % changed format to allow 3d circles
+% 
+% 2022_07_12 by Sean Brennan, sbrennan@psu.edu
+% - allow zone definitions based on segments
+% 
 % 2025_04_25 by Sean Brennan
-% -- added global debugging options
-% 2025_07_03 - S. Brennan
-% -- cleanup of Debugging area codes
-% -- turn on fast mode for Path calls
+% - added global debugging options
+% 
+% 2025_07_03 by Sean Brennan, sbrennan@psu.edu
+% - cleanup of Debugging area codes
+% - turn on fast mode for Path calls
+% 
 % 2025_11_12 by Sean Brennan, sbrennan@psu.edu
 % - Cleaned up variable naming:
-%   % * fig_num to figNum
+%   % * figNum to figNum
 
-% TO-DO
-% (none)
+% TO-DO:
+%
+% 2025_11_21 by Sean Brennan, sbrennan@psu.edu
+% - (fill in items here)
+
+
 
 
 

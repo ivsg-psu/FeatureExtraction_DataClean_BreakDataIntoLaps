@@ -54,7 +54,7 @@ function [zone_start_indices, zone_end_indices, zone_min_indices] = ...
 %      zone_center,...
 %      zone_radius,...  
 %      (minimum_number_of_indices_in_zone),...
-%      (fig_num))
+%      (figNum))
 %
 % INPUTS:
 %
@@ -75,7 +75,7 @@ function [zone_start_indices, zone_end_indices, zone_min_indices] = ...
 %      that must consecutively be within a zone, for the zone condition to
 %      be met.
 %
-%      fig_num: a figure number to plot results. If set to -1, skips any
+%      figNum: a figure number to plot results. If set to -1, skips any
 %      input checking or debugging, no figures will be generated, and sets
 %      up code to maximize speed. 
 %
@@ -104,25 +104,33 @@ function [zone_start_indices, zone_end_indices, zone_min_indices] = ...
 % This function was written on 2022_04_08 by S. Brennan
 % Questions or comments? sbrennan@psu.edu 
 
-% Revision history:  
-% 2022_04_08:
-% -- wrote the code originally
-% 2022_07_10:
-% -- improved the comments
-% -- changed zone definition to allow num_points in the zone
-% definition, separating out radius, and allowing 3-D paths
-% 2025_04_25 by Sean Brennan
-% -- added global debugging options
-% 2025_07_03 - S. Brennan
-% -- cleanup of Debugging area codes
-% -- turn on fast mode for Path calls
+% REVISION HISTORY:
+%
+% 2022_04_08 by Sean Brennan, sbrennan@psu.edu
+% - Wrote the code originally
+% 
+% 2022_07_10 by Sean Brennan, sbrennan@psu.edu
+% - Improved the comments
+% - Changed zone definition to allow num_points in the zone
+%   % definition, separating out radius, and allowing 3-D paths
+% 
+% 2025_04_25 by Sean Brennan, sbrennan@psu.edu
+% - Added global debugging options
+% 
+% 2025_07_03 by Sean Brennan, sbrennan@psu.edu
+% - Cleanup of Debugging area codes
+% - Turn on fast mode for Path calls
 
-% TO-DO
-% (none)
+% TO-DO:
+%
+% 2025_11_21 by Sean Brennan, sbrennan@psu.edu
+% - (fill in items here)
+
+
 
 %% Debugging and Input checks
 
-% Check if flag_max_speed set. This occurs if the fig_num variable input
+% Check if flag_max_speed set. This occurs if the figNum variable input
 % argument (varargin) is given a number of -1, which is not a valid figure
 % number.
 MAX_NARGIN = 5; % The largest Number of argument inputs to the function
@@ -148,9 +156,9 @@ end
 if flag_do_debug % If debugging is on, print on entry/exit to the function
     st = dbstack; %#ok<*UNRCH>
     fprintf(1,'STARTING function: %s, in file: %s\n',st(1).name,st(1).file);
-    debug_fig_num = 999978; %#ok<NASGU>
+    debug_figNum = 999978; %#ok<NASGU>
 else
-    debug_fig_num = []; %#ok<NASGU>
+    debug_figNum = []; %#ok<NASGU>
 end
 
 %% check input arguments?
@@ -199,7 +207,7 @@ flag_do_plots = 0; % Default is to NOT show plots
 if (0==flag_max_speed) && (MAX_NARGIN == nargin) 
     temp = varargin{end};
     if ~isempty(temp) % Did the user NOT give an empty figure number?
-        fig_num = temp;
+        figNum = temp;
         flag_do_plots = 1;
     end
 end
@@ -302,7 +310,7 @@ end % Ends if check to see if zones are empty
 if flag_do_plots
 
     % Prep the figure for plotting
-    temp_h = figure(fig_num);
+    temp_h = figure(figNum);
     flag_rescale_axis = 0;
     if isempty(get(temp_h,'Children'))
         flag_rescale_axis = 1;
@@ -375,7 +383,7 @@ if flag_do_plots
     plot(query_path(:,1),query_path(:,2),'b.-','Markersize',10,'LineWidth',3,'MarkerSize',20, 'DisplayName','Path');
     
     % Plot the zone definition in green
-    h_plot = fcn_Laps_plotPointZoneDefinition([zone_radius 3 zone_center],'g',fig_num);
+    h_plot = fcn_Laps_plotPointZoneDefinition([zone_radius 3 zone_center],'g',figNum);
     set(h_plot{1},'DisplayName','Zone center');
     set(h_plot{2},'DisplayName','Zone boundary');
     

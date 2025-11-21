@@ -5,13 +5,13 @@ function laps_array = fcn_Laps_fillSampleLaps(varargin)
 %
 % FORMAT:
 %
-%       laps_array = fcn_Laps_fillSampleLaps((fig_num))
+%       laps_array = fcn_Laps_fillSampleLaps((figNum))
 %
 % INPUTS:
 %
 %     (optional inputs)
 %
-%      fig_num: a figure number to plot results. If set to -1, skips any
+%      figNum: a figure number to plot results. If set to -1, skips any
 %      input checking or debugging, no figures will be generated, and sets
 %      up code to maximize speed. 
 %
@@ -34,31 +34,42 @@ function laps_array = fcn_Laps_fillSampleLaps(varargin)
 % This function was written on 2022_04_02 by S. Brennan
 % Questions or comments? sbrennan@psu.edu
 
-% Revision history:
-% 2022_04_02
-% -- wrote the code, started with circle and figure 8 laps
-% 2022_04_03
-% -- added teardrop laps, manual lap
-% 2022_07_23
-% -- typo fix in script name in comments
-% 2025_04_27 by Sean Brennan
-% -- added figure number optional input
-% -- added plotting
-% 2025_04_27 by Sean Brennan
-% -- added global debugging options
-% 2025_07_02 by Sean Brennan
-% -- updated Path library calls to use paths, not traversals
-% -- updated docstrings
-% 2025_07_03 - S. Brennan
-% -- cleanup of Debugging area codes
-% -- turn on fast mode for Path calls
+% REVISION HISTORY:
+%
+% 2022_04_02 by Sean Brennan, sbrennan@psu.edu
+% - wrote the code, started with circle and figure 8 laps
+% 
+% 2022_04_03 by Sean Brennan, sbrennan@psu.edu
+% - added teardrop laps, manual lap
+% 
+% 2022_07_23 by Sean Brennan, sbrennan@psu.edu
+% - typo fix in script name in comments
+% 
+% 2025_04_27 by Sean Brennan, sbrennan@psu.edu
+% - added figure number optional input
+% - added plotting
+% 
+% 2025_04_27 by Sean Brennan, sbrennan@psu.edu
+% - added global debugging options
+% 
+% 2025_07_02 by Sean Brennan, sbrennan@psu.edu
+% - updated Path library calls to use paths, not traversals
+% - updated docstrings
+% 
+% 2025_07_03 by Sean Brennan, sbrennan@psu.edu
+% - cleanup of Debugging area codes
+% - turn on fast mode for Path calls
 
-% TO-DO
-% (none)
+% TO-DO:
+%
+% 2025_11_21 by Sean Brennan, sbrennan@psu.edu
+% - (fill in items here)
+
+
 
 %% Debugging and Input checks
 
-% Check if flag_max_speed set. This occurs if the fig_num variable input
+% Check if flag_max_speed set. This occurs if the figNum variable input
 % argument (varargin) is given a number of -1, which is not a valid figure
 % number.
 MAX_NARGIN = 1; % The largest Number of argument inputs to the function
@@ -84,9 +95,9 @@ end
 if flag_do_debug % If debugging is on, print on entry/exit to the function
     st = dbstack; %#ok<*UNRCH>
     fprintf(1,'STARTING function: %s, in file: %s\n',st(1).name,st(1).file);
-    debug_fig_num = 999978; %#ok<NASGU>
+    debug_figNum = 999978; %#ok<NASGU>
 else
-    debug_fig_num = []; %#ok<NASGU>
+    debug_figNum = []; %#ok<NASGU>
 end
 
 %% check input arguments?
@@ -113,7 +124,7 @@ flag_do_plots = 0; % Default is to NOT show plots
 if (0==flag_max_speed) && (MAX_NARGIN == nargin) 
     temp = varargin{end};
     if ~isempty(temp) % Did the user NOT give an empty figure number?
-        fig_num = temp;
+        figNum = temp;
         flag_do_plots = 1;
     end
 end
@@ -236,12 +247,12 @@ end
 % user to read the instructions!
 if 1==0  
     
-    fig_num = 1;
+    figNum = 1;
     clf;
     grid on;
     axis equal
     axis(1.5*[-radius radius -radius radius]);
-    % h = figure(fig_num);
+    % h = figure(figNum);
     hold on;
     
     % Figure out how many paths we are created
@@ -274,7 +285,7 @@ if 1==0
         % Save the results
         set(gcf,'UserData',UserData);
         
-        pathXY = fcn_Path_fillPathViaUserInputs(fig_num);
+        pathXY = fcn_Path_fillPathViaUserInputs(figNum);
         manual_laps_array{i_path} = pathXY;
 
         % show results to screen
@@ -625,7 +636,7 @@ laps_array{end+1} = [
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flag_do_plots
     % Prep a figure
-    figure(fig_num);
+    figure(figNum);
     clf;
 
     tiledlayout('flow');

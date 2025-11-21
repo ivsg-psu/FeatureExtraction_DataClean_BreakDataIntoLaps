@@ -1,11 +1,19 @@
 % script_test_fcn_Laps_plotZoneDefinition.m.m
 % Tests fcn_Laps_plotZoneDefinition.m.m
        
-% Revision history:
-% 2022_07_23
-% -- first write of the code, based on fcn_Laps_plotSegmentZoneDefinition.m
-% 2025_07_03 - S. Brennan, sbrennan@psu.edu
-% -- standardized headers on all test scripts
+% REVISION HISTORY:
+%
+% 2022_07_23 by Sean Brennan, sbrennan@psu.edu
+% - first write of the code, based on fcn_Laps_plotSegmentZoneDefinition.m
+% 
+% 2025_07_03 by Sean Brennan, sbrennan@psu.edu
+% - standardized headers on all test scripts
+
+% TO-DO:
+%
+% 2025_11_21 by Sean Brennan, sbrennan@psu.edu
+% - (fill in items here)
+
 
 %% Set up the workspace
 close all
@@ -29,10 +37,10 @@ close all;
 fprintf(1,'Figure: 1XXXXXX: DEMO cases\n');
 
 %% DEMO case: Basic demo
-fig_num = 10001;
+figNum = 10001;
 titleString = sprintf('DEMO case: Basic demo');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 % Fill in some working data
 segment_zone_definition = [1 2; 3 4]; % Starts at 1,2 and ends at 3,4
@@ -43,13 +51,13 @@ axis([-5 5 -5 5]);
 sgtitle(titleString, 'Interpreter','none');
 
 % Make sure plot opened up
-assert(~isequal(get(gcf,'Number'),fig_num));
+assert(~isequal(get(gcf,'Number'),figNum));
 
 %% DEMO case: Show default point zone 
-fig_num = 10002;
+figNum = 10002;
 titleString = sprintf('DEMO case: Show default point zone');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 
 zone_center = [-1 2];
@@ -57,56 +65,56 @@ num_points = 3;
 zone_radius = 2;
 point_zone_definition = [zone_radius num_points zone_center];
 
-fcn_Laps_plotZoneDefinition(point_zone_definition, [], fig_num);
+fcn_Laps_plotZoneDefinition(point_zone_definition, [], figNum);
 axis([-5 5 -5 5]);
 
 sgtitle(titleString, 'Interpreter','none');
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% DEMO case: Show that can set the color segment zone
-fig_num = 10003;
+figNum = 10003;
 titleString = sprintf('DEMO case: Show that can set the color segment zone');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 % Fill in some working data
 segment_zone_definition = [1 2; 3 4]; % Starts at 1,2 and ends at 3,4
 
-fcn_Laps_plotZoneDefinition(segment_zone_definition,'r', fig_num);
+fcn_Laps_plotZoneDefinition(segment_zone_definition,'r', figNum);
 axis([-5 5 -5 5]);
 
 sgtitle(titleString, 'Interpreter','none');
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% DEMO case: Show that can set the color point zone
-fig_num = 10004;
+figNum = 10004;
 titleString = sprintf('DEMO case: Show that can set the color point zone');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 zone_center = [-1 2];
 num_points = 3;
 zone_radius = 2;
 point_zone_definition = [zone_radius num_points zone_center];
 
-fcn_Laps_plotZoneDefinition(point_zone_definition,'r', fig_num);
+fcn_Laps_plotZoneDefinition(point_zone_definition,'r', figNum);
 axis([-5 5 -5 5]);
 
 sgtitle(titleString, 'Interpreter','none');
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 
 %% DEMO case: Specify zone, style, and figure
-fig_num = 10005;
+figNum = 10005;
 titleString = sprintf('DEMO case: Specify zone, style, and figure');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 % Fill in some working data
 segment_zone_definition = [1 2; 3 4]; % Starts at 1,2 and ends at 3,4
@@ -118,21 +126,21 @@ point_zone_definition = [zone_radius num_points zone_center];
 
 
 plot_style = 'g-';
-fcn_Laps_plotZoneDefinition(point_zone_definition,plot_style,fig_num);
-fcn_Laps_plotZoneDefinition(segment_zone_definition,plot_style,fig_num);
+fcn_Laps_plotZoneDefinition(point_zone_definition,plot_style,figNum);
+fcn_Laps_plotZoneDefinition(segment_zone_definition,plot_style,figNum);
 axis([-5 5 -5 5]);
 
 sgtitle(titleString, 'Interpreter','none');
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 
 %% DEMO case: Show that can set the figure without specifying plot color
-fig_num = 10006;
+figNum = 10006;
 titleString = sprintf('DEMO case: Show that can set the figure without specifying plot color');
-fprintf(1,'Figure %.0f: %s\n',fig_num, titleString);
-figure(fig_num); clf;
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
 
 
 % Fill in some working data
@@ -145,14 +153,14 @@ point_zone_definition = [zone_radius num_points zone_center];
 
 
 % leave the plot style empty
-fcn_Laps_plotZoneDefinition(segment_zone_definition,[],fig_num);
-fcn_Laps_plotZoneDefinition(point_zone_definition,[],fig_num);
+fcn_Laps_plotZoneDefinition(segment_zone_definition,[],figNum);
+fcn_Laps_plotZoneDefinition(point_zone_definition,[],figNum);
 axis([-5 5 -5 5]);
 
 sgtitle(titleString, 'Interpreter','none');
 
 % Make sure plot opened up
-assert(isequal(get(gcf,'Number'),fig_num));
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% Fast Mode Tests
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -173,9 +181,9 @@ close all;
 fprintf(1,'Figure: 8XXXXXX: FAST mode cases (there are no fast modes for plotting functions) \n');
 % 
 % %% Basic example - NO FIGURE
-% fig_num = 80001;
-% fprintf(1,'Figure: %.0f: FAST mode, empty fig_num\n',fig_num);
-% figure(fig_num); close(fig_num);
+% figNum = 80001;
+% fprintf(1,'Figure: %.0f: FAST mode, empty figNum\n',figNum);
+% figure(figNum); close(figNum);
 % 
 % dataSetNumber = 9;
 % 
@@ -219,13 +227,13 @@ fprintf(1,'Figure: 8XXXXXX: FAST mode cases (there are no fast modes for plottin
 % 
 % % Make sure plot did NOT open up
 % figHandles = get(groot, 'Children');
-% assert(~any(figHandles==fig_num));
+% assert(~any(figHandles==figNum));
 % 
 % 
 % %% Basic fast mode - NO FIGURE, FAST MODE
-% fig_num = 80002;
-% fprintf(1,'Figure: %.0f: FAST mode, fig_num=-1\n',fig_num);
-% figure(fig_num); close(fig_num);
+% figNum = 80002;
+% fprintf(1,'Figure: %.0f: FAST mode, figNum=-1\n',figNum);
+% figure(figNum); close(figNum);
 % 
 % dataSetNumber = 9;
 % 
@@ -269,14 +277,14 @@ fprintf(1,'Figure: 8XXXXXX: FAST mode cases (there are no fast modes for plottin
 % 
 % % Make sure plot did NOT open up
 % figHandles = get(groot, 'Children');
-% assert(~any(figHandles==fig_num));
+% assert(~any(figHandles==figNum));
 % 
 % 
 % %% Compare speeds of pre-calculation versus post-calculation versus a fast variant
-% fig_num = 80003;
-% fprintf(1,'Figure: %.0f: FAST mode comparisons\n',fig_num);
-% figure(fig_num);
-% close(fig_num);
+% figNum = 80003;
+% fprintf(1,'Figure: %.0f: FAST mode comparisons\n',figNum);
+% figure(figNum);
+% close(figNum);
 % 
 % dataSetNumber = 9;
 % 
@@ -322,7 +330,7 @@ fprintf(1,'Figure: 8XXXXXX: FAST mode cases (there are no fast modes for plottin
 % 
 % % Make sure plot did NOT open up
 % figHandles = get(groot, 'Children');
-% assert(~any(figHandles==fig_num));
+% assert(~any(figHandles==figNum));
 % 
 % % Plot results as bar chart
 % figure(373737);
@@ -338,7 +346,7 @@ fprintf(1,'Figure: 8XXXXXX: FAST mode cases (there are no fast modes for plottin
 % 
 % % Make sure plot did NOT open up
 % figHandles = get(groot, 'Children');
-% assert(~any(figHandles==fig_num));
+% assert(~any(figHandles==figNum));
 
 
 %% BUG cases

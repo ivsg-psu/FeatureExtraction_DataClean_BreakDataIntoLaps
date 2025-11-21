@@ -10,7 +10,7 @@ function h_plot = fcn_Laps_plotSegmentZoneDefinition(zone_definition,varargin)
 %
 % FORMAT: 
 %
-%       h_plot = fcn_Laps_plotSegmentZoneDefinition(zone_definition, (plot_style), (fig_num))
+%       h_plot = fcn_Laps_plotSegmentZoneDefinition(zone_definition, (plot_style), (figNum))
 %
 % INPUTS:
 %
@@ -24,7 +24,7 @@ function h_plot = fcn_Laps_plotSegmentZoneDefinition(zone_definition,varargin)
 %      plot_style: the standard plot pecification style allowing line and
 %      color, for example 'r-'. Type "help plot" for a listing of options.
 %
-%      fig_num: a figure number to plot results. If set to -1, skips any
+%      figNum: a figure number to plot results. If set to -1, skips any
 %      input checking or debugging, no figures will be generated, and sets
 %      up code to maximize speed. 
 %
@@ -44,26 +44,35 @@ function h_plot = fcn_Laps_plotSegmentZoneDefinition(zone_definition,varargin)
 % This function was written on 2022_04_10 by S. Brennan
 % Questions or comments? sbrennan@psu.edu 
 
-% Revision history:
-% 2022_04_10
-% -- wrote the code
-% 2022_04_12
-% -- fixed minor bug with showing the arrowhead
-% 2022_07_23
-% -- fixed minor bug with arrow being different color than line segment
-% -- fixed major bug with arrow being in the wrong direction (!)
-% 2025_04_25 by Sean Brennan
-% -- added global debugging options
-% 2025_07_03 - S. Brennan
-% -- cleanup of Debugging area codes
-% -- turn on fast mode for Path calls
+% REVISION HISTORY:
+%
+% 2022_04_10 by Sean Brennan, sbrennan@psu.edu
+% - wrote the code
+% 
+% 2022_04_12 by Sean Brennan, sbrennan@psu.edu
+% - fixed minor bug with showing the arrowhead
+% 
+% 2022_07_23 by Sean Brennan, sbrennan@psu.edu
+% - fixed minor bug with arrow being different color than line segment
+% - fixed major bug with arrow being in the wrong direction (!)
+% 
+% 2025_04_25 by Sean Brennan, sbrennan@psu.edu
+% - added global debugging options
+% 
+% 2025_07_03 by Sean Brennan, sbrennan@psu.edu
+% - cleanup of Debugging area codes
+% - turn on fast mode for Path calls
 
-% TO-DO
-% (none)
+% TO-DO:
+%
+% 2025_11_21 by Sean Brennan, sbrennan@psu.edu
+% - (fill in items here)
+
+
 
 %% Debugging and Input checks
 
-% Check if flag_max_speed set. This occurs if the fig_num variable input
+% Check if flag_max_speed set. This occurs if the figNum variable input
 % argument (varargin) is given a number of -1, which is not a valid figure
 % number.
 MAX_NARGIN = 3; % The largest Number of argument inputs to the function
@@ -89,9 +98,9 @@ end
 if flag_do_debug % If debugging is on, print on entry/exit to the function
     st = dbstack; %#ok<*UNRCH>
     fprintf(1,'STARTING function: %s, in file: %s\n',st(1).name,st(1).file);
-    debug_fig_num = 999978; %#ok<NASGU>
+    debug_figNum = 999978; %#ok<NASGU>
 else
-    debug_fig_num = []; %#ok<NASGU>
+    debug_figNum = []; %#ok<NASGU>
 end
 
 %% check input arguments?
@@ -128,19 +137,19 @@ if 2 <= nargin
 end
 
 % Does user want to show the plots?
-fig_num = [];
+figNum = [];
 flag_do_plots = 0; % Default is to NOT show plots
 if (0==flag_max_speed) && (MAX_NARGIN == nargin) 
     temp = varargin{end};
     if ~isempty(temp) % Did the user NOT give an empty figure number?
-        fig_num = temp;
+        figNum = temp;
         flag_do_plots = 1;
     end
 end
 
-if isempty(fig_num)
+if isempty(figNum)
     temp_h = figure;
-    fig_num = temp_h.Number;
+    figNum = temp_h.Number;
 end
 
 %% Main code
@@ -179,7 +188,7 @@ vector_with_magnitude = unit_direction*magnitude/2; % Use smaller ratio to make 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flag_do_plots
     % Prep the figure for plotting
-    temp_h = figure(fig_num);
+    temp_h = figure(figNum);
     flag_rescale_axis = 0;
     if isempty(get(temp_h,'Children'))
         flag_rescale_axis = 1;
