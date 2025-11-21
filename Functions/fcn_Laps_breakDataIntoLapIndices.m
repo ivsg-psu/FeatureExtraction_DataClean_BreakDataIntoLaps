@@ -69,7 +69,7 @@ function varargout = fcn_Laps_breakDataIntoLapIndices(...
 %            start_zone_definition,...
 %            (end_zone_definition),...
 %            (excursion_zone_definition),...
-%            (fig_num));
+%            (figNum));
 %
 % INPUTS:
 %
@@ -104,7 +104,7 @@ function varargout = fcn_Laps_breakDataIntoLapIndices(...
 %      start and end conditions. If not specified, then no excursion point
 %      is used. The same type is used as the start_definition.
 %
-%      fig_num: a figure number to plot results.
+%      figNum: a figure number to plot results.
 %
 % OUTPUTS:
 %
@@ -136,23 +136,31 @@ function varargout = fcn_Laps_breakDataIntoLapIndices(...
 % This function was written on 2022_07_23 by S. Brennan
 % Questions or comments? sbrennan@psu.edu
 
-% Revision history:
-% 2022_07_23 - sbrennan@psu.edu
-% -- wrote the code originally, using breakDataIntoLaps as starter
-% 2025_04_25 by Sean Brennan
-% -- added global debugging options
-% 2025_07_03 - S. Brennan
-% -- cleanup of Debugging area codes
-% -- turn on fast mode for Path calls
-% 2025_07_05 - S. Brennan
-% -- fixed poorly constructed input area (bad copy)
+% REVISION HISTORY:
+%
+% 2022_07_23 by Sean Brennan, sbrennan@psu.edu
+% - wrote the code originally, using breakDataIntoLaps as starter
+% 
+% 2025_04_25 by Sean Brennan, sbrennan@psu.edu
+% - added global debugging options
+% 
+% 2025_07_03 by Sean Brennan, sbrennan@psu.edu
+% - cleanup of Debugging area codes
+% - turn on fast mode for Path calls
+% 
+% 2025_07_05 by Sean Brennan, sbrennan@psu.edu
+% - fixed poorly constructed input area (bad copy)
 
-% TO-DO
-% (none)
+% TO-DO:
+%
+% 2025_11_21 by Sean Brennan, sbrennan@psu.edu
+% - (fill in items here)
+
+
 
 %% Debugging and Input checks
 
-% Check if flag_max_speed set. This occurs if the fig_num variable input
+% Check if flag_max_speed set. This occurs if the figNum variable input
 % argument (varargin) is given a number of -1, which is not a valid figure
 % number.
 MAX_NARGIN = 5; % The largest Number of argument inputs to the function
@@ -178,9 +186,9 @@ end
 if flag_do_debug % If debugging is on, print on entry/exit to the function
     st = dbstack; %#ok<*UNRCH>
     fprintf(1,'STARTING function: %s, in file: %s\n',st(1).name,st(1).file);
-    debug_fig_num = 999978; 
+    debug_figNum = 999978; 
 else
-    debug_fig_num = []; 
+    debug_figNum = []; 
 end
 
 %% check input arguments?
@@ -244,7 +252,7 @@ flag_do_plots = 0; % Default is to NOT show plots
 if (0==flag_max_speed) && (MAX_NARGIN == nargin) 
     temp = varargin{end};
     if ~isempty(temp) % Did the user NOT give an empty figure number?
-        fig_num = temp;
+        figNum = temp;
         flag_do_plots = 1;
     end
 end
@@ -694,7 +702,7 @@ end
 if flag_do_plots
     
     % plot the final XY result
-    figure(fig_num);
+    figure(figNum);
     clf;
     
     % Everything put together
@@ -755,7 +763,7 @@ if flag_do_plots
         end
         cellArrayOfPathsToPlot{ith_lap+1,1} = dummy_path;
     end
-    h = fcn_Laps_plotLapsXY(cellArrayOfPathsToPlot,fig_num);
+    h = fcn_Laps_plotLapsXY(cellArrayOfPathsToPlot,figNum);
     
     % Make input be thin line
     set(h(1),'Color',[0 0 0],'Marker','none','Linewidth', 0.75);
@@ -799,10 +807,10 @@ if flag_do_plots
     %     set(h_legend,'AutoUpdate','off');
     
     % Plot start zone
-    h_start_zone = fcn_Laps_plotZoneDefinition(start_zone_definition,'g-',fig_num);
+    h_start_zone = fcn_Laps_plotZoneDefinition(start_zone_definition,'g-',figNum);
 
     % Plot end zone
-    h_end_zone = fcn_Laps_plotZoneDefinition(end_zone_definition,'r-',fig_num);
+    h_end_zone = fcn_Laps_plotZoneDefinition(end_zone_definition,'r-',figNum);
 
     
 end
