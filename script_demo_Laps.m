@@ -81,7 +81,12 @@
 % - Updated rev list on files to standard format
 % - Replaced all fig+_num with figNum
 % (new release)
-
+%
+% 2026_02_10 by Sean Brennan, sbrennan@psu.edu
+% - In script_demo_Laps
+%   % * Added check if repo is ready for release
+%   % * Removed script_test_all_functions
+% (new release)
 
 % TO-DO:
 % - 2025_11_12 by Sean Brennan, sbrennan@psu.edu
@@ -191,6 +196,13 @@ setenv('MATLABFLAG_PLOTROAD_REFERENCE_ALTITUDE','344.189');
 % plotting data
 setenv('MATLABFLAG_PLOTROAD_ALIGNMATLABLLAPLOTTINGIMAGES_LAT','-0.0000008');
 setenv('MATLABFLAG_PLOTROAD_ALIGNMATLABLLAPLOTTINGIMAGES_LON','0.0000054');
+
+%% Check if repo is ready for release
+if 1==0
+	figNum = 999999;
+	repoShortName = '_Laps_';
+	fcn_DebugTools_testRepoForRelease(repoShortName, (figNum));
+end
 
 %% Start of Demo Code
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
