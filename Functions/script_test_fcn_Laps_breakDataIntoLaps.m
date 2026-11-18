@@ -34,6 +34,12 @@
 %   %   % matches the input rows
 %   % * fcn_INTERNAL_loadExampleXYZData uses deterministic Z values
 %   % * Demo 10001 now checks the legend labels
+%   % * Converted calls to Name=Value optional inputs
+%   % * Speed comparison now also times input checks turned off by
+%   %   % the MATLABFLAG_LAPS_FLAG_CHECK_INPUTS environment variable
+%   % * Added tests 20010 (options in any order) and 20011 (option-name
+%   %   % matching: partial and lower-case names are accepted, misspelled
+%   %   % names error, old positional calls are rejected)
 
 % TO-DO:
 %
@@ -80,9 +86,9 @@ excursion_definition = []; % empty
 [lap_cellArrayOfPaths, entry_traversal, exit_traversal] = fcn_Laps_breakDataIntoLaps(...
     tempXYdata,...
     start_definition,...
-    end_definition,...
-    excursion_definition,...
-    (figNum));
+    EndZone=end_definition,...
+    ExcursionZone=excursion_definition,...
+    FigNum=figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -119,7 +125,7 @@ end
 if 1==0
     % Plot the lap traversals (should have 3)
     figNum = 1101;
-    fcn_Laps_plotLapsXY(lap_cellArrayOfPaths,(figNum));
+    fcn_Laps_plotLapsXY(lap_cellArrayOfPaths,FigNum=figNum);
 end
 
 
@@ -142,9 +148,9 @@ excursion_definition = []; % empty
 [lap_cellArrayOfPaths, entry_traversal, exit_traversal] = fcn_Laps_breakDataIntoLaps(...
     tempXYdata,...
     start_definition,...
-    end_definition,...
-    excursion_definition,...
-    (figNum));
+    EndZone=end_definition,...
+    ExcursionZone=excursion_definition,...
+    FigNum=figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -171,19 +177,19 @@ if 1==0
     figNum = 333;
     figure(figNum);
     subplot(1,3,1);
-    fcn_Laps_plotLapsXY(lap_cellArrayOfPaths,(figNum));
+    fcn_Laps_plotLapsXY(lap_cellArrayOfPaths,FigNum=figNum);
     axis_limits = axis;
     title('All laps');
 
     subplot(1,3,2);
     single_lap.traversal{1} = entry_traversal;
-    fcn_Laps_plotLapsXY(single_lap,(figNum));
+    fcn_Laps_plotLapsXY(single_lap,FigNum=figNum);
     axis(axis_limits); % Inheret axis limits from main laps plot
     title('Entry segment');
 
     subplot(1,3,3);
     single_lap.traversal{1} = exit_traversal;
-    fcn_Laps_plotLapsXY(single_lap,(figNum));
+    fcn_Laps_plotLapsXY(single_lap,FigNum=figNum);
     axis(axis_limits); % Inheret axis limits from main laps plot
     title('Exit segment');    
 end
@@ -207,9 +213,9 @@ excursion_definition = []; % empty
 [lap_cellArrayOfPaths, entry_traversal, exit_traversal] = fcn_Laps_breakDataIntoLaps(...
     tempXYdata,...
     start_definition,...
-    end_definition,...
-    excursion_definition,...
-    (figNum));
+    EndZone=end_definition,...
+    ExcursionZone=excursion_definition,...
+    FigNum=figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -231,7 +237,7 @@ assert(isequal(get(gcf,'Number'),figNum));
 if 1==0
     % Plot the lap traversals (should have 2)
     figNum = 444;
-    fcn_Laps_plotLapsXY(lap_cellArrayOfPaths,(figNum));
+    fcn_Laps_plotLapsXY(lap_cellArrayOfPaths,FigNum=figNum);
 end
 
 %% DEMO case: Show the use of segment definition
@@ -253,9 +259,9 @@ excursion_definition = []; % empty
 [lap_cellArrayOfPaths, entry_traversal, exit_traversal] = fcn_Laps_breakDataIntoLaps(...
     tempXYdata,...
     start_definition,...
-    end_definition,...
-    excursion_definition,...
-    (figNum));
+    EndZone=end_definition,...
+    ExcursionZone=excursion_definition,...
+    FigNum=figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -278,7 +284,7 @@ assert(isequal(get(gcf,'Number'),figNum));
 if 1==0
     % Plot the lap traversals (should have 2)
     figNum = 5555;
-    fcn_Laps_plotLapsXY(lap_cellArrayOfPaths,(figNum));
+    fcn_Laps_plotLapsXY(lap_cellArrayOfPaths,FigNum=figNum);
 end
 
 %% Check assertions for basic path operations and function testing
@@ -468,9 +474,7 @@ start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
 [lap_cellArrayOfPaths, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLaps(...
     input_path,...
     start_definition,...
-    [],...
-    [],...
-    (figNum));
+    FigNum=figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -511,9 +515,7 @@ start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
 [lap_cellArrayOfPaths, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLaps(...
     input_path,...
     start_definition,...
-    [],...
-    [],...
-    (figNum));
+    FigNum=figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -556,9 +558,8 @@ end_definition = [0.5 3 0.5 0]; % Located at [0.5,0] with radius 0.5, 3 points
 [lap_cellArrayOfPaths, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLaps(...
     input_path,...
     start_definition,...
-    end_definition,...
-    [],...
-    (figNum));
+    EndZone=end_definition,...
+    FigNum=figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -600,9 +601,8 @@ end_definition = [0.5 3 1 0]; % Located at [1,0] with radius 0.5, 3 points
 [lap_cellArrayOfPaths, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLaps(...
     input_path,...
     start_definition,...
-    end_definition,...
-    [],...
-    (figNum));
+    EndZone=end_definition,...
+    FigNum=figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -639,9 +639,9 @@ excursion_definition = []; % empty
 [lap_cellArrayOfPaths, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLaps(...
     tempXYZdata,...
     start_definition,...
-    end_definition,...
-    excursion_definition,...
-    (figNum));
+    EndZone=end_definition,...
+    ExcursionZone=excursion_definition,...
+    FigNum=figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -671,9 +671,9 @@ end
 [lap2D_cellArrayOfPaths, entry2D, exit2D] = fcn_Laps_breakDataIntoLaps(...
     tempXYZdata(:,1:2),...
     start_definition,...
-    end_definition,...
-    excursion_definition,...
-    -1);
+    EndZone=end_definition,...
+    ExcursionZone=excursion_definition,...
+    FigNum=-1);
 assert(isequal(Nlaps,length(lap2D_cellArrayOfPaths)));
 for ith_lap = 1:Nlaps
     assert(isequal(lap_cellArrayOfPaths{ith_lap}(:,1:2), lap2D_cellArrayOfPaths{ith_lap}));
@@ -691,6 +691,84 @@ assert(isequal(size(exit_traversal,1), size(exit2D,1)));
 assert(isequal(get(gcf,'Number'),figNum));
 
 
+
+
+%% TEST case: Name=Value options can be given in any order
+figNum = 20010;
+titleString = sprintf('TEST case: Name=Value options can be given in any order');
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); close(figNum);
+
+dataSetNumber = 9;
+tempXYdata = fcn_INTERNAL_loadExampleXYData(dataSetNumber);
+start_definition = [10 3 0 0]; % Radius 10, 3 points must pass near [0,0]
+end_definition = [30 3 0 -60]; % Radius 30, 3 points must pass near [0,-60]
+
+[lapsInOneOrder, entryInOneOrder, exitInOneOrder] = fcn_Laps_breakDataIntoLaps(...
+    tempXYdata,...
+    start_definition,...
+    EndZone=end_definition,...
+    FigNum=-1);
+[lapsInOtherOrder, entryInOtherOrder, exitInOtherOrder] = fcn_Laps_breakDataIntoLaps(...
+    tempXYdata,...
+    start_definition,...
+    FigNum=-1,...
+    EndZone=end_definition);
+
+% Same results either way
+assert(isequal(lapsInOneOrder, lapsInOtherOrder));
+assert(isequal(entryInOneOrder, entryInOtherOrder));
+assert(isequal(exitInOneOrder, exitInOtherOrder));
+
+% Make sure plot did NOT open up
+figHandles = get(groot, 'Children');
+assert(~any(figHandles==figNum));
+
+%% TEST case: How option names are matched, and old positional calls are rejected
+figNum = 20011;
+titleString = sprintf('TEST case: How option names are matched, and old positional calls are rejected');
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); close(figNum);
+
+dataSetNumber = 9;
+tempXYdata = fcn_INTERNAL_loadExampleXYData(dataSetNumber);
+start_definition = [10 3 0 0]; % Radius 10, 3 points must pass near [0,0]
+end_definition = [30 3 0 -60]; % Radius 30, 3 points must pass near [0,-60]
+
+% Reference result using the full option name
+lapsWithFullName = fcn_Laps_breakDataIntoLaps(tempXYdata, start_definition, EndZone=end_definition, FigNum=-1);
+
+% NOTE: MATLAB arguments blocks match option names case-insensitively and
+% accept unambiguous partial names, and this cannot be turned off. So
+% EndZon= and endzone= are both read as EndZone=. Use full, correctly cased
+% names by convention. These checks document that behavior.
+lapsWithPartialName = fcn_Laps_breakDataIntoLaps(tempXYdata, start_definition, EndZon=end_definition, FigNum=-1);
+assert(isequal(lapsWithFullName, lapsWithPartialName));
+lapsWithLowerCaseName = fcn_Laps_breakDataIntoLaps(tempXYdata, start_definition, endzone=end_definition, FigNum=-1);
+assert(isequal(lapsWithFullName, lapsWithLowerCaseName));
+
+% A misspelled name that is not the start of any option name is an error,
+% even in fast mode, because the arguments block always checks option names
+didError = false;
+try
+    fcn_Laps_breakDataIntoLaps(tempXYdata, start_definition, EndZoen=end_definition, FigNum=-1);
+catch
+    didError = true;
+end
+assert(didError);
+
+% The old positional style for optional inputs is no longer accepted
+didError = false;
+try
+    fcn_Laps_breakDataIntoLaps(tempXYdata, start_definition, end_definition, [], -1);
+catch
+    didError = true;
+end
+assert(didError);
+
+% Make sure plot did NOT open up
+figHandles = get(groot, 'Children');
+assert(~any(figHandles==figNum));
 
 
 %% Fast Mode Tests
@@ -728,9 +806,9 @@ excursion_definition = []; % empty
 [lap_cellArrayOfPaths, entry_traversal, exit_traversal] = fcn_Laps_breakDataIntoLaps(...
     tempXYdata,...
     start_definition,...
-    end_definition,...
-    excursion_definition,...
-    ([]));
+    EndZone=end_definition,...
+    ExcursionZone=excursion_definition,...
+    FigNum=[]);
 
 % Check variable types
 assert(iscell(lap_cellArrayOfPaths));
@@ -768,9 +846,9 @@ excursion_definition = []; % empty
 [lap_cellArrayOfPaths, entry_traversal, exit_traversal] = fcn_Laps_breakDataIntoLaps(...
     tempXYdata,...
     start_definition,...
-    end_definition,...
-    excursion_definition,...
-    (-1));
+    EndZone=end_definition,...
+    ExcursionZone=excursion_definition,...
+    FigNum=-1);
 
 % Check variable types
 assert(iscell(lap_cellArrayOfPaths));
@@ -816,9 +894,9 @@ for ith_test = 1:Niterations
     [lap_cellArrayOfPaths, entry_traversal, exit_traversal] = fcn_Laps_breakDataIntoLaps(...
         tempXYdata,...
         start_definition,...
-        end_definition,...
-        excursion_definition,...
-        ([]));
+        EndZone=end_definition,...
+        ExcursionZone=excursion_definition,...
+        FigNum=[]);
 
 end
 slow_method = toc;
@@ -830,12 +908,40 @@ for ith_test = 1:Niterations
     [lap_cellArrayOfPaths, entry_traversal, exit_traversal] = fcn_Laps_breakDataIntoLaps(...
         tempXYdata,...
         start_definition,...
-        end_definition,...
-        excursion_definition,...
-        (-1));
+        EndZone=end_definition,...
+        ExcursionZone=excursion_definition,...
+        FigNum=-1);
 
 end
 fast_method = toc;
+
+% Do calculation with input checks turned off by environment variable.
+% The code reads these variables only when both are set. Save the user's
+% settings and restore them afterward, even if a call errors.
+old_check_inputs = getenv("MATLABFLAG_LAPS_FLAG_CHECK_INPUTS");
+old_do_debug     = getenv("MATLABFLAG_LAPS_FLAG_DO_DEBUG");
+setenv("MATLABFLAG_LAPS_FLAG_CHECK_INPUTS","0");
+setenv("MATLABFLAG_LAPS_FLAG_DO_DEBUG","0");
+try
+    tic;
+    for ith_test = 1:Niterations
+        % Call the function
+        [lap_cellArrayOfPaths, entry_traversal, exit_traversal] = fcn_Laps_breakDataIntoLaps(...
+            tempXYdata,...
+            start_definition,...
+            EndZone=end_definition,...
+            ExcursionZone=excursion_definition,...
+            FigNum=[]);
+
+    end
+    env_method = toc;
+catch ME
+    setenv("MATLABFLAG_LAPS_FLAG_CHECK_INPUTS",old_check_inputs);
+    setenv("MATLABFLAG_LAPS_FLAG_DO_DEBUG",old_do_debug);
+    rethrow(ME);
+end
+setenv("MATLABFLAG_LAPS_FLAG_CHECK_INPUTS",old_check_inputs);
+setenv("MATLABFLAG_LAPS_FLAG_DO_DEBUG",old_do_debug);
 
 % Make sure plot did NOT open up
 figHandles = get(groot, 'Children');
@@ -846,11 +952,13 @@ figure(373737);
 clf;
 hold on;
 
-X = categorical({'Normal mode','Fast mode'});
-X = reordercats(X,{'Normal mode','Fast mode'}); % Forces bars to appear in this exact order, not alphabetized
-Y = [slow_method fast_method ]*1000/Niterations;
+barLabels = {'Normal mode','Checks off (environment variable)','Fast mode (FigNum=-1)'};
+X = categorical(barLabels);
+X = reordercats(X,barLabels); % Forces bars to appear in this exact order, not alphabetized
+Y = [slow_method env_method fast_method]*1000/Niterations;
 bar(X,Y)
 ylabel('Execution time (Milliseconds)')
+fprintf(1,'Average time per call (ms): normal %.3f, checks off by environment variable %.3f, fast mode %.3f\n',Y(1),Y(2),Y(3));
 
 
 % Make sure plot did NOT open up
@@ -927,7 +1035,7 @@ if 1==0
     [lap_cellArrayOfPaths, input_and_exit_traversals] = fcn_Laps_breakDataIntoLaps(...
         single_lap.traversal{1},...
         start_definition,...
-        end_definition); 
+        EndZone=end_definition); 
     
     %% Warning because excursion_definition is 3D not 2D
     % Excursion_zone definition is a 3D point [radius num_points X Y Z]
@@ -938,8 +1046,8 @@ if 1==0
     [lap_cellArrayOfPaths, input_and_exit_traversals] = fcn_Laps_breakDataIntoLaps(...
         single_lap.traversal{1},...
         start_definition,...
-        end_definition,...
-        excursion_definition); 
+        EndZone=end_definition,...
+        ExcursionZone=excursion_definition); 
 end
 
 %% Functions follow
@@ -957,7 +1065,7 @@ end
 %% fcn_INTERNAL_loadExampleData
 function tempXYdata = fcn_INTERNAL_loadExampleXYData(dataSetNumber)
 % Call the function to fill in an array of "path" type
-laps_array = fcn_Laps_fillSampleLaps(-1);
+laps_array = fcn_Laps_fillSampleLaps(FigNum=-1);
 
 % Use the last data
 tempXYdata = laps_array{dataSetNumber};
@@ -967,7 +1075,7 @@ end % Ends fcn_INTERNAL_loadExampleData
 %% fcn_INTERNAL_loadExampleXYZData
 function tempXYZdata = fcn_INTERNAL_loadExampleXYZData(dataSetNumber)
 % Call the function to fill in an array of "path" type
-laps_array = fcn_Laps_fillSampleLaps(-1);
+laps_array = fcn_Laps_fillSampleLaps(FigNum=-1);
 
 % Use the last data
 tempXYdata = laps_array{dataSetNumber};

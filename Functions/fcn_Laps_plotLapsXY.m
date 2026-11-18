@@ -1,4 +1,4 @@
-function cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(cellArrayOfPaths,varargin)
+function cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(cellArrayOfPaths, options)
 % fcn_Laps_plotLapsXY
 % Plots the XY positions of a set of laps, each given as a path. This is a
 % modified version of fcn_Path_plotTraversalsXY from the "Path" library of
@@ -7,7 +7,10 @@ function cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(cellArrayOfPaths,varargin)
 %
 % FORMAT:
 %
-%       cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(cellArrayOfPaths,(figNum))
+%       cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(cellArrayOfPaths, (FigNum=figNum))
+%
+%      Optional inputs are given as Name=Value pairs after the required
+%      inputs, in any order. Any option not given takes its default.
 %
 % INPUTS:
 %
@@ -17,9 +20,9 @@ function cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(cellArrayOfPaths,varargin)
 %      coordinates, in sequence, of a path. Only X and Y are plotted.
 %      Empty cells are allowed and produce an empty (NaN) line.
 %
-%     (optional inputs)
+%     (OPTIONAL INPUTS, given as Name=Value pairs)
 %
-%      figNum: a figure number to plot into. If empty or omitted, plots
+%      FigNum: a figure number to plot into. If empty or omitted, plots
 %      into the current figure (creating one if none exists). If set to
 %      -1, input checking is skipped and the plot also goes into the
 %      current figure.
@@ -76,6 +79,13 @@ function cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(cellArrayOfPaths,varargin)
 %   % * Added DisplayName to each line; start/end markers are hidden
 %   %   % from legends
 %   % * Replaced tab indentation with spaces
+%   % * Changed optional inputs from positional arguments to Name=Value
+%   %   % pairs, declared in a bare arguments block (names and defaults
+%   %   % only). Clean break: positional optional inputs no longer work.
+%   %   % Option names: FigNum
+%   % * Fast mode is now FigNum=-1. Input checks are still gated by fast
+%   %   % mode and MATLABFLAG_LAPS_FLAG_CHECK_INPUTS, as before
+%   % * narginchk removed; the arguments block checks the input count
 
 % TO-DO:
 %
@@ -85,14 +95,22 @@ function cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(cellArrayOfPaths,varargin)
 
 
 
+% Declare the inputs. This block only names the inputs and sets the
+% option defaults: it has no class, size, or validator checks, so it
+% adds little time to each call. The real input checks are in the
+% gated section below, which can be skipped with FigNum=-1 or with
+% the MATLABFLAG_LAPS_FLAG_CHECK_INPUTS environment variable.
+arguments
+    cellArrayOfPaths
+    options.FigNum = [] % Figure to plot into; [] for current figure, -1 for fast mode
+end
+
 %% Debugging and Input checks
 
-% Check if flag_max_speed set. This occurs if the figNum variable input
-% argument (varargin) is given a number of -1, which is not a valid figure
-% number.
-MAX_NARGIN = 2; % The largest Number of argument inputs to the function
+% Check if flag_max_speed set. This occurs if the FigNum option is given
+% a value of -1, which is not a valid figure number.
 flag_max_speed = 0; % The default. This runs code with all error checking
-if (nargin==MAX_NARGIN && isequal(varargin{end},-1))
+if isequal(options.FigNum,-1)
     flag_do_debug = 0; % % % % Flag to plot the results for debugging
     flag_check_inputs = 0; % Flag to perform input checking
     flag_max_speed = 1;
@@ -132,8 +150,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if 0==flag_max_speed
     if flag_check_inputs
-        % Are there the right number of inputs?
-        narginchk(1,MAX_NARGIN);
+        % The number of inputs and the option names are checked by the
+        % arguments block above
 
         % Check the cellArrayOfPaths input
         if ~iscell(cellArrayOfPaths)
@@ -150,8 +168,8 @@ end
 % Which figure to plot into? Plotting is the purpose of this function, so
 % it always plots: into the given figure, or else into the current figure.
 figNum = []; % Default is to use the current figure
-if (0==flag_max_speed) && (MAX_NARGIN == nargin)
-    temp = varargin{end};
+if (0==flag_max_speed)
+    temp = options.FigNum;
     if ~isempty(temp) % Did the user NOT give an empty figure number?
         figNum = temp;
     end

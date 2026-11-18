@@ -2,8 +2,8 @@ function [zone_start_indices, zone_end_indices, zone_min_indices] = ...
     fcn_Laps_findPointZoneStartStopAndMinimum(...
     query_path,...
     zone_center,...
-    zone_radius,...    
-    varargin)
+    zone_radius,...
+    options)
 
 % fcn_Laps_findPointZoneStartStopAndMinimum
 % Given a path and a point zone definition defined by a point center and
@@ -53,8 +53,11 @@ function [zone_start_indices, zone_end_indices, zone_min_indices] = ...
 %      query_path,...
 %      zone_center,...
 %      zone_radius,...  
-%      (minimum_number_of_indices_in_zone),...
-%      (figNum))
+%      (MinPointsInZone=minimum_number_of_indices_in_zone),...
+%      (FigNum=figNum))
+%
+%      Optional inputs are given as Name=Value pairs after the required
+%      inputs, in any order. Any option not given takes its default.
 %
 % INPUTS:
 %
@@ -70,13 +73,13 @@ function [zone_start_indices, zone_end_indices, zone_min_indices] = ...
 %
 %      zone_radius: a scalar specifying the radius of the zone. 
 % 
-%      (OPTIONAL INPUTS)
+%      (OPTIONAL INPUTS, given as Name=Value pairs)
 %
-%      minimum_number_of_indices_in_zone: the number of points in a path
-%      that must consecutively be within a zone, for the zone condition to
-%      be met.
+%      MinPointsInZone: the number of points in a path that must
+%      consecutively be within a zone, for the zone condition to be met.
+%      Default is 3.
 %
-%      figNum: a figure number to plot results. If set to -1, skips any
+%      FigNum: a figure number to plot results. If set to -1, skips any
 %      input checking or debugging, no figures will be generated, and sets
 %      up code to maximize speed. 
 %
@@ -133,6 +136,13 @@ function [zone_start_indices, zone_end_indices, zone_min_indices] = ...
 %   %   % Previously 3 columns passed the check but crashed later in the
 %   %   % distance calculation and plotting.
 %   % * Updated zone_center description in header to match
+%   % * Changed optional inputs from positional arguments to Name=Value
+%   %   % pairs, declared in a bare arguments block (names and defaults
+%   %   % only). Clean break: positional optional inputs no longer work.
+%   %   % Option names: MinPointsInZone, FigNum
+%   % * Fast mode is now FigNum=-1. Input checks are still gated by fast
+%   %   % mode and MATLABFLAG_LAPS_FLAG_CHECK_INPUTS, as before
+%   % * narginchk removed; the arguments block checks the input count
 
 % TO-DO:
 %
@@ -141,14 +151,25 @@ function [zone_start_indices, zone_end_indices, zone_min_indices] = ...
 
 
 
+% Declare the inputs. This block only names the inputs and sets the
+% option defaults: it has no class, size, or validator checks, so it
+% adds little time to each call. The real input checks are in the
+% gated section below, which can be skipped with FigNum=-1 or with
+% the MATLABFLAG_LAPS_FLAG_CHECK_INPUTS environment variable.
+arguments
+    query_path
+    zone_center
+    zone_radius
+    options.MinPointsInZone = 3 % Consecutive points needed inside the zone
+    options.FigNum = []         % Figure to plot into; [] for no plot, -1 for fast mode
+end
+
 %% Debugging and Input checks
 
-% Check if flag_max_speed set. This occurs if the figNum variable input
-% argument (varargin) is given a number of -1, which is not a valid figure
-% number.
-MAX_NARGIN = 5; % The largest Number of argument inputs to the function
+% Check if flag_max_speed set. This occurs if the FigNum option is given
+% a value of -1, which is not a valid figure number.
 flag_max_speed = 0; % The default. This runs code with all error checking
-if (nargin==MAX_NARGIN && isequal(varargin{end},-1))
+if isequal(options.FigNum,-1)
     flag_do_debug = 0; % % % % Flag to plot the results for debugging
     flag_check_inputs = 0; % Flag to perform input checking
     flag_max_speed = 1;
@@ -188,8 +209,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if 0==flag_max_speed
     if flag_check_inputs
-        % Are there the right number of inputs?
-        narginchk(3,MAX_NARGIN);
+        % The number of inputs and the option names are checked by the
+        % arguments block above
 
         % Check the query_path input, 2 columns, 1 or more rows
         fcn_DebugTools_checkInputsToFunctions(query_path, '2column_of_numbers',[1 2]);
@@ -203,22 +224,20 @@ if 0==flag_max_speed
     end
 end
        
-% Check for variable argument inputs (varargin)
-minimum_number_of_indices_in_zone = 3; % Set default value
-if 4 <= nargin
-    temp = varargin{1};
-    if ~isempty(temp)
-        minimum_number_of_indices_in_zone = temp;
-        if flag_check_inputs
-            fcn_DebugTools_checkInputsToFunctions(minimum_number_of_indices_in_zone, 'positive_1column_of_integers',1);
-        end
+% Read the optional Name=Value inputs (options)
+minimum_number_of_indices_in_zone = 3; % Default, also used if the caller passes MinPointsInZone=[]
+temp = options.MinPointsInZone;
+if ~isempty(temp)
+    minimum_number_of_indices_in_zone = temp;
+    if flag_check_inputs
+        fcn_DebugTools_checkInputsToFunctions(minimum_number_of_indices_in_zone, 'positive_1column_of_integers',1);
     end
 end
 
 % Does user want to show the plots?
 flag_do_plots = 0; % Default is to NOT show plots
-if (0==flag_max_speed) && (MAX_NARGIN == nargin) 
-    temp = varargin{end};
+if (0==flag_max_speed)
+    temp = options.FigNum;
     if ~isempty(temp) % Did the user NOT give an empty figure number?
         figNum = temp;
         flag_do_plots = 1;
@@ -396,7 +415,7 @@ if flag_do_plots
     plot(query_path(:,1),query_path(:,2),'b.-','Markersize',10,'LineWidth',3,'MarkerSize',20, 'DisplayName','Path');
     
     % Plot the zone definition in green
-    h_plot = fcn_Laps_plotPointZoneDefinition([zone_radius minimum_number_of_indices_in_zone zone_center],'g',figNum);
+    h_plot = fcn_Laps_plotPointZoneDefinition([zone_radius minimum_number_of_indices_in_zone zone_center],PlotStyle='g',FigNum=figNum);
     set(h_plot{1},'DisplayName','Zone center');
     set(h_plot{2},'DisplayName','Zone boundary');
     

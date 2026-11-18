@@ -1,17 +1,20 @@
-function laps_array = fcn_Laps_fillSampleLaps(varargin)
+function laps_array = fcn_Laps_fillSampleLaps(options)
 % fcn_Laps_fillSampleLaps
 % Produces dummy data to test lap functions. Note: can go into the function
 % and change flag to allow user-selected paths.
 %
 % FORMAT:
 %
-%       laps_array = fcn_Laps_fillSampleLaps((figNum))
+%       laps_array = fcn_Laps_fillSampleLaps((FigNum=figNum))
+%
+%      Optional inputs are given as Name=Value pairs after the required
+%      inputs, in any order. Any option not given takes its default.
 %
 % INPUTS:
 %
-%     (optional inputs)
+%     (OPTIONAL INPUTS, given as Name=Value pairs)
 %
-%      figNum: a figure number to plot results. If set to -1, skips any
+%      FigNum: a figure number to plot results. If set to -1, skips any
 %      input checking or debugging, no figures will be generated, and sets
 %      up code to maximize speed. 
 %
@@ -59,6 +62,16 @@ function laps_array = fcn_Laps_fillSampleLaps(varargin)
 % 2025_07_03 by Sean Brennan, sbrennan@psu.edu
 % - cleanup of Debugging area codes
 % - turn on fast mode for Path calls
+%
+% 2026_11_18 by Sean Brennan, sbrennan@psu.edu
+% - In fcn_Laps_fillSampleLaps
+%   % * Changed optional inputs from positional arguments to Name=Value
+%   %   % pairs, declared in a bare arguments block (names and defaults
+%   %   % only). Clean break: positional optional inputs no longer work.
+%   %   % Option names: FigNum
+%   % * Fast mode is now FigNum=-1. Input checks are still gated by fast
+%   %   % mode and MATLABFLAG_LAPS_FLAG_CHECK_INPUTS, as before
+%   % * narginchk removed; the arguments block checks the input count
 
 % TO-DO:
 %
@@ -67,14 +80,21 @@ function laps_array = fcn_Laps_fillSampleLaps(varargin)
 
 
 
+% Declare the inputs. This block only names the inputs and sets the
+% option defaults: it has no class, size, or validator checks, so it
+% adds little time to each call. The real input checks are in the
+% gated section below, which can be skipped with FigNum=-1 or with
+% the MATLABFLAG_LAPS_FLAG_CHECK_INPUTS environment variable.
+arguments
+    options.FigNum = [] % Figure to plot into; [] for no plot, -1 for fast mode
+end
+
 %% Debugging and Input checks
 
-% Check if flag_max_speed set. This occurs if the figNum variable input
-% argument (varargin) is given a number of -1, which is not a valid figure
-% number.
-MAX_NARGIN = 1; % The largest Number of argument inputs to the function
+% Check if flag_max_speed set. This occurs if the FigNum option is given
+% a value of -1, which is not a valid figure number.
 flag_max_speed = 0; % The default. This runs code with all error checking
-if (nargin==MAX_NARGIN && isequal(varargin{end},-1))
+if isequal(options.FigNum,-1)
     flag_do_debug = 0; % % % % Flag to plot the results for debugging
     flag_check_inputs = 0; % Flag to perform input checking
     flag_max_speed = 1;
@@ -114,15 +134,15 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if 0==flag_max_speed
     if flag_check_inputs
-        % Are there the right number of inputs?
-        narginchk(0,MAX_NARGIN);
+        % The number of inputs and the option names are checked by the
+        % arguments block above
     end
 end
 
 % Does user want to show the plots?
 flag_do_plots = 0; % Default is to NOT show plots
-if (0==flag_max_speed) && (MAX_NARGIN == nargin) 
-    temp = varargin{end};
+if (0==flag_max_speed)
+    temp = options.FigNum;
     if ~isempty(temp) % Did the user NOT give an empty figure number?
         figNum = temp;
         flag_do_plots = 1;

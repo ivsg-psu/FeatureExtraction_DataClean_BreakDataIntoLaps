@@ -11,6 +11,12 @@
 % 
 % 2025_07_03 by Sean Brennan, sbrennan@psu.edu
 % - standardized headers on all test scripts
+%
+% 2026_11_18 by Sean Brennan, sbrennan@psu.edu
+% - In script_test_fcn_Laps_fillSampleLaps
+%   % * Converted calls to Name=Value optional inputs
+%   % * Speed comparison now also times input checks turned off by
+%   %   % the MATLABFLAG_LAPS_FLAG_CHECK_INPUTS environment variable
 
 % TO-DO:
 %
@@ -47,7 +53,7 @@ figure(figNum); clf;
 
 
 % Call the function to fill in an array of "path" type
-laps_array = fcn_Laps_fillSampleLaps((figNum));
+laps_array = fcn_Laps_fillSampleLaps(FigNum=figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -88,7 +94,7 @@ fprintf(1,'Figure: %.0f: FAST mode, empty figNum\n',figNum);
 figure(figNum); close(figNum);
 
 % Call the function to fill in an array of "path" type
-laps_array = fcn_Laps_fillSampleLaps(([]));
+laps_array = fcn_Laps_fillSampleLaps(FigNum=[]);
 
 assert(iscell(laps_array));
 % Check variable types
@@ -111,7 +117,7 @@ fprintf(1,'Figure: %.0f: FAST mode, figNum=-1\n',figNum);
 figure(figNum); close(figNum);
 
 % Call the function to fill in an array of "path" type
-laps_array = fcn_Laps_fillSampleLaps((-1));
+laps_array = fcn_Laps_fillSampleLaps(FigNum=-1);
 
 assert(iscell(laps_array));
 % Check variable types
@@ -140,7 +146,7 @@ Niterations = 20;
 tic;
 for ith_test = 1:Niterations
     % Call the function
-    laps_array = fcn_Laps_fillSampleLaps(([]));
+    laps_array = fcn_Laps_fillSampleLaps(FigNum=[]);
 end
 slow_method = toc;
 
@@ -148,9 +154,31 @@ slow_method = toc;
 tic;
 for ith_test = 1:Niterations
     % Call the function
-    laps_array = fcn_Laps_fillSampleLaps((-1));
+    laps_array = fcn_Laps_fillSampleLaps(FigNum=-1);
 end
 fast_method = toc;
+
+% Do calculation with input checks turned off by environment variable.
+% The code reads these variables only when both are set. Save the user's
+% settings and restore them afterward, even if a call errors.
+old_check_inputs = getenv("MATLABFLAG_LAPS_FLAG_CHECK_INPUTS");
+old_do_debug     = getenv("MATLABFLAG_LAPS_FLAG_DO_DEBUG");
+setenv("MATLABFLAG_LAPS_FLAG_CHECK_INPUTS","0");
+setenv("MATLABFLAG_LAPS_FLAG_DO_DEBUG","0");
+try
+    tic;
+    for ith_test = 1:Niterations
+        % Call the function
+        laps_array = fcn_Laps_fillSampleLaps(FigNum=[]);
+    end
+    env_method = toc;
+catch ME
+    setenv("MATLABFLAG_LAPS_FLAG_CHECK_INPUTS",old_check_inputs);
+    setenv("MATLABFLAG_LAPS_FLAG_DO_DEBUG",old_do_debug);
+    rethrow(ME);
+end
+setenv("MATLABFLAG_LAPS_FLAG_CHECK_INPUTS",old_check_inputs);
+setenv("MATLABFLAG_LAPS_FLAG_DO_DEBUG",old_do_debug);
 
 % Make sure plot did NOT open up
 figHandles = get(groot, 'Children');
@@ -161,11 +189,13 @@ figure(373737);
 clf;
 hold on;
 
-X = categorical({'Normal mode','Fast mode'});
-X = reordercats(X,{'Normal mode','Fast mode'}); % Forces bars to appear in this exact order, not alphabetized
-Y = [slow_method fast_method ]*1000/Niterations;
+barLabels = {'Normal mode','Checks off (environment variable)','Fast mode (FigNum=-1)'};
+X = categorical(barLabels);
+X = reordercats(X,barLabels); % Forces bars to appear in this exact order, not alphabetized
+Y = [slow_method env_method fast_method]*1000/Niterations;
 bar(X,Y)
 ylabel('Execution time (Milliseconds)')
+fprintf(1,'Average time per call (ms): normal %.3f, checks off by environment variable %.3f, fast mode %.3f\n',Y(1),Y(2),Y(3));
 
 
 % Make sure plot did NOT open up

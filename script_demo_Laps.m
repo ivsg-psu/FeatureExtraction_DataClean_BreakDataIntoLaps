@@ -40,7 +40,7 @@
 % 2023_02_01 by Sean Brennan, sbrennan@psu.edu
 % - Enable web-based installs
 % 
-% 205_04_25 by Sean Brennan, sbrennan@psu.edu
+% 2025_04_25 by Sean Brennan, sbrennan@psu.edu
 % - Updated header structure to enable global flagging from main script
 % - Added global flags for setting test conditions and plotting in fcns
 % - Updated DebugTools_v2024_12_18 dependency
@@ -212,9 +212,28 @@
 % - In the script_test_fcn_Laps_plot* and breakDataIntoLaps tests
 %   % * Tightened handle assertions; added no-figNum, -1, row-cell,
 %   %   % legend, and true 3D (N x 3) test cases
-%
-% (new release)
-%
+% - In all fcn_Laps_ functions (pilot for the other repos)
+%   % * Changed optional inputs from positional arguments to Name=Value
+%   %   % pairs, declared in a bare arguments block that only names the
+%   %   % inputs and sets defaults. Input checks stay in the gated section
+%   %   % and are skipped with FigNum=-1 or with the
+%   %   % MATLABFLAG_LAPS_FLAG_CHECK_INPUTS environment variable.
+%   % * Clean break: positional optional inputs no longer work. Option
+%   %   % names are EndZone, ExcursionZone, MinPointsInZone, PlotStyle,
+%   %   % and FigNum. MATLAB accepts partial and lower-case option names;
+%   %   % write full names by convention
+%   % * Fixed the point zone format in the comments ([radius num_points X Y])
+%   % * Fixed 2025_04_25 date typo in this revision history
+% - In README.md
+%   % * Dependencies are installed from GitHub, not included in the repo
+%   % * Corrected zone formats, lap boundaries, input types, and MATLAB
+%   %   % version; fixed table of contents, links, and image paths
+%   % * Added release notes
+% - In script_demo_Laps and all test scripts
+%   % * Converted all calls to the Name=Value style
+%   % * Speed comparisons also time checks turned off by environment
+%   %   % variable
+
 
 % TO-DO:
 % - 2025_11_12 by Sean Brennan, sbrennan@psu.edu
@@ -291,10 +310,11 @@ disp('Welcome to the demo code for the Laps library!')
 % excursion is defined by "passing by" a point. For example, if a journey
 % is said to start at someone's house and go to someone's office, then the
 % location of the house and office define the start and end of the journey.
-% The specification is given by an X,Y location and a radius in the form of
-% [X Y radius], as a 3x1 matrix. Whenever the path passes within the radius
-% with a specified number of points within that radius, the minimum
-% distance point then "triggers" the zone.
+% The specification is given as a 1x4 row in the form
+% [radius num_points X Y], where X,Y is the center of the zone. The zone is
+% activated when the path passes within the radius with at least
+% num_points consecutive points inside it. A lap starts at the first point
+% inside a start zone, and ends at the last point inside an end zone.
 % * Line segment methods of zone definitions - this when a start, stop, or
 % excursion condition is defined by a path passing through a line segment.
 % The line segment is given by the X,Y coordinates of the start and stop of
@@ -320,7 +340,7 @@ path_examples{2} = [1*ones_full_steps full_steps];
 
 % Plot the results via fcn_Laps_plotLapsXY
 figNum = 222;
-fcn_Laps_plotLapsXY(path_examples,figNum);
+fcn_Laps_plotLapsXY(path_examples,FigNum=figNum);
 
 %%
 % Now, use a zone plotting tool to show the point and line-segment types of
@@ -334,18 +354,18 @@ zone_center = [0.8 0];
 zone_radius = 2;
 num_points = 3;
 point_zone_definition = [zone_radius num_points zone_center];
-fcn_Laps_plotPointZoneDefinition(point_zone_definition,'g',figNum);
+fcn_Laps_plotPointZoneDefinition(point_zone_definition,PlotStyle='g',FigNum=figNum);
 
 segment_zone_definition = [0.8 0; 1.2 0];
-fcn_Laps_plotSegmentZoneDefinition(segment_zone_definition,'b',figNum);
+fcn_Laps_plotSegmentZoneDefinition(segment_zone_definition,PlotStyle='b',FigNum=figNum);
 
 
 %%
 % Show we can get the same plot now via a combined function
 
 figNum = 4443;
-fcn_Laps_plotZoneDefinition(point_zone_definition,'g',figNum);
-fcn_Laps_plotZoneDefinition(segment_zone_definition,'b',figNum);
+fcn_Laps_plotZoneDefinition(point_zone_definition,PlotStyle='g',FigNum=figNum);
+fcn_Laps_plotZoneDefinition(segment_zone_definition,PlotStyle='b',FigNum=figNum);
 
 %% Point zone evaluations
 % The function, fcn_Laps_findPointZoneStartStopAndMinimum, uses a point
@@ -361,11 +381,10 @@ zone_center = [0 0]; % Located at [0,0]
 zone_radius = 0.2; % with radius 0.2
 [zone_start_indices, zone_end_indices, zone_min_indices] = ...
     fcn_Laps_findPointZoneStartStopAndMinimum(...
-    query_path,...
-    zone_center,...
-    zone_radius,...
-    [],...
-    figNum);
+        query_path,...
+        zone_center,...
+        zone_radius,...
+        FigNum=figNum);
 
 assert(isempty(zone_start_indices));
 assert(isempty(zone_end_indices));
@@ -384,11 +403,10 @@ zone_center = [0 0]; % Located at [0,0]
 zone_radius = 0.2; % with radius 0.2
 [zone_start_indices, zone_end_indices, zone_min_indices] = ...
     fcn_Laps_findPointZoneStartStopAndMinimum(...
-    query_path,...
-    zone_center,...
-    zone_radius,...
-    [],...
-    figNum);
+        query_path,...
+        zone_center,...
+        zone_radius,...
+        FigNum=figNum);
 
 assert(isempty(zone_start_indices));
 assert(isempty(zone_end_indices));
@@ -403,11 +421,10 @@ zone_center = [0.05 0]; % Located at [0.05,0]
 zone_radius = 0.23; % with radius 0.23
 [zone_start_indices, zone_end_indices, zone_min_indices] = ...
     fcn_Laps_findPointZoneStartStopAndMinimum(...
-    query_path,...
-    zone_center,...
-    zone_radius,...
-    [],...
-    figNum);
+        query_path,...
+        zone_center,...
+        zone_radius,...
+        FigNum=figNum);
 
 assert(isempty(zone_start_indices));
 assert(isempty(zone_end_indices));
@@ -426,11 +443,10 @@ zone_center = [-0.02 0]; % Located at [-0.02,0]
 zone_radius = 0.2; % with radius 0.2
 [zone_start_indices, zone_end_indices, zone_min_indices] = ...
     fcn_Laps_findPointZoneStartStopAndMinimum(...
-    query_path,...
-    zone_center,...
-    zone_radius,...
-    [],...
-    figNum);
+        query_path,...
+        zone_center,...
+        zone_radius,...
+        FigNum=figNum);
 
 assert(isequal(zone_start_indices,9));
 assert(isequal(zone_end_indices,11));
@@ -457,11 +473,11 @@ zone_center = [0.05 0]; % Located at [0.05,0]
 zone_radius = 0.23;
 [zone_start_indices, zone_end_indices, zone_min_indices] = ...
     fcn_Laps_findPointZoneStartStopAndMinimum(...
-    query_path,...
-    zone_center,...
-    zone_radius,...
-    minimum_number_of_indices_in_zone,...
-    figNum);
+        query_path,...
+        zone_center,...
+        zone_radius,...
+        MinPointsInZone=minimum_number_of_indices_in_zone,...
+        FigNum=figNum);
 
 assert(isequal(zone_start_indices,[10; 30]));
 assert(isequal(zone_end_indices,  [13; 33]));
@@ -481,21 +497,21 @@ laps_array = fcn_Laps_fillSampleLaps;
 figNum = 22323;
 for ith_example = 1:length(laps_array)
     single_lap = laps_array{ith_example};
-    fcn_Laps_plotLapsXY({single_lap},figNum);
+    fcn_Laps_plotLapsXY({single_lap},FigNum=figNum);
 end
 
 % Plot all the laps at once
 figNum = 22324;
-fcn_Laps_plotLapsXY(laps_array,figNum);
+fcn_Laps_plotLapsXY(laps_array,FigNum=figNum);
 
 %% Show fcn_Laps_plotZoneDefinition.m
 % Plots the zone, allowing user-defined colors. For example, the figure
 % below shows a radial zone for the start, and a line segment for the end.
 start_definition = [10 3 0 0]; % Radius 10, 3 points must pass near [0 0]
-fcn_Laps_plotZoneDefinition(start_definition,'g',figNum);
+fcn_Laps_plotZoneDefinition(start_definition,PlotStyle='g',FigNum=figNum);
 
 end_definition = [40 -40; 80 -40]; % must cross a line segment starting at [40 -40], ending at [80 -40]
-fcn_Laps_plotZoneDefinition(end_definition,'r',figNum);
+fcn_Laps_plotZoneDefinition(end_definition,PlotStyle='r',FigNum=figNum);
 
 %% Call the fcn_Laps_breakDataIntoLaps function, plot in figure 2
 % Test of fcn_Laps_breakDataIntoLaps.m : This is the core function for this
@@ -510,9 +526,9 @@ figNum = 2;
 lap_traversals = fcn_Laps_breakDataIntoLaps(...
     laps_array{1},...
     start_definition,...
-    end_definition,...
-    excursion_definition,...
-    figNum);
+    EndZone=end_definition,...
+    ExcursionZone=excursion_definition,...
+    FigNum=figNum);
 
 % Do we get 3 laps?
 assert(isequal(3,length(lap_traversals)));
@@ -527,7 +543,7 @@ figure(figNum); clf;
 dataSetNumber = 9;
 
 % Load some test data by calling the function to fill in an array of "path" type
-laps_array = fcn_Laps_fillSampleLaps(-1);
+laps_array = fcn_Laps_fillSampleLaps(FigNum=-1);
 
 % Use the last data
 tempXYdata = laps_array{dataSetNumber};
@@ -539,9 +555,9 @@ excursion_definition = []; % empty
 [lap_cellArrayOfPaths, entry_traversal, exit_traversal] = fcn_Laps_breakDataIntoLaps(...
     tempXYdata,...
     start_definition,...
-    end_definition,...
-    excursion_definition,...
-    figNum);
+    EndZone=end_definition,...
+    ExcursionZone=excursion_definition,...
+    FigNum=figNum);
 
 
 % Check variable types

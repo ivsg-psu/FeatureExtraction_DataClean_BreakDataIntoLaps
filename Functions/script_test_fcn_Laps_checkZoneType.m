@@ -16,6 +16,9 @@
 %   % * Standardized header comments into current convention
 %   % * Variable renaming to avoid underscores
 %   % * Added tests for the plot handle cell array outputs
+%   % * Converted calls to Name=Value optional inputs
+%   % * Speed comparison now also times input checks turned off by
+%   %   % the MATLABFLAG_LAPS_FLAG_CHECK_INPUTS environment variable
 
 % TO-DO:
 %
@@ -54,7 +57,7 @@ figure(figNum); clf;
 
 zoneDefinition = [2 3 0 0]; % Radius of 2, 3 points, centered at 0 0
 [flag_start_is_a_point_type, output_start_zone_definition] = ...
-    fcn_Laps_checkZoneType(zoneDefinition, 'start_definition', figNum);
+    fcn_Laps_checkZoneType(zoneDefinition, 'start_definition', FigNum=figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -76,7 +79,7 @@ figure(figNum); clf;
 
 zoneDefinition = [2 3; 0 0]; % starts at 2 3, ends at 0 0
 [flag_start_is_a_point_type, output_start_zone_definition] = ...
-    fcn_Laps_checkZoneType(zoneDefinition, 'start_definition', figNum);
+    fcn_Laps_checkZoneType(zoneDefinition, 'start_definition', FigNum=figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -113,7 +116,7 @@ figure(figNum); close(figNum);
 
 zoneDefinition = [2 3 0 0]; % Radius of 2, 3 points, centered at 0 0
 [flag_start_is_a_point_type, output_start_zone_definition] = ...
-    fcn_Laps_checkZoneType(zoneDefinition, 'start_definition', []);
+    fcn_Laps_checkZoneType(zoneDefinition, 'start_definition', FigNum=[]);
 
 % Make sure its type is correct
 assert(isequal(1,flag_start_is_a_point_type))
@@ -133,7 +136,7 @@ figure(figNum); close(figNum);
 
 zoneDefinition = [2 3 0 0]; % Radius of 2, 3 points, centered at 0 0
 [flag_start_is_a_point_type, output_start_zone_definition] = ...
-    fcn_Laps_checkZoneType(zoneDefinition, 'start_definition', -1);
+    fcn_Laps_checkZoneType(zoneDefinition, 'start_definition', FigNum=-1);
 
 % Make sure its type is correct
 assert(isequal(1,flag_start_is_a_point_type))
@@ -161,7 +164,7 @@ tic;
 for ith_test = 1:Niterations
     % Call the function
     [flag_start_is_a_point_type, output_start_zone_definition] = ...
-        fcn_Laps_checkZoneType(zoneDefinition, 'start_definition', []);
+        fcn_Laps_checkZoneType(zoneDefinition, 'start_definition', FigNum=[]);
 end
 slow_method = toc;
 
@@ -170,10 +173,33 @@ tic;
 for ith_test = 1:Niterations
     % Call the function
     [flag_start_is_a_point_type, output_start_zone_definition] = ...
-        fcn_Laps_checkZoneType(zoneDefinition, 'start_definition', -1);
+        fcn_Laps_checkZoneType(zoneDefinition, 'start_definition', FigNum=-1);
 
 end
 fast_method = toc;
+
+% Do calculation with input checks turned off by environment variable.
+% The code reads these variables only when both are set. Save the user's
+% settings and restore them afterward, even if a call errors.
+old_check_inputs = getenv("MATLABFLAG_LAPS_FLAG_CHECK_INPUTS");
+old_do_debug     = getenv("MATLABFLAG_LAPS_FLAG_DO_DEBUG");
+setenv("MATLABFLAG_LAPS_FLAG_CHECK_INPUTS","0");
+setenv("MATLABFLAG_LAPS_FLAG_DO_DEBUG","0");
+try
+    tic;
+    for ith_test = 1:Niterations
+        % Call the function
+        [flag_start_is_a_point_type, output_start_zone_definition] = ...
+            fcn_Laps_checkZoneType(zoneDefinition, 'start_definition', FigNum=[]);
+    end
+    env_method = toc;
+catch ME
+    setenv("MATLABFLAG_LAPS_FLAG_CHECK_INPUTS",old_check_inputs);
+    setenv("MATLABFLAG_LAPS_FLAG_DO_DEBUG",old_do_debug);
+    rethrow(ME);
+end
+setenv("MATLABFLAG_LAPS_FLAG_CHECK_INPUTS",old_check_inputs);
+setenv("MATLABFLAG_LAPS_FLAG_DO_DEBUG",old_do_debug);
 
 % Make sure plot did NOT open up
 figHandles = get(groot, 'Children');
@@ -184,11 +210,13 @@ figure(373737);
 clf;
 hold on;
 
-X = categorical({'Normal mode','Fast mode'});
-X = reordercats(X,{'Normal mode','Fast mode'}); % Forces bars to appear in this exact order, not alphabetized
-Y = [slow_method fast_method ]*1000/Niterations;
+barLabels = {'Normal mode','Checks off (environment variable)','Fast mode (FigNum=-1)'};
+X = categorical(barLabels);
+X = reordercats(X,barLabels); % Forces bars to appear in this exact order, not alphabetized
+Y = [slow_method env_method fast_method]*1000/Niterations;
 bar(X,Y)
 ylabel('Execution time (Milliseconds)')
+fprintf(1,'Average time per call (ms): normal %.3f, checks off by environment variable %.3f, fast mode %.3f\n',Y(1),Y(2),Y(3));
 
 
 % Make sure plot did NOT open up

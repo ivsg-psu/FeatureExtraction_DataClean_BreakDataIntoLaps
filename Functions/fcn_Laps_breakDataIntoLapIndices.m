@@ -1,7 +1,7 @@
 function varargout = fcn_Laps_breakDataIntoLapIndices(...
     input_path,...
     start_zone_definition,...
-    varargin)
+    options)
 %fcn_Laps_breakDataIntoLapIndices
 %     fcn_Laps_breakDataIntoLapIndices(path,zone_definition) - gives
 %     indices of each lap meeting the zone definition
@@ -65,16 +65,20 @@ function varargout = fcn_Laps_breakDataIntoLapIndices(...
 %      [cell_array_of_lap_indices, ...
 %       (cell_array_of_entry_indices, cell_array_of_exit_indices)] = ...
 %      fcn_Laps_breakDataIntoLapIndices(...
-%            input_traversal,...
+%            input_path,...
 %            start_zone_definition,...
-%            (end_zone_definition),...
-%            (excursion_zone_definition),...
-%            (figNum));
+%            (EndZone=end_zone_definition),...
+%            (ExcursionZone=excursion_zone_definition),...
+%            (FigNum=figNum));
+%
+%      Optional inputs are given as Name=Value pairs after the required
+%      inputs, in any order. Any option not given takes its default.
 %
 % INPUTS:
 %
-%      input_traversal: the traversal that is to be broken up into laps. It
-%      is a traversals type consistent with the Paths library of functions.
+%      input_path: a N x 2 or N x 3 set of coordinates representing the
+%      [X Y] or [X Y Z] coordinates, in sequence, of a path that is to be
+%      broken up into laps. Only the XY columns are used to detect laps.
 %
 %      start_zone_definition: the condition, defined as a point/radius or
 %      line segment, defining the start condition to break the data into
@@ -92,19 +96,21 @@ function varargout = fcn_Laps_breakDataIntoLapIndices(...
 %        [zone_start_x zone_start_y; zone_end_x zone_end_y]
 %      (NOTE: there's no 3-d equivalent of a starting line or finish line)
 %
-%      (OPTIONAL INPUTS)
+%      (OPTIONAL INPUTS, given as Name=Value pairs)
 %
-%      end_zone_definition: the condition, defined as a point/radius or
+%      EndZone: the condition, defined as a point/radius or
 %      line segment, defining the end condition to break the data into
 %      laps. If not specified, the start condition is used. The same type
 %      is used as the start_definition.
 %
-%      excursion_zone_definition: the condition, defined as a point/radius
+%      ExcursionZone: the condition, defined as a point/radius
 %      or line segment, defining a situation that must be met between the
 %      start and end conditions. If not specified, then no excursion point
 %      is used. The same type is used as the start_definition.
 %
-%      figNum: a figure number to plot results.
+%      FigNum: a figure number to plot results. If set to -1, skips any
+%      input checking or debugging, no figures will be generated, and sets
+%      up code to maximize speed.
 %
 % OUTPUTS:
 %
@@ -167,6 +173,13 @@ function varargout = fcn_Laps_breakDataIntoLapIndices(...
 %   %   excursion_zone_start_indices
 %   % * Documented the no-lap entry output in the header; replaced tab
 %   %   % indentation with spaces
+%   % * Changed optional inputs from positional arguments to Name=Value
+%   %   % pairs, declared in a bare arguments block (names and defaults
+%   %   % only). Clean break: positional optional inputs no longer work.
+%   %   % Option names: EndZone, ExcursionZone, FigNum
+%   % * Fast mode is now FigNum=-1. Input checks are still gated by fast
+%   %   % mode and MATLABFLAG_LAPS_FLAG_CHECK_INPUTS, as before
+%   % * narginchk removed; the arguments block checks the input count
 
 % TO-DO:
 %
@@ -175,14 +188,25 @@ function varargout = fcn_Laps_breakDataIntoLapIndices(...
 
 
 
+% Declare the inputs. This block only names the inputs and sets the
+% option defaults: it has no class, size, or validator checks, so it
+% adds little time to each call. The real input checks are in the
+% gated section below, which can be skipped with FigNum=-1 or with
+% the MATLABFLAG_LAPS_FLAG_CHECK_INPUTS environment variable.
+arguments
+    input_path
+    start_zone_definition
+    options.EndZone = []       % Zone that ends a lap; [] uses the start zone
+    options.ExcursionZone = [] % Zone that must be reached mid-lap; [] for none
+    options.FigNum = []        % Figure to plot into; [] for no plot, -1 for fast mode
+end
+
 %% Debugging and Input checks
 
-% Check if flag_max_speed set. This occurs if the figNum variable input
-% argument (varargin) is given a number of -1, which is not a valid figure
-% number.
-MAX_NARGIN = 5; % The largest Number of argument inputs to the function
+% Check if flag_max_speed set. This occurs if the FigNum option is given
+% a value of -1, which is not a valid figure number.
 flag_max_speed = 0; % The default. This runs code with all error checking
-if (nargin==MAX_NARGIN && isequal(varargin{end},-1))
+if isequal(options.FigNum,-1)
     flag_do_debug = 0; % Flag to plot the results for debugging
     flag_check_inputs = 0; % Flag to perform input checking
     flag_max_speed = 1;
@@ -222,8 +246,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if 0==flag_max_speed
     if flag_check_inputs
-        % Are there the right number of inputs?
-        narginchk(2,MAX_NARGIN);
+        % The number of inputs and the option names are checked by the
+        % arguments block above
 
         % Check the input_path to be sure it has 2 or 3 columns, minimum 2 rows
         % or more
@@ -234,40 +258,36 @@ end
 
 
 % Set the start values
-[flag_start_is_a_point_type, start_zone_definition] = fcn_Laps_checkZoneType(start_zone_definition, 'start_definition', -1);
+[flag_start_is_a_point_type, start_zone_definition] = fcn_Laps_checkZoneType(start_zone_definition, 'start_definition', FigNum=-1);
 
 
-% The following area checks for variable argument inputs (varargin)
+% The following area reads the optional Name=Value inputs (options)
 
 % Does the user want to specify the end_definition?
 % Set defaults first:
 end_zone_definition = start_zone_definition; % Default case
 flag_end_is_a_point_type = flag_start_is_a_point_type; % Inheret the start case
 % Check for user input
-if 3 <= nargin
-    temp = varargin{1};
-    if ~isempty(temp)
-        % Set the end values
-        [flag_end_is_a_point_type, end_zone_definition] = fcn_Laps_checkZoneType(temp, 'end_definition', -1);
-    end
+temp = options.EndZone;
+if ~isempty(temp)
+    % Set the end values
+    [flag_end_is_a_point_type, end_zone_definition] = fcn_Laps_checkZoneType(temp, 'end_definition', FigNum=-1);
 end
 
 % Does the user want to specify excursion_definition?
 flag_use_excursion_definition = 0; % Default case
 flag_excursion_is_a_point_type = 1; % Default case
-if 4 <= nargin
-    temp = varargin{2};
-    if ~isempty(temp)
-        % Set the excursion values
-        [flag_excursion_is_a_point_type, excursion_definition] = fcn_Laps_checkZoneType(temp, 'excursion_definition',-1);
-        flag_use_excursion_definition = 1;
-    end
+temp = options.ExcursionZone;
+if ~isempty(temp)
+    % Set the excursion values
+    [flag_excursion_is_a_point_type, excursion_definition] = fcn_Laps_checkZoneType(temp, 'excursion_definition', FigNum=-1);
+    flag_use_excursion_definition = 1;
 end
 
 % Does user want to show the plots?
 flag_do_plots = 0; % Default is to NOT show plots
-if (0==flag_max_speed) && (MAX_NARGIN == nargin) 
-    temp = varargin{end};
+if (0==flag_max_speed)
+    temp = options.FigNum;
     if ~isempty(temp) % Did the user NOT give an empty figure number?
         figNum = temp;
         flag_do_plots = 1;
@@ -348,11 +368,11 @@ if flag_start_is_a_point_type==1
     
     [start_zone_start_indices, start_zone_end_indices, start_zone_min_indices] = ...
         fcn_Laps_findPointZoneStartStopAndMinimum(...
-        path_original,...
-        zone_center,...
-        zone_radius,...
-        zone_num_points,...
-        -1);
+            path_original,...
+            zone_center,...
+            zone_radius,...
+            MinPointsInZone=zone_num_points,...
+            FigNum=-1);
     
     start_indices = start_zone_min_indices + 1;
     path_flag_array(start_indices,1) = 1;
@@ -365,9 +385,9 @@ else % Define start zone and indices based on segment zone type
     
     [start_zone_start_indices, start_zone_end_indices] = ...
         fcn_Laps_findSegmentZoneStartStop(...
-        path_original,...
-        start_zone_definition,...
-        -1);
+            path_original,...
+            start_zone_definition,...
+            FigNum=-1);
     start_zone_min_indices = start_zone_start_indices; %#ok<*NASGU>
     
     path_flag_array(start_zone_start_indices,1) = 1;
@@ -397,11 +417,11 @@ if flag_keep_going
             
             [excursion_zone_start_indices, excursion_zone_end_indices, excursion_zone_min_indices] = ...
                 fcn_Laps_findPointZoneStartStopAndMinimum(...
-                path_original,...
-                zone_center,...
-                zone_radius,...
-                zone_num_points,...
-                -1);
+                    path_original,...
+                    zone_center,...
+                    zone_radius,...
+                    MinPointsInZone=zone_num_points,...
+                    FigNum=-1);
             
             if ~isempty(excursion_zone_start_indices) % No minimum detected, so no laps exist
                 flag_keep_going = 1;
@@ -411,9 +431,9 @@ if flag_keep_going
         else % It's a line segement type
             [excursion_zone_start_indices, excursion_zone_end_indices] = ...
                 fcn_Laps_findSegmentZoneStartStop(...
-                path_original,...
-                excursion_definition,...
-                -1);
+                    path_original,...
+                    excursion_definition,...
+                    FigNum=-1);
             excursion_zone_min_indices = excursion_zone_start_indices;
             
             path_flag_array(excursion_zone_min_indices,1) = 2;
@@ -447,11 +467,11 @@ if flag_keep_going
         
         [end_zone_start_indices, end_zone_end_indices, end_zone_min_indices] = ...
             fcn_Laps_findPointZoneStartStopAndMinimum(...
-            path_original,...
-            zone_center,...
-            zone_radius,...
-            zone_num_points,...
-            -1);
+                path_original,...
+                zone_center,...
+                zone_radius,...
+                MinPointsInZone=zone_num_points,...
+                FigNum=-1);
         
         if ~isempty(end_zone_start_indices) % No minimum detected, so no laps exist
             flag_keep_going = 1;
@@ -462,9 +482,9 @@ if flag_keep_going
     else % Segment type
         [end_zone_start_indices, end_zone_end_indices] = ...
             fcn_Laps_findSegmentZoneStartStop(...
-            path_original,...
-            end_zone_definition,...
-            -1);
+                path_original,...
+                end_zone_definition,...
+                FigNum=-1);
         end_zone_min_indices = end_zone_start_indices;
         
         end_indices = end_zone_min_indices + 1;
@@ -784,7 +804,7 @@ if flag_do_plots
         end
         cellArrayOfPathsToPlot{ith_lap+1,1} = dummy_path;
     end
-    cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(cellArrayOfPathsToPlot,figNum);
+    cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(cellArrayOfPathsToPlot,FigNum=figNum);
     
     % Make input be thin line
     set(cellArrayOfPlotHandles{1},'Color',[0 0 0],'Marker','none','Linewidth', 0.75);
@@ -828,10 +848,10 @@ if flag_do_plots
     %     set(h_legend,'AutoUpdate','off');
     
     % Plot start zone
-    h_start_zone = fcn_Laps_plotZoneDefinition(start_zone_definition,'g-',figNum);
+    h_start_zone = fcn_Laps_plotZoneDefinition(start_zone_definition,PlotStyle='g-',FigNum=figNum);
 
     % Plot end zone
-    h_end_zone = fcn_Laps_plotZoneDefinition(end_zone_definition,'r-',figNum);
+    h_end_zone = fcn_Laps_plotZoneDefinition(end_zone_definition,PlotStyle='r-',FigNum=figNum);
 
     
 end

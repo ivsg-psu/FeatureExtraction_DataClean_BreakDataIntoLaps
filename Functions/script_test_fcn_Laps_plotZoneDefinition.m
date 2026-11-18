@@ -22,6 +22,7 @@
 %   % * Tightened handle checks: both returned handles must be valid
 %   %   % graphics objects in the expected figure (fcn_INTERNAL_checkPlotHandles)
 %   % * Added case 10007: point zone without figNum, segment zone with -1
+%   % * Converted calls to Name=Value optional inputs (PlotStyle, FigNum)
 
 % TO-DO:
 %
@@ -88,7 +89,7 @@ num_points = 3;
 zone_radius = 2;
 point_zone_definition = [zone_radius num_points zone_center];
 
-cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(point_zone_definition, [], figNum);
+cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(point_zone_definition, FigNum=figNum);
 axis([-5 5 -5 5]);
 
 sgtitle(titleString, 'Interpreter','none');
@@ -114,7 +115,7 @@ figure(figNum); clf;
 % Fill in some working data
 segment_zone_definition = [1 2; 3 4]; % Starts at 1,2 and ends at 3,4
 
-cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(segment_zone_definition,'r', figNum);
+cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(segment_zone_definition, PlotStyle='r', FigNum=figNum);
 axis([-5 5 -5 5]);
 
 sgtitle(titleString, 'Interpreter','none');
@@ -142,7 +143,7 @@ num_points = 3;
 zone_radius = 2;
 point_zone_definition = [zone_radius num_points zone_center];
 
-cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(point_zone_definition,'r', figNum);
+cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(point_zone_definition, PlotStyle='r', FigNum=figNum);
 axis([-5 5 -5 5]);
 
 sgtitle(titleString, 'Interpreter','none');
@@ -176,7 +177,7 @@ point_zone_definition = [zone_radius num_points zone_center];
 
 
 plotStyle = 'g-';
-cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(point_zone_definition, plotStyle,figNum);
+cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(point_zone_definition, PlotStyle=plotStyle, FigNum=figNum);
 sgtitle(titleString, 'Interpreter','none');
 
 % Check variable types
@@ -188,7 +189,7 @@ fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, 2, figNum);
 % Check variable values
 % Are the laps starting at expected points?
 
-cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(segment_zone_definition, plotStyle,figNum);
+cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(segment_zone_definition, PlotStyle=plotStyle, FigNum=figNum);
 axis([-5 5 -5 5]);
 
 sgtitle(titleString, 'Interpreter','none');
@@ -223,7 +224,7 @@ point_zone_definition = [zone_radius num_points zone_center];
 
 
 % leave the plot style empty
-cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(segment_zone_definition,[],figNum);
+cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(segment_zone_definition,FigNum=figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -236,7 +237,7 @@ fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, 2, figNum);
 % Check variable values
 % Are the laps starting at expected points?
 
-cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(point_zone_definition,[],figNum);
+cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(point_zone_definition,FigNum=figNum);
 axis([-5 5 -5 5]);
 
 sgtitle(titleString, 'Interpreter','none');
@@ -270,7 +271,7 @@ cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(point_zone_definition);
 fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, 2, figNum);
 
 % figNum of -1 skips input checks and also plots into the current figure
-cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(segment_zone_definition, 'r', -1);
+cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(segment_zone_definition, PlotStyle='r', FigNum=-1);
 fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, 2, figNum);
 axis([-5 5 -5 5]);
 
@@ -314,11 +315,11 @@ fprintf(1,'Figure: 8XXXXXX: FAST mode cases (there are no fast modes for plottin
 % [cell_array_of_lap_indices, ...
 %     cell_array_of_entry_indices, cell_array_of_exit_indices] = ...
 %     fcn_Laps_breakDataIntoLapIndices(...
-%     tempXYdata,...
-%     start_definition,...
-%     end_definition,...
-%     excursion_definition,...
-%     ([]));
+%         tempXYdata,...
+%         start_definition,...
+%         EndZone=end_definition,...
+%         ExcursionZone=excursion_definition,...
+%         FigNum=[]);
 % 
 % % Check variable types
 % assert(iscell(cell_array_of_lap_indices));
@@ -364,11 +365,11 @@ fprintf(1,'Figure: 8XXXXXX: FAST mode cases (there are no fast modes for plottin
 % [cell_array_of_lap_indices, ...
 %     cell_array_of_entry_indices, cell_array_of_exit_indices] = ...
 %     fcn_Laps_breakDataIntoLapIndices(...
-%     tempXYdata,...
-%     start_definition,...
-%     end_definition,...
-%     excursion_definition,...
-%     (-1));
+%         tempXYdata,...
+%         start_definition,...
+%         EndZone=end_definition,...
+%         ExcursionZone=excursion_definition,...
+%         FigNum=-1);
 % 
 % % Check variable types
 % assert(iscell(cell_array_of_lap_indices));
@@ -422,11 +423,11 @@ fprintf(1,'Figure: 8XXXXXX: FAST mode cases (there are no fast modes for plottin
 %     [cell_array_of_lap_indices, ...
 %         cell_array_of_entry_indices, cell_array_of_exit_indices] = ...
 %         fcn_Laps_breakDataIntoLapIndices(...
-%         tempXYdata,...
-%         start_definition,...
-%         end_definition,...
-%         excursion_definition,...
-%         ([]));
+%             tempXYdata,...
+%             start_definition,...
+%             EndZone=end_definition,...
+%             ExcursionZone=excursion_definition,...
+%             FigNum=[]);
 % end
 % slow_method = toc;
 % 
@@ -437,11 +438,11 @@ fprintf(1,'Figure: 8XXXXXX: FAST mode cases (there are no fast modes for plottin
 %     [cell_array_of_lap_indices, ...
 %         cell_array_of_entry_indices, cell_array_of_exit_indices] = ...
 %         fcn_Laps_breakDataIntoLapIndices(...
-%         tempXYdata,...
-%         start_definition,...
-%         end_definition,...
-%         excursion_definition,...
-%         (-1));
+%             tempXYdata,...
+%             start_definition,...
+%             EndZone=end_definition,...
+%             ExcursionZone=excursion_definition,...
+%             FigNum=-1);
 % end
 % fast_method = toc;
 % 

@@ -1,7 +1,7 @@
 function varargout = fcn_Laps_breakDataIntoLaps(...
     input_path,...
     start_definition,...
-    varargin)
+    options)
 % fcn_Laps_breakDataIntoLaps
 % Given an input path, breaks the data into laps using the XY data of the
 % path by checking whether the data meet particular conditions to define
@@ -46,9 +46,12 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 %      fcn_Laps_breakDataIntoLaps(...
 %            input_path,...
 %            start_definition,...
-%            (end_definition),...
-%            (excursion_definition),...
-%            (figNum));
+%            (EndZone=end_definition),...
+%            (ExcursionZone=excursion_definition),...
+%            (FigNum=figNum));
+%
+%      Optional inputs are given as Name=Value pairs after the required
+%      inputs, in any order. Any option not given takes its default.
 %
 % INPUTS:
 %
@@ -72,19 +75,19 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 %        [zone_start_x zone_start_y; zone_end_x zone_end_y]
 %      (NOTE: there's no 3-d equivalent of a starting line or finish line)
 %
-%      (OPTIONAL INPUTS)
+%      (OPTIONAL INPUTS, given as Name=Value pairs)
 %
-%      end_definition: the condition, defined as a point/radius or line
+%      EndZone: the condition, defined as a point/radius or line
 %      segment, defining the end condition to break the data into laps. If
 %      not specified, the start condition is used. The same type is used as
 %      the start_definition.
 %
-%      excursion_definition: the condition, defined as a point/radius or
+%      ExcursionZone: the condition, defined as a point/radius or
 %      line segment, defining a situation that must be met between the
 %      start and end conditions. If not specified, then no excursion point
 %      is used. The same type is used as the start_definition.
 %
-%      figNum: a figure number to plot results. If set to -1, skips any
+%      FigNum: a figure number to plot results. If set to -1, skips any
 %      input checking or debugging, no figures will be generated, and sets
 %      up code to maximize speed.
 %
@@ -162,7 +165,7 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 % 
 % 2025_11_12 by Sean Brennan, sbrennan@psu.edu
 % - In fcn_Laps_breakDataIntoLaps
-%   % * Cleaned up variable naming: fig_num to figNum
+%   % * Cleaned up variable naming: fig_+num to figNum
 % 
 % 2026_11_18 by Sean Brennan, sbrennan@psu.edu
 % - In fcn_Laps_breakDataIntoLaps
@@ -176,6 +179,13 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 %   % * Fixed legend, which showed "data1, data2, ..." entries and an
 %   %   % entry for every start/end marker; lines are now labeled with
 %   %   % DisplayName and each zone gets one legend entry
+%   % * Changed optional inputs from positional arguments to Name=Value
+%   %   % pairs, declared in a bare arguments block (names and defaults
+%   %   % only). Clean break: positional optional inputs no longer work.
+%   %   % Option names: EndZone, ExcursionZone, FigNum
+%   % * Fast mode is now FigNum=-1. Input checks are still gated by fast
+%   %   % mode and MATLABFLAG_LAPS_FLAG_CHECK_INPUTS, as before
+%   % * narginchk removed; the arguments block checks the input count
 
 % TO-DO:
 %
@@ -184,14 +194,25 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 
 
 
+% Declare the inputs. This block only names the inputs and sets the
+% option defaults: it has no class, size, or validator checks, so it
+% adds little time to each call. The real input checks are in the
+% gated section below, which can be skipped with FigNum=-1 or with
+% the MATLABFLAG_LAPS_FLAG_CHECK_INPUTS environment variable.
+arguments
+    input_path
+    start_definition
+    options.EndZone = []       % Zone that ends a lap; [] uses the start zone
+    options.ExcursionZone = [] % Zone that must be reached mid-lap; [] for none
+    options.FigNum = []        % Figure to plot into; [] for no plot, -1 for fast mode
+end
+
 %% Debugging and Input checks
 
-% Check if flag_max_speed set. This occurs if the figNum variable input
-% argument (varargin) is given a number of -1, which is not a valid figure
-% number.
-MAX_NARGIN = 5; % The largest Number of argument inputs to the function
+% Check if flag_max_speed set. This occurs if the FigNum option is given
+% a value of -1, which is not a valid figure number.
 flag_max_speed = 0; % The default. This runs code with all error checking
-if (nargin==MAX_NARGIN && isequal(varargin{end},-1))
+if isequal(options.FigNum,-1)
     flag_do_debug = 0; % Flag to plot the results for debugging
     flag_check_inputs = 0; % Flag to perform input checking
     flag_max_speed = 1;
@@ -231,8 +252,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if 0==flag_max_speed
     if flag_check_inputs
-        % Are there the right number of inputs?
-        narginchk(2,MAX_NARGIN);
+        % The number of inputs and the option names are checked by the
+        % arguments block above
 
         % Check the input_path variables
         fcn_DebugTools_checkInputsToFunctions(input_path, 'path2or3D');
@@ -246,30 +267,26 @@ end
 % once, with one warning, and the 2D versions are available for plotting.
 
 % Set the start values
-[~, start_definition] = fcn_Laps_checkZoneType(start_definition, 'start_definition', -1);
+[~, start_definition] = fcn_Laps_checkZoneType(start_definition, 'start_definition', FigNum=-1);
 
 % Does the user want to specify the end_definition?
 end_definition = []; % Default case: fcn_Laps_breakDataIntoLapIndices uses the start definition
-if 3 <= nargin
-    temp = varargin{1};
-    if ~isempty(temp)
-        [~, end_definition] = fcn_Laps_checkZoneType(temp, 'end_definition', -1);
-    end
+temp = options.EndZone;
+if ~isempty(temp)
+    [~, end_definition] = fcn_Laps_checkZoneType(temp, 'end_definition', FigNum=-1);
 end
 
 % Does the user want to specify excursion_definition?
 excursion_definition = []; % Default case: no excursion zone
-if 4 <= nargin
-    temp = varargin{2};
-    if ~isempty(temp)
-        [~, excursion_definition] = fcn_Laps_checkZoneType(temp, 'excursion_definition', -1);
-    end
+temp = options.ExcursionZone;
+if ~isempty(temp)
+    [~, excursion_definition] = fcn_Laps_checkZoneType(temp, 'excursion_definition', FigNum=-1);
 end
 
 % Does user want to show the plots?
 flag_do_plots = 0; % Default is to NOT show plots
-if (0==flag_max_speed) && (MAX_NARGIN == nargin)
-    temp = varargin{end};
+if (0==flag_max_speed)
+    temp = options.FigNum;
     if ~isempty(temp) % Did the user NOT give an empty figure number?
         figNum = temp;
         flag_do_plots = 1;
@@ -303,11 +320,11 @@ end
 
 [cell_array_of_lap_indices, cell_array_of_entry_indices, cell_array_of_exit_indices] = ...
     fcn_Laps_breakDataIntoLapIndices(...
-    input_path,...
-    start_definition,...
-    end_definition,...
-    excursion_definition,...
-    indices_figNum);
+        input_path,...
+        start_definition,...
+        EndZone=end_definition,...
+        ExcursionZone=excursion_definition,...
+        FigNum=indices_figNum);
 
 Nlaps = length(cell_array_of_lap_indices);
 
@@ -381,9 +398,8 @@ if flag_do_plots
         plot_cellArrayOfPaths{Nlaps+3} = exit_path;
     end
 
-    cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(plot_cellArrayOfPaths,(figNum));
-    h_legend = legend('Interpreter','none');
-	
+    cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(plot_cellArrayOfPaths,FigNum=figNum);
+
     % Make input be thin line
     set(cellArrayOfPlotHandles{1},'Color',[0 0 0],'Marker','.','MarkerSize',10,'Linewidth', 0.75);
 
@@ -403,11 +419,11 @@ if flag_do_plots
 
     % Plot the start zone in green and the end zone in red. If no end
     % zone was given, the start zone is also the end zone.
-    startZoneHandles = fcn_Laps_plotZoneDefinition(start_definition,'g',(figNum));
+    startZoneHandles = fcn_Laps_plotZoneDefinition(start_definition,PlotStyle='g',FigNum=figNum);
     if isempty(end_definition)
-        endZoneHandles = fcn_Laps_plotZoneDefinition(start_definition,'r',(figNum));
+        endZoneHandles = fcn_Laps_plotZoneDefinition(start_definition,PlotStyle='r',FigNum=figNum);
     else
-        endZoneHandles = fcn_Laps_plotZoneDefinition(end_definition,'r',(figNum));
+        endZoneHandles = fcn_Laps_plotZoneDefinition(end_definition,PlotStyle='r',FigNum=figNum);
     end
     INTERNAL_labelZoneForLegend(startZoneHandles,'Start zone');
     INTERNAL_labelZoneForLegend(endZoneHandles,'End zone');
