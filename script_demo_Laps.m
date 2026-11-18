@@ -212,7 +212,9 @@
 % - In the script_test_fcn_Laps_plot* and breakDataIntoLaps tests
 %   % * Tightened handle assertions; added no-figNum, -1, row-cell,
 %   %   % legend, and true 3D (N x 3) test cases
-
+%
+% (new release)
+%
 
 % TO-DO:
 % - 2025_11_12 by Sean Brennan, sbrennan@psu.edu
