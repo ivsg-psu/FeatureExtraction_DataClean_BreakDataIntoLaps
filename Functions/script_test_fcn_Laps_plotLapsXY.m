@@ -1,21 +1,31 @@
-% script_test_fcn_Laps_plotTraversalsXY.m
+% script_test_fcn_Laps_plotLapsXY.m
 % Tests fcn_Laps_plotLapsXY
        
 % REVISION HISTORY:
 %
 % 2022_04_02 by Sean Brennan, sbrennan@psu.edu
-% - first write of the code
+% - In script_test_fcn_Laps_plotLapsXY
+%   % * First write of the code
 % 
 % 2025_07_02 by Sean Brennan, sbrennan@psu.edu
-% - Removed traversal input type and replaced with cell array of paths
+% - In script_test_fcn_Laps_plotLapsXY
+%   % * Removed traversal input type and replaced with cell array of paths
 % 
 % 2025_07_03 by Sean Brennan, sbrennan@psu.edu
-% - standardized headers on all test scripts
+% - In script_test_fcn_Laps_plotLapsXY
+%   % * Standardized headers on all test scripts
+%
+% 2026_11_18 by Sean Brennan, sbrennan@psu.edu
+% - In script_test_fcn_Laps_plotLapsXY
+%   % * Standardized header comments into current convention
+%   % * Variable renaming to avoid underscores
+%   % * Added tests for the plot handle cell array outputs
 
 % TO-DO:
 %
 % 2025_11_21 by Sean Brennan, sbrennan@psu.edu
-% - (fill in items here)
+% - In script_test_fcn_Laps_plotLapsXY
+%   % * (fill in items here)
 
 
 %% Set up the workspace
@@ -52,9 +62,18 @@ cellArrayOfPaths = fcn_Laps_fillSampleLaps;
 
 % to show that it will auto-label the axes and create a new figure (NOT
 % figure 11 here) to plot the data.
-fcn_Laps_plotLapsXY(cellArrayOfPaths, figNum);
+cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(cellArrayOfPaths, figNum);
 
 sgtitle(titleString, 'Interpreter','none');
+
+% Check variable types
+assert(iscell(cellArrayOfPlotHandles));
+
+% Check variable sizes
+assert(length(cellArrayOfPlotHandles)>=1); 
+
+% Check variable values
+% Are the laps starting at expected points?
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));
@@ -70,9 +89,18 @@ cellArrayOfPaths = fcn_Laps_fillSampleLaps;
 
 figure(11);
 % axes if figure is already given and it puts the plots into this figure.
-fcn_Laps_plotLapsXY(cellArrayOfPaths,figNum);
+cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(cellArrayOfPaths,figNum);
 
 sgtitle(titleString, 'Interpreter','none');
+
+% Check variable types
+assert(iscell(cellArrayOfPlotHandles));
+
+% Check variable sizes
+assert(length(cellArrayOfPlotHandles)>=1); 
+
+% Check variable values
+% Are the laps starting at expected points?
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));

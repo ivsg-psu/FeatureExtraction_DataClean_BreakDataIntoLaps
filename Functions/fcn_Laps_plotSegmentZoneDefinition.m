@@ -1,6 +1,6 @@
-function h_plot = fcn_Laps_plotSegmentZoneDefinition(zone_definition,varargin)
+function cellArrayOfPlotHandles = fcn_Laps_plotSegmentZoneDefinition(zoneDefinition,varargin)
 % fcn_Laps_plotSegmentZoneDefinition
-% Plots the segment zone definition given by the input variable, zone_definition.
+% Plots the segment zone definition given by the input variable, zoneDefinition.
 %
 % Accepts as an optional second input standard plot style specifications,
 % for example 'r-' for a red line.
@@ -10,18 +10,18 @@ function h_plot = fcn_Laps_plotSegmentZoneDefinition(zone_definition,varargin)
 %
 % FORMAT: 
 %
-%       h_plot = fcn_Laps_plotSegmentZoneDefinition(zone_definition, (plot_style), (figNum))
+%       cellArrayOfPlotHandles = fcn_Laps_plotSegmentZoneDefinition(zoneDefinition, (plotStyle), (figNum))
 %
 % INPUTS:
 %
-%      zone_definition: the definition of the zone as given in a 2x2 matrix
+%      zoneDefinition: the definition of the zone as given in a 2x2 matrix
 %      with the following format [Xstart Ystart; Xend Yend], where X,Y
 %      denote the coordinates of the starting and ending point
 %      respectively.
 %
 %      (OPTIONAL INPUTS)
 %   
-%      plot_style: the standard plot pecification style allowing line and
+%      plotStyle: the standard plot pecification style allowing line and
 %      color, for example 'r-'. Type "help plot" for a listing of options.
 %
 %      figNum: a figure number to plot results. If set to -1, skips any
@@ -30,7 +30,7 @@ function h_plot = fcn_Laps_plotSegmentZoneDefinition(zone_definition,varargin)
 %
 % OUTPUTS:
 %
-%      h: a handle to the resulting figure
+%      cellArrayOfPlotHandles: cell array of handles to each of the plots
 %
 % DEPENDENCIES:
 %
@@ -47,26 +47,39 @@ function h_plot = fcn_Laps_plotSegmentZoneDefinition(zone_definition,varargin)
 % REVISION HISTORY:
 %
 % 2022_04_10 by Sean Brennan, sbrennan@psu.edu
-% - wrote the code
+% - In fcn_Laps_plotSegmentZoneDefinition
+%   % * Wrote the code
 % 
 % 2022_04_12 by Sean Brennan, sbrennan@psu.edu
-% - fixed minor bug with showing the arrowhead
+% - In fcn_Laps_plotSegmentZoneDefinition
+%   % * Fixed minor bug with showing the arrowhead
 % 
 % 2022_07_23 by Sean Brennan, sbrennan@psu.edu
-% - fixed minor bug with arrow being different color than line segment
-% - fixed major bug with arrow being in the wrong direction (!)
+% - In fcn_Laps_plotSegmentZoneDefinition
+%   % * Fixed minor bug with arrow being different color than line segment
+%   % * Fixed major bug with arrow being in the wrong direction (!)
 % 
 % 2025_04_25 by Sean Brennan, sbrennan@psu.edu
-% - added global debugging options
+% - In fcn_Laps_plotSegmentZoneDefinition
+%   % * Added global debugging options
 % 
 % 2025_07_03 by Sean Brennan, sbrennan@psu.edu
-% - cleanup of Debugging area codes
-% - turn on fast mode for Path calls
+% - In fcn_Laps_plotSegmentZoneDefinition
+%   % * Cleanup of Debugging area codes
+%   % * Turn on fast mode for Path calls
+%
+% 2026_11_18 by Sean Brennan, sbrennan@psu.edu
+% - In fcn_Laps_plotSegmentZoneDefinition
+%   % * Fixed errors in comments
+%   % * Moved variables away from underscore convention
+%   % * Standardized header comments into current convention
+
 
 % TO-DO:
 %
 % 2025_11_21 by Sean Brennan, sbrennan@psu.edu
-% - (fill in items here)
+% - In fcn_Laps_plotSegmentZoneDefinition
+%   % * (fill in items here)
 
 
 
@@ -120,19 +133,19 @@ if 0==flag_max_speed
         % Are there the right number of inputs?
         narginchk(1,MAX_NARGIN);
 
-        % Check the zone_definition input that it has 2 columns, and exactly 2
+        % Check the zoneDefinition input that it has 2 columns, and exactly 2
         % rows
-        fcn_DebugTools_checkInputsToFunctions(zone_definition, '2column_of_numbers',[2 2])
+        fcn_DebugTools_checkInputsToFunctions(zoneDefinition, '2column_of_numbers',[2 2])
     end
 end
 
 % Check for plot style input
-flag_plot_style_is_specified = 0; % Set default flag value
+flag_plotStyle_is_specified = 0; % Set default flag value
 if 2 <= nargin
     temp = varargin{1};
     if ~isempty(temp)
-        plot_style = temp;
-        flag_plot_style_is_specified = 1;
+        plotStyle = temp;
+        flag_plotStyle_is_specified = 1;
     end
 end
 
@@ -162,17 +175,18 @@ end
 %  |_|  |_|\__,_|_|_| |_|
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+cellArrayOfPlotHandles = cell(2,1);
 
 % Fill in the key data
-Xstart = zone_definition(1,1);
-Ystart = zone_definition(1,2);
-Xend   = zone_definition(2,1);
-Yend   = zone_definition(2,2);
+Xstart = zoneDefinition(1,1);
+Ystart = zoneDefinition(1,2);
+Xend   = zoneDefinition(2,1);
+Yend   = zoneDefinition(2,2);
 
 % Calculate the unit vector
-start_point = mean(zone_definition,1);
-magnitude = sum((zone_definition(2,:)-zone_definition(1,:)).^2,2).^0.5;
-unit_direction = (zone_definition(2,:)-zone_definition(1,:))./magnitude*[cos(pi/2) -sin(pi/2); sin(pi/2) cos(pi/2)];
+start_point = mean(zoneDefinition,1);
+magnitude = sum((zoneDefinition(2,:)-zoneDefinition(1,:)).^2,2).^0.5;
+unit_direction = (zoneDefinition(2,:)-zoneDefinition(1,:))./magnitude*[cos(pi/2) -sin(pi/2); sin(pi/2) cos(pi/2)];
 vector_with_magnitude = unit_direction*magnitude/2; % Use smaller ratio to make it look good.
 
 %% Any debugging?
@@ -255,21 +269,21 @@ if flag_do_plots
 
 
     % Plot the line
-    if flag_plot_style_is_specified
-        h_plot{1} = plot([Xstart Xend],[Ystart Yend],plot_style,'Markersize',20,'Linewidth',2);
+    if flag_plotStyle_is_specified
+        cellArrayOfPlotHandles{1,1} = plot([Xstart Xend],[Ystart Yend],plotStyle,'Markersize',20,'Linewidth',2,'DisplayName','Segment zone definition');
     else
-        h_plot{1} = plot([Xstart Xend],[Ystart Yend],'-','Linewidth',2);
-        main_color = get(h_plot{1},'Color');
+        cellArrayOfPlotHandles{1,1} = plot([Xstart Xend],[Ystart Yend],'-','Linewidth',2,'DisplayName','Segment zone definition');
+        main_color = get(cellArrayOfPlotHandles{1},'Color');
     end
 
     % Plot the direction arrow?
     if 1==1
         U = vector_with_magnitude(1,1);
         V = vector_with_magnitude(1,2);
-        if flag_plot_style_is_specified
-            h_plot{2} = quiver(start_point(1,1),start_point(1,2),U,V,0,plot_style,'Linewidth',2,'Markersize',20,'ShowArrowHead','on','MaxHeadSize',2);
+        if flag_plotStyle_is_specified
+            cellArrayOfPlotHandles{2,1} = quiver(start_point(1,1),start_point(1,2),U,V,0,plotStyle,'Linewidth',2,'Markersize',20,'ShowArrowHead','on','MaxHeadSize',2,'DisplayName','Segment zone direction');
         else
-            h_plot{2} = quiver(start_point(1,1),start_point(1,2),U,V,0,'color',main_color,'Linewidth',2,'Markersize',20,'ShowArrowHead','on','MaxHeadSize',2);
+            cellArrayOfPlotHandles{2,1} = quiver(start_point(1,1),start_point(1,2),U,V,0,'color',main_color,'Linewidth',2,'Markersize',20,'ShowArrowHead','on','MaxHeadSize',2,'DisplayName','Segment zone direction');
         end
     end
 

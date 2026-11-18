@@ -113,10 +113,10 @@ function varargout = fcn_Laps_breakDataIntoLapIndices(...
 %
 %      OPTIONAL OUTPUTS:
 %
-%      cell_array_of_entry_indices: a structure containing the indices
+%      cell_array_of_entry_indices: a cell array containing the indices
 %      prior to each staring condition, that are not part of a lap.
 %
-%      cell_array_of_exit_indices: a structure containing the indices after
+%      cell_array_of_exit_indices: a cell array containing the indices after
 %      to each ending condition, that are not part of a lap.
 
 %
@@ -139,17 +139,30 @@ function varargout = fcn_Laps_breakDataIntoLapIndices(...
 % REVISION HISTORY:
 %
 % 2022_07_23 by Sean Brennan, sbrennan@psu.edu
-% - wrote the code originally, using breakDataIntoLaps as starter
+% - In fcn_Laps_breakDataIntoLapIndices
+%   % * Wrote the code originally, using breakDataIntoLaps as starter
 % 
 % 2025_04_25 by Sean Brennan, sbrennan@psu.edu
-% - added global debugging options
+% - In fcn_Laps_breakDataIntoLapIndices
+% - Added global debugging options
 % 
 % 2025_07_03 by Sean Brennan, sbrennan@psu.edu
-% - cleanup of Debugging area codes
-% - turn on fast mode for Path calls
+% - In fcn_Laps_breakDataIntoLapIndices
+%   % * Cleanup of Debugging area codes
+%   % * Turn on fast mode for Path calls
 % 
 % 2025_07_05 by Sean Brennan, sbrennan@psu.edu
-% - fixed poorly constructed input area (bad copy)
+% - In fcn_Laps_breakDataIntoLapIndices
+%   % * Fixed poorly constructed input area (bad copy)
+% 
+% 2026_11_18 by Sean Brennan, sbrennan@psu.edu
+% - In fcn_Laps_breakDataIntoLapIndices
+%   % * Standardized header comments into current convention
+%   % * Fixed case where no laps are found. Previously, returned empty cell
+%   %   but now returns all indices for the whole path as the entry.
+%   % * Fixed bug where the segment-type excursion branch tests
+%   %   start_zone_start_indices when it should test
+%   %   excursion_zone_start_indices
 
 % TO-DO:
 %
@@ -401,7 +414,7 @@ if flag_keep_going
             
             path_flag_array(excursion_zone_min_indices,1) = 2;
             
-            if ~isempty(start_zone_start_indices) % No excursion zone detected, so no laps exist
+            if ~isempty(excursion_zone_start_indices) % No excursion zone detected, so no laps exist
                 flag_keep_going = 1;
             end
         end
@@ -672,8 +685,12 @@ if flag_keep_going && Nlaps>0
                 cell_array_of_exit_indices{ith_lap} = (laps_array(ith_lap,3):length(input_path(:,1)))';
             end
         end
-    end
-    
+	end
+
+elseif Nlaps==0
+	% Returns the whole path as the entry indices
+	cell_array_of_entry_indices = {(1:Npoints)'};
+
 end % Ends check to see if keep going
 
 % Save outputs depending on which ones the user asks for
@@ -763,14 +780,14 @@ if flag_do_plots
         end
         cellArrayOfPathsToPlot{ith_lap+1,1} = dummy_path;
     end
-    h = fcn_Laps_plotLapsXY(cellArrayOfPathsToPlot,figNum);
+    cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(cellArrayOfPathsToPlot,figNum);
     
     % Make input be thin line
-    set(h(1),'Color',[0 0 0],'Marker','none','Linewidth', 0.75);
+    set(cellArrayOfPlotHandles{1},'Color',[0 0 0],'Marker','none','Linewidth', 0.75);
     
     % Make all the laps have thick lines
-    for ith_plot = 2:(length(h))
-        set(h(ith_plot),'Marker','none','Linewidth', 5);
+    for ith_plot = 2:(length(cellArrayOfPlotHandles))
+        set(cellArrayOfPlotHandles{ith_plot},'Marker','none','Linewidth', 5);
     end
     
     % Add legend

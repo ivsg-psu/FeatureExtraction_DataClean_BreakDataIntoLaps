@@ -4,15 +4,22 @@
 % REVISION HISTORY:
 %
 % 2022_07_23 by Sean Brennan, sbrennan@psu.edu
-% - wrote the code originally, using breakDataIntoLaps as starter
+% - In script_test_fcn_Laps_breakDataIntoLapIndices
+%   % * Wrote the code originally, using breakDataIntoLaps as starter
 % 
 % 2025_07_03 by Sean Brennan, sbrennan@psu.edu
-% - standardized headers on all test scripts
+% - In script_test_fcn_Laps_breakDataIntoLapIndices
+%   % * Standardized headers on all test scripts
+% 
+% 2026_11_18 by Sean Brennan, sbrennan@psu.edu
+% - In script_test_fcn_Laps_breakDataIntoLapIndices
+%   % * Fixed comments into standard form
 
 % TO-DO:
 %
 % 2025_11_21 by Sean Brennan, sbrennan@psu.edu
-% - (fill in items here)
+% - In script_test_fcn_Laps_breakDataIntoLaps
+%   % * (fill in items here)
 
 
 %% Set up the workspace
@@ -412,7 +419,7 @@ assert(iscell(cell_array_of_exit_indices));
 % Check variable sizes
 Nlaps = 0;
 assert(isequal(Nlaps,length(cell_array_of_lap_indices))); 
-assert(isequal(Nlaps,length(cell_array_of_entry_indices))); 
+assert(isequal(1,length(cell_array_of_entry_indices))); 
 assert(isequal(Nlaps,length(cell_array_of_exit_indices))); 
 
 % Check variable values
@@ -593,7 +600,7 @@ sgtitle(titleString, 'Interpreter','none');
 % Check variable sizes
 Nlaps = 0;
 assert(isequal(Nlaps,length(cell_array_of_lap_indices))); 
-assert(isequal(Nlaps,length(cell_array_of_entry_indices))); 
+assert(isequal(1,length(cell_array_of_entry_indices))); 
 assert(isequal(Nlaps,length(cell_array_of_exit_indices))); 
 
 % Check variable values
@@ -629,7 +636,7 @@ sgtitle(titleString, 'Interpreter','none');
 % Check variable sizes
 Nlaps = 0;
 assert(isequal(Nlaps,length(cell_array_of_lap_indices))); 
-assert(isequal(Nlaps,length(cell_array_of_entry_indices))); 
+assert(isequal(1,length(cell_array_of_entry_indices))); 
 assert(isequal(Nlaps,length(cell_array_of_exit_indices))); 
 
 % Check variable values
@@ -664,7 +671,7 @@ sgtitle(titleString, 'Interpreter','none');
 % Check variable sizes
 Nlaps = 0;
 assert(isequal(Nlaps,length(cell_array_of_lap_indices))); 
-assert(isequal(Nlaps,length(cell_array_of_entry_indices))); 
+assert(isequal(1,length(cell_array_of_entry_indices))); 
 assert(isequal(Nlaps,length(cell_array_of_exit_indices))); 
 
 % Check variable values
@@ -701,7 +708,7 @@ sgtitle(titleString, 'Interpreter','none');
 % Check variable sizes
 Nlaps = 0;
 assert(isequal(Nlaps,length(cell_array_of_lap_indices))); 
-assert(isequal(Nlaps,length(cell_array_of_entry_indices))); 
+assert(isequal(1,length(cell_array_of_entry_indices))); 
 assert(isequal(Nlaps,length(cell_array_of_exit_indices))); 
 
 % Check variable values
@@ -737,7 +744,7 @@ sgtitle(titleString, 'Interpreter','none');
 % Check variable sizes
 Nlaps = 0;
 assert(isequal(Nlaps,length(cell_array_of_lap_indices))); 
-assert(isequal(Nlaps,length(cell_array_of_entry_indices))); 
+assert(isequal(1,length(cell_array_of_entry_indices))); 
 assert(isequal(Nlaps,length(cell_array_of_exit_indices))); 
 
 % Check variable values
@@ -772,7 +779,7 @@ sgtitle(titleString, 'Interpreter','none');
 % Check variable sizes
 Nlaps = 0;
 assert(isequal(Nlaps,length(cell_array_of_lap_indices))); 
-assert(isequal(Nlaps,length(cell_array_of_entry_indices))); 
+assert(isequal(1,length(cell_array_of_entry_indices))); 
 assert(isequal(Nlaps,length(cell_array_of_exit_indices))); 
 
 % Check variable values
@@ -815,7 +822,7 @@ sgtitle(titleString, 'Interpreter','none');
 % Check variable sizes
 Nlaps = 0;
 assert(isequal(Nlaps,length(cell_array_of_lap_indices))); 
-assert(isequal(Nlaps,length(cell_array_of_entry_indices))); 
+assert(isequal(1,length(cell_array_of_entry_indices))); 
 assert(isequal(Nlaps,length(cell_array_of_exit_indices))); 
 
 % Check variable values

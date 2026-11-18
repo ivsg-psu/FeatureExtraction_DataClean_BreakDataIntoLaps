@@ -4,18 +4,28 @@
 % REVISION HISTORY:
 %
 % 2022_04_10 by Sean Brennan, sbrennan@psu.edu
-% - first write of the code
+% - In script_test_fcn_Laps_plotPointZoneDefinition
+%   % * First write of the code
 % 
 % 2022_07_23 by Sean Brennan, sbrennan@psu.edu
-% - more examples
+% - In script_test_fcn_Laps_plotPointZoneDefinition
+%   % * More examples
 % 
 % 2025_07_03 by Sean Brennan, sbrennan@psu.edu
-% - standardized headers on all test scripts
+% - In script_test_fcn_Laps_plotPointZoneDefinition
+%   % * Standardized headers on all test scripts
+%
+% 2026_11_18 by Sean Brennan, sbrennan@psu.edu
+% - In script_test_fcn_Laps_plotPointZoneDefinition
+%   % * Standardized header comments into current convention
+%   % * Variable renaming to avoid underscores
+%   % * Added tests for the plot handle cell array outputs
 
 % TO-DO:
 %
 % 2025_11_21 by Sean Brennan, sbrennan@psu.edu
-% - (fill in items here)
+% - In script_test_fcn_Laps_plotPointZoneDefinition
+%   % * (fill in items here)
 
 
 %% Set up the workspace
@@ -46,13 +56,22 @@ fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
 figure(figNum); clf;
 
 % Demonstrate that defaults work
-zone_center = [1 2];
-num_points = 3;
-zone_radius = 5;
-zone_definition = [zone_radius num_points zone_center];
-fcn_Laps_plotPointZoneDefinition(zone_definition);
+zoneCenter = [1 2];
+numPoints = 3;
+zoneRadius = 5;
+zoneDefinition = [zoneRadius numPoints zoneCenter];
+cellArrayOfPlotHandles = fcn_Laps_plotPointZoneDefinition(zoneDefinition);
 
 sgtitle(titleString, 'Interpreter','none');
+
+% Check variable types
+assert(iscell(cellArrayOfPlotHandles));
+
+% Check variable sizes
+assert(length(cellArrayOfPlotHandles)>=1); 
+
+% Check variable values
+% Are the laps starting at expected points?
 
 % Make sure plot opened up
 assert(~isequal(get(gcf,'Number'),figNum));
@@ -64,13 +83,22 @@ fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
 figure(figNum); clf;
 
 % Demonstrate that defaults work
-zone_center = [1 2];
-num_points = 3;
-zone_radius = 5;
-zone_definition = [zone_radius num_points zone_center];
-fcn_Laps_plotPointZoneDefinition(zone_definition,'r-', figNum);
+zoneCenter = [1 2];
+numPoints = 3;
+zoneRadius = 5;
+zoneDefinition = [zoneRadius numPoints zoneCenter];
+cellArrayOfPlotHandles = fcn_Laps_plotPointZoneDefinition(zoneDefinition,'r-', figNum);
 
 sgtitle(titleString, 'Interpreter','none');
+
+% Check variable types
+assert(iscell(cellArrayOfPlotHandles));
+
+% Check variable sizes
+assert(length(cellArrayOfPlotHandles)>=1); 
+
+% Check variable values
+% Are the laps starting at expected points?
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));
@@ -82,13 +110,22 @@ fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
 figure(figNum); clf;
 
 % Demonstrate that defaults work
-zone_center = [1 2];
-num_points = 3;
-zone_radius = 5;
-zone_definition = [zone_radius num_points zone_center];
-fcn_Laps_plotPointZoneDefinition(zone_definition,[],figNum);
+zoneCenter = [1 2];
+numPoints = 3;
+zoneRadius = 5;
+zoneDefinition = [zoneRadius numPoints zoneCenter];
+cellArrayOfPlotHandles = fcn_Laps_plotPointZoneDefinition(zoneDefinition,[],figNum);
 
 sgtitle(titleString, 'Interpreter','none');
+
+% Check variable types
+assert(iscell(cellArrayOfPlotHandles));
+
+% Check variable sizes
+assert(length(cellArrayOfPlotHandles)>=1); 
+
+% Check variable values
+% Are the laps starting at expected points?
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));
@@ -101,14 +138,23 @@ figure(figNum); clf;
 
 
 figure(11);
-plot_style = 'g-';
-zone_center = [1 2];
-num_points = 3;
-zone_radius = 5;
-zone_definition = [zone_radius num_points zone_center];
-fcn_Laps_plotPointZoneDefinition(zone_definition,plot_style, figNum);
+plotStyle = 'g-';
+zoneCenter = [1 2];
+numPoints = 3;
+zoneRadius = 5;
+zoneDefinition = [zoneRadius numPoints zoneCenter];
+cellArrayOfPlotHandles = fcn_Laps_plotPointZoneDefinition(zoneDefinition, plotStyle, figNum);
 
 sgtitle(titleString, 'Interpreter','none');
+
+% Check variable types
+assert(iscell(cellArrayOfPlotHandles));
+
+% Check variable sizes
+assert(length(cellArrayOfPlotHandles)>=1); 
+
+% Check variable values
+% Are the laps starting at expected points?
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));
@@ -120,14 +166,23 @@ fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
 figure(figNum); clf;
 
 
-plot_style = 'g-.';
-zone_center = [1 2];
-num_points = 3;
-zone_radius = 5;
-zone_definition = [zone_radius num_points zone_center];
-fcn_Laps_plotPointZoneDefinition(zone_definition,plot_style,figNum);
+plotStyle = 'g-.';
+zoneCenter = [1 2];
+numPoints = 3;
+zoneRadius = 5;
+zoneDefinition = [zoneRadius numPoints zoneCenter];
+cellArrayOfPlotHandles = fcn_Laps_plotPointZoneDefinition(zoneDefinition, plotStyle,figNum);
 
 sgtitle(titleString, 'Interpreter','none');
+
+% Check variable types
+assert(iscell(cellArrayOfPlotHandles));
+
+% Check variable sizes
+assert(length(cellArrayOfPlotHandles)>=1); 
+
+% Check variable values
+% Are the laps starting at expected points?
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));

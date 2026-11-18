@@ -1,6 +1,6 @@
-function h_plot = fcn_Laps_plotPointZoneDefinition(zone_definition,varargin)
+function cellArrayOfPlotHandles = fcn_Laps_plotPointZoneDefinition(zoneDefinition,varargin)
 % fcn_Laps_plotPointZoneDefinition
-% Plots the point zone definition given by the input variable, zone_definition.
+% Plots the point zone definition given by the input variable, zoneDefinition.
 %
 % Accepts as an optional second input standard plot style specifications,
 % for example 'r-' for a red line.
@@ -10,11 +10,11 @@ function h_plot = fcn_Laps_plotPointZoneDefinition(zone_definition,varargin)
 %
 % FORMAT:
 %
-%       h_plot = fcn_Laps_plotPointZoneDefinition(zone_definition, (plot_style), (figNum))
+%       cellArrayOfPlotHandles = fcn_Laps_plotPointZoneDefinition(zoneDefinition, (plotStyle), (figNum))
 %
 % INPUTS:
 %
-%      zone_definition: the definition of the zone as given in a point zone
+%      zoneDefinition: the definition of the zone as given in a point zone
 %      style, namely:
 %           [radius num_points X Y],
 %      where X,Y denote the coordinates of the zone center, and radius is
@@ -22,7 +22,7 @@ function h_plot = fcn_Laps_plotPointZoneDefinition(zone_definition,varargin)
 %
 %      (OPTIONAL INPUTS)
 %
-%      plot_style: the standard plot pecification style allowing line and
+%      plotStyle: the standard plot pecification style allowing line and
 %      color, for example 'r-'. Type "help plot" for a listing of options.
 %
 %      figNum: a figure number to plot results. If set to -1, skips any
@@ -31,7 +31,7 @@ function h_plot = fcn_Laps_plotPointZoneDefinition(zone_definition,varargin)
 %
 % OUTPUTS:
 %
-%      h: a handle to the resulting figure
+%      cellArrayOfPlotHandles: cell array of handles to each of the plots
 %
 % DEPENDENCIES:
 %
@@ -48,22 +48,41 @@ function h_plot = fcn_Laps_plotPointZoneDefinition(zone_definition,varargin)
 % REVISION HISTORY:
 %
 % 2022_04_10 by Sean Brennan, sbrennan@psu.edu
-% - wrote the code
+% - In fcn_Laps_plotPointZoneDefinition
+%   % * Wrote the code
 % 
 % 2022_04_12 by Sean Brennan, sbrennan@psu.edu
-% - fixed minor bug with showing the arrowhead
+% - In fcn_Laps_plotPointZoneDefinition
+%   % * Fixed minor bug with showing the arrowhead
 % 
 % 2022_07_23 by Sean Brennan, sbrennan@psu.edu
-% - made argument list consistent with segment zone
-% - allow zone to be 2D or 3D
-% - fixed minor bug with arrow being different color than line segment
+% - In fcn_Laps_plotPointZoneDefinition
+%   % * Made argument list consistent with segment zone
+%   % * Allow zone to be 2D or 3D
+%   % * Fixed minor bug with arrow being different color than line segment
 % 
 % 2025_04_25 by Sean Brennan, sbrennan@psu.edu
-% - added global debugging options
+% - In fcn_Laps_plotPointZoneDefinition
+%   % * Added global debugging options
 % 
 % 2025_07_03 by Sean Brennan, sbrennan@psu.edu
-% - cleanup of Debugging area codes
-% - turn on fast mode for Path calls
+% - In fcn_Laps_plotPointZoneDefinition
+%   % * Cleanup of Debugging area codes
+%   % * Turn on fast mode for Path calls
+%
+% 2026_11_18 by Sean Brennan, sbrennan@psu.edu
+% - In fcn_Laps_plotPointZoneDefinition
+%   % * Fixed errors in comments
+%   % * Standardized header comments into current convention
+%   % * Variable renaming to avoid underscores
+%   % * Fixed issue where plotSegmentZoneDefinition called without a figNum
+%   %   % opens an empty figure and draws nothing. flag_do_plots defaults
+%   %   % to 0 (line 141), while plotPointZoneDefinition defaults to 1. 
+%   %   % If the caller asks for the output, it also errors because cellArrayOfPlotHandles
+%   %   % is never assigned. This is now fixed.
+%   % * Fixed bug where, if figNum is empty, does not plot.
+%   % * Changed output handles to cell array of rows
+%   % * Initialize a default output
 
 % TO-DO:
 %
@@ -121,19 +140,19 @@ if 0==flag_max_speed
         % Are there the right number of inputs?
         narginchk(1,MAX_NARGIN);
 
-        % Check the zone_definition input, 4 or 5 columns, 1 row
-        fcn_DebugTools_checkInputsToFunctions(zone_definition, '4or5column_of_numbers',[1 1]);
+        % Check the zoneDefinition input, 4 or 5 columns, 1 row
+        fcn_DebugTools_checkInputsToFunctions(zoneDefinition, '4or5column_of_numbers',[1 1]);
 
     end
 end
 
 % Check for plot style input
-flag_plot_style_is_specified = 0; % Set default flag value
+flag_plotStyle_is_specified = 0; % Set default flag value
 if 2 <= nargin
     temp = varargin{1};
     if ~isempty(temp)
-        plot_style = temp;
-        flag_plot_style_is_specified = 1;
+        plotStyle = temp;
+        flag_plotStyle_is_specified = 1;
     end
 end
 
@@ -163,11 +182,12 @@ end
 %  |_|  |_|\__,_|_|_| |_|
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+cellArrayOfPlotHandles = cell(3,1);
 
 % Do the plot
-radius  = zone_definition(1,1);
-Xcenter = zone_definition(1,3);
-Ycenter = zone_definition(1,4);
+radius  = zoneDefinition(1,1);
+Xcenter = zoneDefinition(1,3);
+Ycenter = zoneDefinition(1,4);
 
 angles = (0:0.01:2*pi)';
 x_circle = Xcenter + radius * cos(angles);
@@ -250,29 +270,29 @@ if flag_do_plots
     axis equal
 
     % Plot the center point
-    if flag_plot_style_is_specified
-        h_plot{1} = plot(Xcenter,Ycenter,plot_style,'Markersize',20);
-        set(h_plot{1},'Marker','+');
+    if flag_plotStyle_is_specified
+        cellArrayOfPlotHandles{1,1} = plot(Xcenter,Ycenter,plotStyle,'Markersize',20);
+        set(cellArrayOfPlotHandles{1},'Marker','+');
     else
-        h_plot{1} = plot(Xcenter,Ycenter,'+','Markersize',20);
-        main_color = get(h_plot{1},'Color');
+        cellArrayOfPlotHandles{1,1} = plot(Xcenter,Ycenter,'+','Markersize',20);
+        main_color = get(cellArrayOfPlotHandles{1},'Color');
     end
 
     % Plot circle in green
-    if flag_plot_style_is_specified
-        h_plot{2} = plot(x_circle,y_circle,plot_style,'Linewidth',2,'Markersize',20);
+    if flag_plotStyle_is_specified
+        cellArrayOfPlotHandles{2,1} = plot(x_circle,y_circle,plotStyle,'Linewidth',2,'Markersize',20);
     else
-        h_plot{2} = plot(x_circle,y_circle,'-','color',main_color,'Linewidth',2);
+        cellArrayOfPlotHandles{2,1} = plot(x_circle,y_circle,'-','color',main_color,'Linewidth',2);
     end
 
     % Plot the radius arrow?
     if 1==0
         U = radius*cos(45*pi/180);
         V = radius*sin(45*pi/180);
-        if flag_plot_style_is_specified
-            h_plot{3} = quiver(Xcenter,Ycenter,U,V,0,plot_style,'Linewidth',2,'Markersize',20,'ShowArrowHead','on','MaxHeadSize',2);
+        if flag_plotStyle_is_specified
+            cellArrayOfPlotHandles{3,1} = quiver(Xcenter,Ycenter,U,V,0,plotStyle,'Linewidth',2,'Markersize',20,'ShowArrowHead','on','MaxHeadSize',2);
         else
-            h_plot{3} = quiver(Xcenter,Ycenter,U,V,0,'color',main_color,'Linewidth',2,'ShowArrowHead','on','MaxHeadSize',2);
+            cellArrayOfPlotHandles{3,1} = quiver(Xcenter,Ycenter,U,V,0,'color',main_color,'Linewidth',2,'ShowArrowHead','on','MaxHeadSize',2);
         end
     end
 

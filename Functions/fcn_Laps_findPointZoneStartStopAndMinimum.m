@@ -107,19 +107,31 @@ function [zone_start_indices, zone_end_indices, zone_min_indices] = ...
 % REVISION HISTORY:
 %
 % 2022_04_08 by Sean Brennan, sbrennan@psu.edu
-% - Wrote the code originally
+% - In fcn_Laps_findPointZoneStartStopAndMinimum
+%   % * Wrote the code originally
 % 
 % 2022_07_10 by Sean Brennan, sbrennan@psu.edu
-% - Improved the comments
-% - Changed zone definition to allow num_points in the zone
-%   % definition, separating out radius, and allowing 3-D paths
+% - In fcn_Laps_findPointZoneStartStopAndMinimum
+%   % * Improved the comments
+%   % * Changed zone definition to allow num_points in the zone
+%   %   % definition, separating out radius, and allowing 3-D paths
 % 
 % 2025_04_25 by Sean Brennan, sbrennan@psu.edu
-% - Added global debugging options
+% - In fcn_Laps_findPointZoneStartStopAndMinimum
+%   % * Added global debugging options
 % 
 % 2025_07_03 by Sean Brennan, sbrennan@psu.edu
-% - Cleanup of Debugging area codes
-% - Turn on fast mode for Path calls
+% - In fcn_Laps_findPointZoneStartStopAndMinimum
+%   % * Cleanup of Debugging area codes
+%   % * Turn on fast mode for Path calls
+% 
+% 2026_11_18 by Sean Brennan, sbrennan@psu.edu
+% - In fcn_Laps_findPointZoneStartStopAndMinimum
+%   % * Standardized header comments into current convention
+%   % * Fixed issue where the input check (line 182) accepts 3 columns, but
+%   %   % lines 233 and 323 assume 2. The header says 3D "is not yet supported",
+%   %   % so the input check should reject 3 columns with a clear message rather
+%   %   % than fail later with a cryptic one. This is now checked at input.
 
 % TO-DO:
 %
@@ -178,11 +190,11 @@ if 0==flag_max_speed
         % Are there the right number of inputs?
         narginchk(3,MAX_NARGIN);
 
-        % Check the query_path input, 2 or 3 columns, 1 or more rows
-        fcn_DebugTools_checkInputsToFunctions(query_path, '2or3column_of_numbers',[1 2]);
+        % Check the query_path input, 2 columns, 1 or more rows
+        fcn_DebugTools_checkInputsToFunctions(query_path, '2column_of_numbers',[1 2]);
 
-        % Check the zone_center input, 2 or 3 columns, 1 row
-        fcn_DebugTools_checkInputsToFunctions(zone_center, '2or3column_of_numbers',[1 1]);
+        % Check the zone_center input, 2 columns, 1 row
+        fcn_DebugTools_checkInputsToFunctions(zone_center, '2column_of_numbers',[1 1]);
 
         % Check the zone_radius input, 1 column, 1 row
         fcn_DebugTools_checkInputsToFunctions(zone_radius, 'positive_1column_of_numbers',[1 1]);
@@ -383,7 +395,7 @@ if flag_do_plots
     plot(query_path(:,1),query_path(:,2),'b.-','Markersize',10,'LineWidth',3,'MarkerSize',20, 'DisplayName','Path');
     
     % Plot the zone definition in green
-    h_plot = fcn_Laps_plotPointZoneDefinition([zone_radius 3 zone_center],'g',figNum);
+    h_plot = fcn_Laps_plotPointZoneDefinition([zone_radius minimum_number_of_indices_in_zone zone_center],'g',figNum);
     set(h_plot{1},'DisplayName','Zone center');
     set(h_plot{2},'DisplayName','Zone boundary');
     

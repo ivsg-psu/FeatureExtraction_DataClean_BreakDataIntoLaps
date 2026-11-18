@@ -4,15 +4,22 @@
 % REVISION HISTORY:
 %
 % 2022_04_08 by Sean Brennan, sbrennan@psu.edu
-% - first write of the code
+% - In script_test_fcn_Laps_findPointZoneStartStopAndMinimum
+%   % * First write of the code
 % 
 % 2025_07_03 by Sean Brennan, sbrennan@psu.edu
-% - standardized headers on all test scripts
+% - In script_test_fcn_Laps_findPointZoneStartStopAndMinimum
+%   % * Standardized headers on all test scripts
+%
+% 2026_11_18 by Sean Brennan, sbrennan@psu.edu
+% - In script_test_fcn_Laps_findPointZoneStartStopAndMinimum
+%   % * Standardized header comments into current convention
 
 % TO-DO:
 %
 % 2025_11_21 by Sean Brennan, sbrennan@psu.edu
-% - (fill in items here)
+% - In script_test_fcn_Laps_findPointZoneStartStopAndMinimum
+%   % * (fill in items here)
 
 
 %% Set up the workspace

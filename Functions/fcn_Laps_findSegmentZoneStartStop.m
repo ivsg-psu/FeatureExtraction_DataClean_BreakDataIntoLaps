@@ -84,17 +84,31 @@ function [zone_start_indices, zone_end_indices] = ...
 % REVISION HISTORY:
 %
 % 2022_07_12 by Sean Brennan, sbrennan@psu.edu
-% - Wrote the code originally
+% - In fcn_Laps_findSegmentZoneStartStop
+%   % * Wrote the code originally
 % 
 % 2022_11_10 by Sean Brennan, sbrennan@psu.edu
-% - Fixed bug in plotting
+% - In fcn_Laps_findSegmentZoneStartStop
+%   % * Fixed bug in plotting
 % 
 % 2025_04_25 by Sean Brennan, sbrennan@psu.edu
-% - Added global debugging options
+% - In fcn_Laps_findSegmentZoneStartStop
+%   % * Added global debugging options
 % 
 % 2025_07_03 by Sean Brennan, sbrennan@psu.edu
-% - Cleanup of Debugging area codes
-% - Turn on fast mode for Path calls
+% - In fcn_Laps_findSegmentZoneStartStop
+%   % * Cleanup of Debugging area codes
+%   % * Turn on fast mode for Path calls
+%
+% 2026_11_18 by Sean Brennan, sbrennan@psu.edu
+% - In fcn_Laps_findSegmentZoneStartStop
+%   % * Standardized header comments into current convention
+%   % * Fixed issue where INTERNAL_print_results(distance, location, ...).
+%   %   % That function was commented out (lines 392–439), and location was
+%   %   % thrown away with ~ on line 198. So anyone who sets
+%   %   % MATLABFLAG_LAPS_FLAG_DO_DEBUG=1 gets an error. This is now fixed.
+%   % * Fixed line 250: had three %d but only two arguments, so the newline
+%   %   % was dropped.
 
 % TO-DO:
 %
@@ -195,14 +209,14 @@ if isequal(size(segment_definition),[2 3])
 end
 
 % Calculate the intersection points
-[distance,~, segment_numbers] = ...
+[distance, location, segment_numbers] = ...
     fcn_Path_findProjectionHitOntoPath(...
     query_path,segment_definition(1,:),segment_definition(2,:),...
     2, -1);
 
 % For debugging:
 if flag_do_debug
-    INTERNAL_print_results(distance,location, segment_numbers);
+    INTERNAL_print_results(distance, location, segment_numbers);
 end
 
 
@@ -247,7 +261,7 @@ if ~isempty(distance)
         if flag_do_debug
             fprintf(1,'\nStart, end indices for good zones: \nIstart \t Iend \n');
             for ith_index = 1:num_good_zones
-                fprintf(1,'%d\t\t %d\t\t %d\n',zone_start_indices(ith_index,1), zone_end_indices(ith_index,1));
+                fprintf(1,'%d\t\t %d\n',zone_start_indices(ith_index,1), zone_end_indices(ith_index,1));
             end
         end
         
@@ -388,55 +402,55 @@ end % Ends main function
 %
 % See: https://patorjk.com/software/taag/#p=display&f=Big&t=Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%§
-% 
-% function INTERNAL_print_results(distances,location,segment_number) %#ok<DEFNU>
-% N_chars = 25;
-% 
-% % Print the header
-% header_1_str = sprintf('%s','Intersection #');
-% fixed_header_1_str = fcn_DebugTools_debugPrintStringToNCharacters(header_1_str,N_chars);
-% header_2_str = sprintf('%s','s-coord along segment');
-% fixed_header_2_str = fcn_DebugTools_debugPrintStringToNCharacters(header_2_str,N_chars);
-% header_3_str = sprintf('%s','Location X');
-% fixed_header_3_str = fcn_DebugTools_debugPrintStringToNCharacters(header_3_str,N_chars);
-% header_4_str = sprintf('%s','Location Y');
-% fixed_header_4_str = fcn_DebugTools_debugPrintStringToNCharacters(header_4_str,N_chars);
-% header_5_str = sprintf('%s','Path segment hit');
-% fixed_header_5_str = fcn_DebugTools_debugPrintStringToNCharacters(header_5_str,N_chars);
-% 
-% fprintf(1,'\n\n%s %s %s %s %s\n',...
-%     fixed_header_1_str,...
-%     fixed_header_2_str,...
-%     fixed_header_3_str,...
-%     fixed_header_4_str,...
-%     fixed_header_5_str);
-% 
-% % Print the results
-% if ~isempty(distances)
-%     for ith_intersection =1:length(distances(:,1))
-%         results_1_str = sprintf('%.0d',ith_intersection);
-%         fixed_results_1_str = fcn_DebugTools_debugPrintStringToNCharacters(results_1_str,N_chars);
-%         results_2_str = sprintf('%.2f',distances(ith_intersection,1));
-%         fixed_results_2_str = fcn_DebugTools_debugPrintStringToNCharacters(results_2_str,N_chars);
-%         results_3_str = sprintf('%.2f',location(ith_intersection,1));
-%         fixed_results_3_str = fcn_DebugTools_debugPrintStringToNCharacters(results_3_str,N_chars);
-%         results_4_str = sprintf('%.2f',location(ith_intersection,2));
-%         fixed_results_4_str = fcn_DebugTools_debugPrintStringToNCharacters(results_4_str,N_chars);
-%         results_5_str = sprintf('%.0d',segment_number(ith_intersection));
-%         fixed_results_5_str = fcn_DebugTools_debugPrintStringToNCharacters(results_5_str,N_chars);
-% 
-%         fprintf(1,'%s %s %s %s %s\n',...
-%             fixed_results_1_str,...
-%             fixed_results_2_str,...
-%             fixed_results_3_str,...
-%             fixed_results_4_str,...
-%             fixed_results_5_str);
-% 
-%     end % Ends for loop
-% else
-%     fprintf(1,'(no intersections detected)\n');
-% end % Ends check to see if isempty
-% end % Ends function
+
+function INTERNAL_print_results(distances,location,segment_number) 
+N_chars = 25;
+
+% Print the header
+header_1_str = sprintf('%s','Intersection #');
+fixed_header_1_str = fcn_DebugTools_debugPrintStringToNCharacters(header_1_str,N_chars);
+header_2_str = sprintf('%s','s-coord along segment');
+fixed_header_2_str = fcn_DebugTools_debugPrintStringToNCharacters(header_2_str,N_chars);
+header_3_str = sprintf('%s','Location X');
+fixed_header_3_str = fcn_DebugTools_debugPrintStringToNCharacters(header_3_str,N_chars);
+header_4_str = sprintf('%s','Location Y');
+fixed_header_4_str = fcn_DebugTools_debugPrintStringToNCharacters(header_4_str,N_chars);
+header_5_str = sprintf('%s','Path segment hit');
+fixed_header_5_str = fcn_DebugTools_debugPrintStringToNCharacters(header_5_str,N_chars);
+
+fprintf(1,'\n\n%s %s %s %s %s\n',...
+    fixed_header_1_str,...
+    fixed_header_2_str,...
+    fixed_header_3_str,...
+    fixed_header_4_str,...
+    fixed_header_5_str);
+
+% Print the results
+if ~isempty(distances)
+    for ith_intersection =1:length(distances(:,1))
+        results_1_str = sprintf('%.0d',ith_intersection);
+        fixed_results_1_str = fcn_DebugTools_debugPrintStringToNCharacters(results_1_str,N_chars);
+        results_2_str = sprintf('%.2f',distances(ith_intersection,1));
+        fixed_results_2_str = fcn_DebugTools_debugPrintStringToNCharacters(results_2_str,N_chars);
+        results_3_str = sprintf('%.2f',location(ith_intersection,1));
+        fixed_results_3_str = fcn_DebugTools_debugPrintStringToNCharacters(results_3_str,N_chars);
+        results_4_str = sprintf('%.2f',location(ith_intersection,2));
+        fixed_results_4_str = fcn_DebugTools_debugPrintStringToNCharacters(results_4_str,N_chars);
+        results_5_str = sprintf('%.0d',segment_number(ith_intersection));
+        fixed_results_5_str = fcn_DebugTools_debugPrintStringToNCharacters(results_5_str,N_chars);
+
+        fprintf(1,'%s %s %s %s %s\n',...
+            fixed_results_1_str,...
+            fixed_results_2_str,...
+            fixed_results_3_str,...
+            fixed_results_4_str,...
+            fixed_results_5_str);
+
+    end % Ends for loop
+else
+    fprintf(1,'(no intersections detected)\n');
+end % Ends check to see if isempty
+end % Ends function
 
 %% Calculate cross products
 function result = INTERNAL_crossProduct(v,w)

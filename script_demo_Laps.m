@@ -87,6 +87,115 @@
 %   % * Added check if repo is ready for release
 %   % * Removed script_test_all_functions
 % (new release)
+%
+% 2026_11_18 by Sean Brennan, sbrennan@psu.edu
+% - In script_demo_Laps
+%   % * Did a code review in prep for new release to the class (Claude CLI)
+%   % * Updated installer
+% - In script_test_fcn_Laps_breakDataIntoLaps
+%   % * Fixed comments into standard form
+% - In script_test_fcn_Laps_breakDataIntoLaps
+%   % * Fixed comments into standard form
+%   % * Added 3D test case, including data loading function
+% - In fcn_Laps_breakDataIntoLaps
+%   % * Standardized header comments into current convention
+%   % * Below function changes are via Claude CLI:
+%   % * Refactored to call fcn_Laps_breakDataIntoLapIndices and slice the
+%   %   % path by the returned indices, removing ~400 lines of code that
+%   %   % duplicated the zone detection and lap matching logic
+%   % * Fixed crash for N x 3 paths with point zones (zone detection now uses
+%   %   % only the XY columns, while outputs keep all columns)
+%   % * Removed unused INTERNAL_plot_circle
+% - In script_test_fcn_Laps_breakDataIntoLapIndices
+%   % * Fixed comments into standard form
+% - In fcn_Laps_breakDataIntoLapIndices
+%   % * Standardized header comments into current convention
+%   % * Fixed case where no laps are found. Previously, returned empty cell
+%   %   but now returns all indices for the whole path as the entry.
+%   % * Fixed bug where the segment-type excursion branch tests
+%   %   start_zone_start_indices when it should test
+%   %   excursion_zone_start_indices
+% - In script_test_fcn_Laps_findPointZoneStartStopAndMinimum
+%   % * Standardized header comments into current convention
+% - In fcn_Laps_findPointZoneStartStopAndMinimum
+%   % * Standardized header comments into current convention
+%   % * Fixed issue where the input check (line 182) accepts 3 columns, but
+%   %   % lines 233 and 323 assume 2. The header says 3D "is not yet supported",
+%   %   % so the input check should reject 3 columns with a clear message rather
+%   %   % than fail later with a cryptic one. This is now checked at input.
+% - In script_test_fcn_Laps_findSegmentZoneStartStop
+%   % * Standardized header comments into current convention
+% - In fcn_Laps_findSegmentZoneStartStop
+%   % * Standardized header comments into current convention
+%   % * Fixed issue where INTERNAL_print_results(distance, location, ...).
+%   %   % That function was commented out (lines 392–439), and location was
+%   %   % thrown away with ~ on line 198. So anyone who sets
+%   %   % MATLABFLAG_LAPS_FLAG_DO_DEBUG=1 gets an error. This is now fixed.
+%   % * Fixed line 250: had three %d but only two arguments, so the newline
+%   %   % was dropped.
+% - In script_test_fcn_Laps_plotZoneDefinition
+%   % * Standardized header comments into current convention
+%   % * Variable renaming to avoid underscores
+%   % * Test case 10002 titled "defaults to last figure", but its 
+%   %   % assertion actually checks that a new figure opened, 
+%   %   % so the test is incorrect. This is fixed.
+%   % * Added tests of cellArrayOfPlotHandles
+% - In fcn_Laps_plotZoneDefinition
+%   % * Standardized header comments into current convention
+%   % * Variable renaming to avoid underscores
+%   % * Fixed issue where plotSegmentZoneDefinition called without a figNum
+%   %   % opens an empty figure and draws nothing. flag_do_plots defaults
+%   %   % to 0 (line 141), while plotPointZoneDefinition defaults to 1. 
+%   %   % If the caller asks for the output, it also errors because cellArrayOfPlotHandles
+%   %   % is never assigned. This is now fixed.
+%   % * Fixed bug where, if figNum is empty, does not plot.
+%   % * Changed output handles to cell array of rows
+%   % * Initialize a default output
+% - In script_test_fcn_Laps_plotPointZoneDefinition
+%   % * Standardized header comments into current convention
+%   % * Variable renaming to avoid underscores
+%   % * Added tests for the plot handle cell array outputs
+% - In fcn_Laps_plotPointZoneDefinition
+%   % * Fixed errors in comments
+%   % * Standardized header comments into current convention
+%   % * Variable renaming to avoid underscores
+%   % * Fixed issue where plotSegmentZoneDefinition called without a figNum
+%   %   % opens an empty figure and draws nothing. flag_do_plots defaults
+%   %   % to 0 (line 141), while plotPointZoneDefinition defaults to 1. 
+%   %   % If the caller asks for the output, it also errors because cellArrayOfPlotHandles
+%   %   % is never assigned. This is now fixed.
+%   % * Fixed bug where, if figNum is empty, does not plot.
+%   % * Changed output handles to cell array of rows
+%   % * Initialize a default output
+% - In script_test_fcn_Laps_plotSegmentZoneDefinition
+%   % * Standardized header comments into current convention
+%   % * Variable renaming to avoid underscores
+%   % * Added tests for the plot handle cell array outputs
+% - In fcn_Laps_plotSegmentZoneDefinition
+%   % * Fixed errors in comments
+%   % * Moved variables away from underscore convention
+%   % * Standardized header comments into current convention
+% - In script_test_fcn_Laps_plotLapsXY
+%   % * Standardized header comments into current convention
+%   % * Variable renaming to avoid underscores
+%   % * Added tests for the plot handle cell array outputs
+% - In fcn_Laps_plotLapsXY
+%   % * Fixed errors in comments
+%   % * Standardized header comments into current convention
+%   % * Variable renaming to avoid underscores
+%   % * Fixed bug where, if figNum is empty, does not plot in current
+%   %   % figure
+%   % * Changed output handles to cell array of rows
+%   % * Initialize a default output
+% - In script_test_fcn_Laps_checkZoneType
+%   % * Standardized header comments into current convention
+%   % * Variable renaming to avoid underscores
+%   % * Added tests for the plot handle cell array outputs
+% - In fcn_Laps_checkZoneType
+%   % * Standardized header comments into current convention
+%   % * Variable renaming to avoid underscores
+%   % * Added tests for the plot handle cell array outputs
+
 
 % TO-DO:
 % - 2025_11_12 by Sean Brennan, sbrennan@psu.edu
@@ -102,100 +211,33 @@ thisFile = which(st(1).file);
 [filepath,name,ext] = fileparts(thisFile);
 cd(filepath);
 
-%%% START OF STANDARD INSTALLER CODE %%%%%%%%%
+%% START OF STANDARD INSTALLER CODE %%%%%%%%%
 
-%% Clear paths and folders, if needed
+%%% Clear paths and folders, if needed
 if 1==1
-    clear flag_Laps_Folders_Initialized
+	clear flag_Laps_Folders_Initialized
 end
 
 if 1==0
-    fcn_INTERNAL_clearUtilitiesFromPathAndFolders;
+	fcn_INTERNAL_clearUtilitiesFromPathAndFolders;
 end
 
 if 1==0
-    % Resets all paths to factory default
-    restoredefaultpath;
+	% Resets all paths to factory default
+	restoredefaultpath;
 end
 
-%% Install dependencies
-% Define a universal resource locator (URL) pointing to the repos of
-% dependencies to install. Note that DebugTools is always installed
-% automatically, first, even if not listed:
-clear dependencyURLs dependencySubfolders
-ith_repo = 0;
 
-ith_repo = ith_repo+1;
-dependencyURLs{ith_repo} = 'https://github.com/ivsg-psu/PathPlanning_PathTools_PathClassLibrary';
-dependencySubfolders{ith_repo} = {'Functions','Data'};
-
-ith_repo = ith_repo+1;
-dependencyURLs{ith_repo} = 'https://github.com/ivsg-psu/PathPlanning_PathTools_GetUserInputPath';
-dependencySubfolders{ith_repo} = {''};
-
-ith_repo = ith_repo+1;
-dependencyURLs{ith_repo} = 'https://github.com/ivsg-psu/FieldDataCollection_VisualizingFieldData_PlotRoad';
-dependencySubfolders{ith_repo} = {'Functions','Data'};
-
-% ith_repo = ith_repo+1;
-% dependencyURLs{ith_repo} = 'https://github.com/ivsg-psu/PathPlanning_GeomTools_GeomClassLibrary';
-% dependencySubfolders{ith_repo} = {'Functions','Data'};
-
-% ith_repo = ith_repo+1;
-% dependencyURLs{ith_repo} = 'https://github.com/ivsg-psu/PathPlanning_MapTools_MapGenClassLibrary';
-% dependencySubfolders{ith_repo} = {'Functions','testFixtures','GridMapGen'};
-
-
-
-%% Do we need to set up the work space?
-if ~exist('flag_Laps_Folders_Initialized','var')
-    
-    % Clear prior global variable flags
-    clear global FLAG_*
-
-    % Navigate to the Installer directory
-    currentFolder = pwd;
-    cd('Installer');
-    % Create a function handle
-    func_handle = @fcn_DebugTools_autoInstallRepos;
-
-    % Return to the original directory
-    cd(currentFolder);
-
-    % Call the function to do the install
-    func_handle(dependencyURLs, dependencySubfolders, (0), (-1));
-
-    % Add this function's folders to the path
-    this_project_folders = {...
-        'Functions','Data'};
-    fcn_DebugTools_addSubdirectoriesToPath(pwd,this_project_folders)
-
-    flag_Laps_Folders_Initialized = 1;
+% Do we need to set up the work space?
+if ~exist('flag_Laps_Folders_Initialized','var') || 0==flag_Laps_Folders_Initialized
+	fcn_INTERNAL_setupWorkspace;
+	flag_Laps_Folders_Initialized = 1;
+else
+	fprintf(1,'Skipping installs as it appears this was completed previously in this session.\n');
 end
 
-%%% END OF STANDARD INSTALLER CODE %%%%%%%%%
+%%%% END OF STANDARD INSTALLER CODE %%%%%%%%%
 
-%% Set environment flags for input checking in Laps library
-% These are values to set if we want to check inputs or do debugging
-setenv('MATLABFLAG_LAPS_FLAG_CHECK_INPUTS','1');
-setenv('MATLABFLAG_LAPS_FLAG_DO_DEBUG','0');
-
-%% Set environment flags that define the ENU origin
-% This sets the "center" of the ENU coordinate system for all plotting
-% functions
-% Location for Test Track base station
-setenv('MATLABFLAG_PLOTROAD_REFERENCE_LATITUDE','40.86368573');
-setenv('MATLABFLAG_PLOTROAD_REFERENCE_LONGITUDE','-77.83592832');
-setenv('MATLABFLAG_PLOTROAD_REFERENCE_ALTITUDE','344.189');
-
-
-%% Set environment flags for plotting
-% These are values to set if we are forcing image alignment via Lat and Lon
-% shifting, when doing geoplot. This is added because the geoplot images
-% are very, very slightly off at the test track, which is confusing when
-% plotting data
-setenv('MATLABFLAG_PLOTROAD_ALIGNMATLABLLAPLOTTINGIMAGES_LAT','-0.0000008');
-setenv('MATLABFLAG_PLOTROAD_ALIGNMATLABLLAPLOTTINGIMAGES_LON','0.0000054');
 
 %% Check if repo is ready for release
 if 1==0
@@ -537,4 +579,239 @@ if  exist(utilities_dir,'dir')
 end
 
 end % Ends fcn_INTERNAL_clearUtilitiesFromPathAndFolders
+
+%% function fcn_INTERNAL_checkForPriorDebugInstall
+function [flag_previousInstallFound, func_handle_addSubdirectoriesToPath, func_handle_autoInstallRepos, func_handle_isThisComputerOnline] = fcn_INTERNAL_checkForPriorDebugInstall
+
+% Initialize default outputs
+flag_previousInstallFound = false;
+func_handle_addSubdirectoriesToPath = [];
+func_handle_autoInstallRepos  = [];
+func_handle_isThisComputerOnline  = [];
+
+% Navigate to the Utilities directory
+utilitiesFolderSearch = fullfile(pwd,'Utilities');
+if exist(utilitiesFolderSearch,'dir')
+	dirCommand = fullfile(utilitiesFolderSearch,'DebugTools*.');
+	debugsInstalled = dir(dirCommand);
+
+	% Were any DebugTools installs found?
+	if ~isempty(debugsInstalled)
+		flag_previousInstallFound = true; % Mark flag that it was found
+		mostRecentDebugInstall = fullfile(debugsInstalled(end).folder,debugsInstalled(end).name,'Functions');
+
+		currentFolder = pwd; % Save the current folder
+
+		cd(mostRecentDebugInstall); % Move into the utilities folder
+
+		% Create a function handles
+		func_handle_addSubdirectoriesToPath = @fcn_DebugTools_addSubdirectoriesToPath;
+		func_handle_autoInstallRepos = @fcn_DebugTools_autoInstallRepos;
+		func_handle_isThisComputerOnline = @fcn_DebugTools_isThisComputerOnline;
+
+		% Return to the root directory
+		cd(currentFolder);
+	end
+end
+end % Ends fcn_INTERNAL_checkForPriorDebugInstall
+
+
+%% function fcn_INTERNAL_checkForAutoinstall
+function [flag_previousInstallFound, func_handle_autoInstallRepos] = fcn_INTERNAL_checkForAutoinstall
+
+flag_previousInstallFound = false;
+
+% Navigate to the Utilities directory
+autoinstallFolderSearch = fullfile(pwd,'Installer');
+if exist(autoinstallFolderSearch,'dir')
+	flag_previousInstallFound = true;% Set flag to indicate it was found
+	currentFolder = pwd; % Save the current folder
+	cd(autoinstallFolderSearch); % Move into the Installer folder
+	func_handle_autoInstallRepos = @fcn_DebugTools_autoInstallRepos; % Create function handle
+	cd(currentFolder); % Return to the root directory
+end
+end % fcn_INTERNAL_checkForAutoinstall
+%% fcn_INTERNAL_setupWorkspace
+function fcn_INTERNAL_setupWorkspace 
+
+%% Install dependencies
+% Define a universal resource locator (URL) pointing to the repos of
+% dependencies to install. Note that DebugTools is always installed
+% automatically, first, even if not listed:
+ith_repo = 0;
+
+
+
+ith_repo = ith_repo+1;
+dependencyURLs{ith_repo} = 'https://github.com/ivsg-psu/PathPlanning_PathTools_PathClassLibrary';
+dependencySubfolders{ith_repo} = {'Functions','Data'};
+
+ith_repo = ith_repo+1;
+dependencyURLs{ith_repo} = 'https://github.com/ivsg-psu/PathPlanning_PathTools_GetUserInputPath';
+dependencySubfolders{ith_repo} = {''};
+
+ith_repo = ith_repo+1;
+dependencyURLs{ith_repo} = 'https://github.com/ivsg-psu/FieldDataCollection_VisualizingFieldData_PlotRoad';
+dependencySubfolders{ith_repo} = {'Functions','Data'};
+
+% ith_repo = ith_repo+1;
+% dependencyURLs{ith_repo} = 'https://github.com/ivsg-psu/PathPlanning_GeomTools_GeomClassLibrary';
+% dependencySubfolders{ith_repo} = {'Functions','Data'};
+
+% ith_repo = ith_repo+1;
+% dependencyURLs{ith_repo} = 'https://github.com/ivsg-psu/PathPlanning_MapTools_MapGenClassLibrary';
+% dependencySubfolders{ith_repo} = {'Functions','testFixtures','GridMapGen'};
+
+
+% Check if prior installs exist
+[flag_previousDebugFound, func_handle_addSubdirectoriesToPath, func_handle_autoInstallReposDebug, func_handle_isThisComputerOnline] = fcn_INTERNAL_checkForPriorDebugInstall;
+[flag_previousAutoinstallFound, func_handle_autoInstallReposAutoinstall] = fcn_INTERNAL_checkForAutoinstall;
+
+if ~flag_previousDebugFound && ~flag_previousAutoinstallFound
+	error('Installers are missing. Irrecoverable error!');
+else
+	% Decide which autoInstaller to use, defaulting to the most recent
+	% one
+	if flag_previousDebugFound
+		func_handle_autoInstallRepos = func_handle_autoInstallReposDebug;
+	else
+		func_handle_autoInstallRepos = func_handle_autoInstallReposAutoinstall;
+	end
+end
+
+% Check if online?
+if flag_previousDebugFound
+	flag_isOnline = func_handle_isThisComputerOnline();
+else
+	flag_isOnline = true; % Default to assuming online
+end
+
+% If computer is onffline, install folders manually
+if ~flag_isOnline
+	fprintf(1,'This computer appears to be offline. The code will be run with libraries that are already installed. However, any updates to these libraries including bug fixes may be missed. Use code with caution!\n');
+	fprintf(1,'Press any key to continue.\n');
+	% pause;
+
+	if ~flag_previousDebugFound
+		error('Computer appears offline and no prior installs found of debug folders. A prior install of this folder is needed to proceed. Quitting.');
+	end
+	pathToSearch = fullfile(pwd,'Utilities');
+	subfolders = dir(pathToSearch);
+	subfolders = subfolders([subfolders.isdir]);
+	namedSubfolders = subfolders(~ismember({subfolders.name},{'.','..'}));
+	existingFolderNameList = {namedSubfolders.name}';
+
+	dependencyInstallRootName = [{'DebugTools'},dependencyInstallRootName(:)']';
+	dependencySubfolders      = [{{'Functions','Data'}},dependencySubfolders(:)']';
+	% Add each locally available dependency to the MATLAB path
+	for ith_repo = 1:length(dependencyInstallRootName)
+		thisRootName = dependencyInstallRootName{ith_repo};
+
+		if ~contains(existingFolderNameList,thisRootName)
+			error('A required dependency, named %.s, was not found among the packages already installed in the Utilities folder. A prior install of this folder is needed to proceed. Quitting.',thisRootName);
+		else
+			folderIndexToAdd = find(contains(existingFolderNameList,thisRootName),1);
+		end
+
+		fprintf(1,'\tAdding already installed library to the path: %s\n',namedSubfolders(folderIndexToAdd).name);
+		thisFolderRoot = fullfile(namedSubfolders(folderIndexToAdd).folder,namedSubfolders(folderIndexToAdd).name);
+		func_handle_addSubdirectoriesToPath(thisFolderRoot,dependencySubfolders{ith_repo});
+	end
+
+else
+	% Clear prior global variable flags
+	clear global FLAG_*
+
+	% Call the function to do the install
+	func_handle_autoInstallRepos(dependencyURLs, dependencySubfolders, (0), (-1));
+end
+
+% Add this function's folders to the path
+this_project_folders = {...
+	'Functions','Data'};
+fprintf(1,'\tAdding this project folders to the path: \n');
+for ith_folder = 1:length(this_project_folders)
+	thisFolder = this_project_folders{ith_folder};
+	fprintf(1,'\t\tAdding subfolder: %s\n',thisFolder);
+end
+fcn_DebugTools_addSubdirectoriesToPath(pwd,this_project_folders)
+
+
+
+%% Set environment flags for input checking in Laps library
+% These are values to set if we want to check inputs or do debugging
+setenv('MATLABFLAG_LAPS_FLAG_CHECK_INPUTS','1');
+setenv('MATLABFLAG_LAPS_FLAG_DO_DEBUG','0');
+
+%% Set environment flags that define the ENU origin
+% This sets the "center" of the ENU coordinate system for all plotting
+% functions
+% Location for Test Track base station
+setenv('MATLABFLAG_PLOTROAD_REFERENCE_LATITUDE','40.86368573');
+setenv('MATLABFLAG_PLOTROAD_REFERENCE_LONGITUDE','-77.83592832');
+setenv('MATLABFLAG_PLOTROAD_REFERENCE_ALTITUDE','344.189');
+
+
+%% Set environment flags for plotting
+% These are values to set if we are forcing image alignment via Lat and Lon
+% shifting, when doing geoplot. This is added because the geoplot images
+% are very, very slightly off at the test track, which is confusing when
+% plotting data
+setenv('MATLABFLAG_PLOTROAD_ALIGNMATLABLLAPLOTTINGIMAGES_LAT','-0.0000008');
+setenv('MATLABFLAG_PLOTROAD_ALIGNMATLABLLAPLOTTINGIMAGES_LON','0.0000054');
+
+
+
+%% Set up warnings
+thisVersion = version('-release');
+thisVersionYear = str2double(thisVersion(1:4));
+
+% Confirm that this is 2025b
+if ~strcmpi(thisVersion,'2025b')
+
+	% Save current backtrace state, turn it off, issue the warning, then restore
+	saved = warning("query","backtrace");
+	warning("off","backtrace");
+	if thisVersionYear<2025
+		warning('Expected release versions 2025a or 2025b, but found older release %s instead.',thisVersion);
+		fcn_DebugTools_cprintf('*red','Many errors may be introduced by using an older MATLAB version.\n Students using out-of-date versions are far more likely to face additional challenges in completing assignments.\n');
+    elseif thisVersionYear>2025
+		warning('Expected release versions 2025a or 2025b, but found newer release %s instead.',thisVersion);
+		fcn_DebugTools_cprintf('*red','Newer versions have not been tested yet but should work.\nStudents are asked to report any code discrepancies so that the code can remain up-to-date!.\n');
+	end
+	warning(saved);
+	fprintf(1,'Press any key to continue.\n');
+	pause;
+end
+
+thisPath = pwd;
+
+% Confirm that path contains no spaces
+if contains(thisPath,' ')
+	warning('A space character was found in the working path: %s. Spaces in file names and paths can cause evaluation errors in some of the functions within this code set.',thisPath);
+	fcn_DebugTools_cprintf('*red','Please consider installing the code into a folder that has no spaces.');
+	fprintf(1,'Press any key to continue.\n');
+	pause;
+end
+
+% Confirm that path contains no minus signs
+if contains(thisPath,'-')
+	warning('A minus character was found in the working path: %s. Minus signs in file names and paths will cause evaluation errors in some of the functions within this code set.',thisPath);
+	fcn_DebugTools_cprintf('*red','Please re-install the code into a folder that has no minus signs in the path name.');
+	fprintf(1,'Press any key to continue.\n');
+	pause;
+end
+
+
+% %% Create Submissions folder
+% if ~exist(fullfile(pwd,'Submissions'),'dir')
+% 	mkdir('Submissions');
+% end
+% 
+% %% Create StudentWork folder
+% if ~exist(fullfile(pwd,'StudentWork'),'dir')
+% 	mkdir('StudentWork');
+% end
+
+end % Ends fcn_INTERNAL_setupWorkspace
 

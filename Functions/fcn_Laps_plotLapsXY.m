@@ -1,4 +1,4 @@
-function h = fcn_Laps_plotLapsXY(cellArrayOfPaths,varargin)
+function cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(cellArrayOfPaths,varargin)
 % fcn_Laps_plotLapsXY
 % Plots the XY positions of all laps existing in a data structure. This is
 % just a modified version of fcn_Path_plotTraversalsXY from the "Path"
@@ -7,7 +7,7 @@ function h = fcn_Laps_plotLapsXY(cellArrayOfPaths,varargin)
 %
 % FORMAT: 
 %
-%       h = fcn_Laps_plotLapsXY(cellArrayOfPaths,{figNum})
+%       cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(cellArrayOfPaths,{figNum})
 %
 % INPUTS:
 %
@@ -25,7 +25,7 @@ function h = fcn_Laps_plotLapsXY(cellArrayOfPaths,varargin)
 %
 % OUTPUTS:
 %
-%      h: a handle to the resulting figure
+%      cellArrayOfPlotHandles: cell array of handles to each of the plots
 %
 % DEPENDENCIES:
 %
@@ -42,17 +42,32 @@ function h = fcn_Laps_plotLapsXY(cellArrayOfPaths,varargin)
 % REVISION HISTORY:
 %
 % 2022_04_02 by Sean Brennan, sbrennan@psu.edu
-% - wrote the code
+% - In fcn_Laps_plotLapsXY
+%   % * Wrote the code originally
 % 
 % 2025_04_25 by Sean Brennan, sbrennan@psu.edu
-% - added global debugging options
+% - In fcn_Laps_plotLapsXY
+%   % * Added global debugging options
 % 
 % 2025_07_02 by Sean Brennan, sbrennan@psu.edu
-% - Removed traversal input type and replaced with cell array of paths
+% - In fcn_Laps_plotLapsXY
+%   % * Removed traversal input type and replaced with cell array of paths
 % 
 % 2025_07_03 by Sean Brennan, sbrennan@psu.edu
-% - cleanup of Debugging area codes
-% - turn on fast mode for Path calls
+% - In fcn_Laps_plotLapsXY
+%   % * Cleanup of Debugging area codes
+%   % * turn on fast mode for Path calls
+%
+% 2026_11_18 by Sean Brennan, sbrennan@psu.edu
+% - In fcn_Laps_plotLapsXY
+%   % * Fixed errors in comments
+%   % * Standardized header comments into current convention
+%   % * Variable renaming to avoid underscores
+%   % * Fixed bug where, if figNum is empty, does not plot in current
+%   %   % figure
+%   % * Changed output handles to cell array of rows
+%   % * Initialize a default output
+
 
 % TO-DO:
 %
@@ -124,7 +139,7 @@ if 0==flag_max_speed
 end
 
 % Does user want to show the plots?
-flag_do_plots = 1; % Default is to show plots
+flag_do_plots = 0; % Default is to NOT show plots
 figNum = [];
 if (0==flag_max_speed) && (MAX_NARGIN == nargin) 
     temp = varargin{end};
@@ -135,7 +150,7 @@ if (0==flag_max_speed) && (MAX_NARGIN == nargin)
 end
 
 if isempty(figNum)
-    temp_h = figure;
+    temp_h = gcf;
     figNum = temp_h.Number;
 else
     temp_h = figure(figNum);
@@ -155,74 +170,9 @@ end
 %  |_|  |_|\__,_|_|_| |_|
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- 
-figure(figNum);
-axis equal;
-
-% Count number of non-empty entries
-Nnotempty = 0;
-for ith_cell = 1:length(cellArrayOfPaths)
-    if ~isempty(cellArrayOfPaths{ith_cell})
-        Nnotempty = ith_cell;
-    end
-end
-
-
-goodCellArray = cell(Nnotempty,1);
-for jth_entry = 1:Nnotempty
-    goodCellArray{jth_entry,1} = cellArrayOfPaths{jth_entry,1};
-end
-cellArrayOfPaths = goodCellArray;
-
-% Check to see if hold is already on. If it is not, set a flag to turn it
-% off after this function is over so it doesn't affect future plotting
-flag_shut_hold_off = 0;
-if ~ishold
-    flag_shut_hold_off = 1;
-    hold on
-end
-
+% Initialize outputs
 NumPaths = length(cellArrayOfPaths);
-h = zeros(NumPaths,1);
-for ith_lap= 1:NumPaths
-    if ~isempty(cellArrayOfPaths{ith_lap})
-        h(ith_lap) = plot(cellArrayOfPaths{ith_lap}(:,1),cellArrayOfPaths{ith_lap}(:,2),'-o');
-    else
-        h(ith_lap) = plot(NaN,NaN,'-o');
-    end
-end
-
-% Plot the start and end values as green and red respectively
-for ith_lap= 1:NumPaths
-    if ~isempty(cellArrayOfPaths{ith_lap})
-        plot(...
-            cellArrayOfPaths{ith_lap}(1,1),cellArrayOfPaths{ith_lap}(1,2),'go',...
-            cellArrayOfPaths{ith_lap}(end,1),cellArrayOfPaths{ith_lap}(end,2),'ro');
-    else
-        plot(NaN,NaN,'go',NaN,NaN,'ro');
-    end
-end
-
-% Shut the hold off?
-if flag_shut_hold_off
-    hold off;
-end
-
-% Add labels? 
-if flag_this_is_a_new_figure == 1
-    title('X vs Y')
-    xlabel('X [m]')
-    ylabel('Y [m]')
-
-    % Make axis slightly larger?
-    temp = axis;
-    axis_range_x = temp(2)-temp(1);
-    axis_range_y = temp(4)-temp(3);
-    percent_larger = 0.3;
-    axis([temp(1)-percent_larger*axis_range_x, temp(2)+percent_larger*axis_range_x,  temp(3)-percent_larger*axis_range_y, temp(4)+percent_larger*axis_range_y]);
-
-end
-
+cellArrayOfPlotHandles = cell(NumPaths,1);
 
 %% Any debugging?
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -236,7 +186,71 @@ end
 %                           |___/ 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flag_do_plots
-    % Nothing in here yet
+figure(figNum);
+	axis equal;
+
+	% Count number of non-empty entries
+	Nnotempty = 0;
+	for ith_cell = 1:length(cellArrayOfPaths)
+		if ~isempty(cellArrayOfPaths{ith_cell})
+			Nnotempty = ith_cell;
+		end
+	end
+
+
+	goodCellArray = cell(Nnotempty,1);
+	for jth_entry = 1:Nnotempty
+		goodCellArray{jth_entry,1} = cellArrayOfPaths{jth_entry,1};
+	end
+	cellArrayOfPaths = goodCellArray;
+
+	% Check to see if hold is already on. If it is not, set a flag to turn it
+	% off after this function is over so it doesn't affect future plotting
+	flag_shut_hold_off = 0;
+	if ~ishold
+		flag_shut_hold_off = 1;
+		hold on
+	end
+
+
+	for ith_lap= 1:length(cellArrayOfPaths)
+		if ~isempty(cellArrayOfPaths{ith_lap})
+			cellArrayOfPlotHandles{ith_lap} = plot(cellArrayOfPaths{ith_lap}(:,1),cellArrayOfPaths{ith_lap}(:,2),'-o');
+		else
+			cellArrayOfPlotHandles{ith_lap} = plot(NaN,NaN,'-o');
+		end
+	end
+
+	% Plot the start and end values as green and red respectively
+	for ith_lap= 1:length(cellArrayOfPaths)
+		if ~isempty(cellArrayOfPaths{ith_lap})
+			plot(...
+				cellArrayOfPaths{ith_lap}(1,1),cellArrayOfPaths{ith_lap}(1,2),'go',...
+				cellArrayOfPaths{ith_lap}(end,1),cellArrayOfPaths{ith_lap}(end,2),'ro');
+		else
+			plot(NaN,NaN,'go',NaN,NaN,'ro');
+		end
+	end
+
+	% Shut the hold off?
+	if flag_shut_hold_off
+		hold off;
+	end
+
+	% Add labels?
+	if flag_this_is_a_new_figure == 1
+		title('X vs Y')
+		xlabel('X [m]')
+		ylabel('Y [m]')
+
+		% Make axis slightly larger?
+		temp = axis;
+		axis_range_x = temp(2)-temp(1);
+		axis_range_y = temp(4)-temp(3);
+		percent_larger = 0.3;
+		axis([temp(1)-percent_larger*axis_range_x, temp(2)+percent_larger*axis_range_x,  temp(3)-percent_larger*axis_range_y, temp(4)+percent_larger*axis_range_y]);
+
+	end
 end
 
 if flag_do_debug

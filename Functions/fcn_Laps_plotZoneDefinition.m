@@ -1,4 +1,4 @@
-function h_plot = fcn_Laps_plotZoneDefinition(zone_definition,varargin)
+function cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(zone_definition,varargin)
 % fcn_Laps_plotZoneDefinition - Plots the zone definition for Laps codes
 %
 % Accepts as an optional second input standard plot style specifications,
@@ -9,7 +9,7 @@ function h_plot = fcn_Laps_plotZoneDefinition(zone_definition,varargin)
 %
 % FORMAT: 
 %
-%       h_plot = fcn_Laps_plotZoneDefinition(zone_definition, (plot_style), (figNum))
+%       cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(zone_definition, (plotStyle), (figNum))
 %
 % INPUTS:
 %
@@ -19,16 +19,17 @@ function h_plot = fcn_Laps_plotZoneDefinition(zone_definition,varargin)
 %
 %      (OPTIONAL INPUTS)
 %   
-%      plot_style: the standard plot pecification style allowing line and
+%      plotStyle: the standard plot pecification style allowing line and
 %      color, for example 'r-'. Type "help plot" for a listing of options.
 %
 %      figNum: a figure number to plot results. If set to -1, skips any
 %      input checking or debugging, no figures will be generated, and sets
-%      up code to maximize speed. 
+%      up code to maximize speed. If empty, defaults to plotting into
+%      current figure.
 %
 % OUTPUTS:
 %
-%      h: a handle to the resulting figure
+%      cellArrayOfPlotHandles: cell array of handles to each of the plots
 %
 % DEPENDENCIES:
 %
@@ -48,14 +49,30 @@ function h_plot = fcn_Laps_plotZoneDefinition(zone_definition,varargin)
 % REVISION HISTORY:
 %
 % 2022_07_23 by Sean Brennan, sbrennan@psu.edu
-% - wrote the code
+% - In fcn_Laps_plotZoneDefinition
+%   % * Wrote the code originally
 % 
 % 2025_04_25 by Sean Brennan, sbrennan@psu.edu
-% - added global debugging options
+% - In fcn_Laps_plotZoneDefinition
+%   % * Added global debugging options
 % 
 % 2025_07_03 by Sean Brennan, sbrennan@psu.edu
-% - cleanup of Debugging area codes
-% - turn on fast mode for Path calls
+% - In fcn_Laps_plotZoneDefinition
+%   % * Cleanup of Debugging area codes
+%   % * Turn on fast mode for Path calls
+%
+% 2026_11_18 by Sean Brennan, sbrennan@psu.edu
+% - In fcn_Laps_plotZoneDefinition
+%   % * Standardized header comments into current convention
+%   % * Variable renaming to avoid underscores
+%   % * Fixed issue where plotSegmentZoneDefinition called without a figNum
+%   %   % opens an empty figure and draws nothing. flag_do_plots defaults
+%   %   % to 0 (line 141), while plotPointZoneDefinition defaults to 1. 
+%   %   % If the caller asks for the output, it also errors because cellArrayOfPlotHandles
+%   %   % is never assigned. This is now fixed.
+%   % * Fixed bug where, if figNum is empty, does not plot.
+%   % * Changed output handles to cell array of rows
+%   % * Initialize a default output
 
 % TO-DO:
 %
@@ -117,17 +134,17 @@ if 0==flag_max_speed
 end
 
 % Check for plot style input
-plot_style = []; % Leave it empty for defaults
+plotStyle = []; % Leave it empty for defaults
 if 2 <= nargin
     temp = varargin{1};
     if ~isempty(temp)
-        plot_style = temp;
+        plotStyle = temp;
     end
 end
 
 % Does user want to show the plots?
 figNum = [];
-flag_do_plots = 0; % Default is to NOT show plots
+flag_do_plots = 1; % Default is to show plots
 if (0==flag_max_speed) && (MAX_NARGIN == nargin) 
     temp = varargin{end};
     if ~isempty(temp) % Did the user NOT give an empty figure number?
@@ -137,7 +154,7 @@ if (0==flag_max_speed) && (MAX_NARGIN == nargin)
 end
 
 if isempty(figNum)
-    temp_h = figure;
+    temp_h = gcf;
     figNum = temp_h.Number;
 end
 %% Main code 
@@ -151,14 +168,19 @@ end
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% Initialize outputs
+cellArrayOfPlotHandles = cell(1,1);
+
 % What type is it?
 [flag_is_a_point_zone_type, new_zone_definition] = fcn_Laps_checkZoneType(zone_definition, 'plot_zone_definition', -1);
 
 % Is it a point-zone type?
-if flag_is_a_point_zone_type
-    h_plot = fcn_Laps_plotPointZoneDefinition(new_zone_definition,plot_style,figNum);
-else % No, it's a segment zone
-    h_plot = fcn_Laps_plotSegmentZoneDefinition(new_zone_definition,plot_style,figNum);
+if 1==flag_do_plots
+	if flag_is_a_point_zone_type
+		cellArrayOfPlotHandles = fcn_Laps_plotPointZoneDefinition(new_zone_definition,plotStyle,figNum);
+	else % No, it's a segment zone
+		cellArrayOfPlotHandles = fcn_Laps_plotSegmentZoneDefinition(new_zone_definition,plotStyle,figNum);
+	end
 end
 
 %% Any debugging?

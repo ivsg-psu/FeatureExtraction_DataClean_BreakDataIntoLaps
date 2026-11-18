@@ -4,21 +4,31 @@
 % REVISION HISTORY:
 %
 % 2022_04_03 by Sean Brennan, sbrennan@psu.edu
-% - first write of the code
+% - In script_test_fcn_Laps_breakDataIntoLaps
+%   % * First write of the code
 % 
 % 2022_04_03 by Sean Brennan, sbrennan@psu.edu
-% - added external call to zone calculation function
+% - In script_test_fcn_Laps_breakDataIntoLaps
+%   % * Added external call to zone calculation function
 % 
 % 2022_07_11 by Sean Brennan, sbrennan@psu.edu
-% - corrected calls to zone function to allow number of points,
-% changed format to allow 3d circles
+% - In script_test_fcn_Laps_breakDataIntoLaps
+%   % * Corrected calls to zone function to allow number of points,
+%   %   % changed format to allow 3d circles
 % 
 % 2025_07_03 by Sean Brennan, sbrennan@psu.edu
-% - cleanup of Debugging area codes
-% - turn on fast mode for Path calls
+% - In script_test_fcn_Laps_breakDataIntoLaps
+%   % * Cleanup of Debugging area codes
+%   % * Turn on fast mode for Path calls
 % 
 % 2025_07_03 by Sean Brennan, sbrennan@psu.edu
-% - standardized headers on all test scripts
+% - In script_test_fcn_Laps_breakDataIntoLaps
+%   % * Standardized headers on all test scripts
+% 
+% 2026_11_18 by Sean Brennan, sbrennan@psu.edu
+% - In script_test_fcn_Laps_breakDataIntoLaps
+%   % * Fixed comments into standard form
+%   % * Added 3D test case, including data loading function
 
 % TO-DO:
 %
@@ -56,7 +66,7 @@ figure(figNum); clf;
 dataSetNumber = 9;
 
 % Load some test data 
-tempXYdata = fcn_INTERNAL_loadExampleData(dataSetNumber);
+tempXYdata = fcn_INTERNAL_loadExampleXYData(dataSetNumber);
 
 start_definition = [10 3 0 0]; % Radius 10, 3 points must pass near [0,0]
 end_definition = [30 3 0 -60]; % Radius 30, 3 points must pass near [0,-60]
@@ -67,7 +77,7 @@ excursion_definition = []; % empty
     start_definition,...
     end_definition,...
     excursion_definition,...
-    figNum);
+    (figNum));
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -93,7 +103,7 @@ assert(isequal(get(gcf,'Number'),figNum));
 if 1==0
     % Plot the lap traversals (should have 3)
     figNum = 1101;
-    fcn_Laps_plotLapsXY(lap_cellArrayOfPaths,figNum);
+    fcn_Laps_plotLapsXY(lap_cellArrayOfPaths,(figNum));
 end
 
 
@@ -107,7 +117,7 @@ figure(figNum); clf;
 dataSetNumber = 9;
 
 % Load some test data 
-tempXYdata = fcn_INTERNAL_loadExampleData(dataSetNumber);
+tempXYdata = fcn_INTERNAL_loadExampleXYData(dataSetNumber);
 
 start_definition = [10 3 0 0]; % Radius 10, 3 points must pass near [0,0]
 end_definition = [30 3 0 -60]; % Radius 30, 3 points must pass near [0,-60]
@@ -118,7 +128,7 @@ excursion_definition = []; % empty
     start_definition,...
     end_definition,...
     excursion_definition,...
-    figNum);
+    (figNum));
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -145,19 +155,19 @@ if 1==0
     figNum = 333;
     figure(figNum);
     subplot(1,3,1);
-    fcn_Laps_plotLapsXY(lap_cellArrayOfPaths,figNum);
+    fcn_Laps_plotLapsXY(lap_cellArrayOfPaths,(figNum));
     axis_limits = axis;
     title('All laps');
 
     subplot(1,3,2);
     single_lap.traversal{1} = entry_traversal;
-    fcn_Laps_plotLapsXY(single_lap,figNum);
+    fcn_Laps_plotLapsXY(single_lap,(figNum));
     axis(axis_limits); % Inheret axis limits from main laps plot
     title('Entry segment');
 
     subplot(1,3,3);
     single_lap.traversal{1} = exit_traversal;
-    fcn_Laps_plotLapsXY(single_lap,figNum);
+    fcn_Laps_plotLapsXY(single_lap,(figNum));
     axis(axis_limits); % Inheret axis limits from main laps plot
     title('Exit segment');    
 end
@@ -172,7 +182,7 @@ figure(figNum); clf;
 dataSetNumber = 9;
 
 % Load some test data 
-tempXYdata = fcn_INTERNAL_loadExampleData(dataSetNumber);
+tempXYdata = fcn_INTERNAL_loadExampleXYData(dataSetNumber);
 
 start_definition = [6 3 0 0]; % Radius 10, 3 points must pass near [0,0]
 end_definition = [30 3 0 -60]; % Radius 30, 3 points must pass near [0,-60]
@@ -183,7 +193,7 @@ excursion_definition = []; % empty
     start_definition,...
     end_definition,...
     excursion_definition,...
-    figNum);
+    (figNum));
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -205,7 +215,7 @@ assert(isequal(get(gcf,'Number'),figNum));
 if 1==0
     % Plot the lap traversals (should have 2)
     figNum = 444;
-    fcn_Laps_plotLapsXY(lap_cellArrayOfPaths,figNum);
+    fcn_Laps_plotLapsXY(lap_cellArrayOfPaths,(figNum));
 end
 
 %% DEMO case: Show the use of segment definition
@@ -217,7 +227,7 @@ figure(figNum); clf;
 dataSetNumber = 9;
 
 % Load some test data 
-tempXYdata = fcn_INTERNAL_loadExampleData(dataSetNumber);
+tempXYdata = fcn_INTERNAL_loadExampleXYData(dataSetNumber);
 
 
 start_definition = [10 0; -10 0]; % start at [10 0], end at [-10 0]
@@ -229,7 +239,7 @@ excursion_definition = []; % empty
     start_definition,...
     end_definition,...
     excursion_definition,...
-    figNum);
+    (figNum));
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -252,7 +262,7 @@ assert(isequal(get(gcf,'Number'),figNum));
 if 1==0
     % Plot the lap traversals (should have 2)
     figNum = 5555;
-    fcn_Laps_plotLapsXY(lap_cellArrayOfPaths,figNum);
+    fcn_Laps_plotLapsXY(lap_cellArrayOfPaths,(figNum));
 end
 
 %% Check assertions for basic path operations and function testing
@@ -444,7 +454,7 @@ start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
     start_definition,...
     [],...
     [],...
-    figNum);
+    (figNum));
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -487,7 +497,7 @@ start_definition = [0.2 3 0 0]; % Located at [0,0] with radius 0.2, 3 points
     start_definition,...
     [],...
     [],...
-    figNum);
+    (figNum));
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -532,7 +542,7 @@ end_definition = [0.5 3 0.5 0]; % Located at [0.5,0] with radius 0.5, 3 points
     start_definition,...
     end_definition,...
     [],...
-    figNum);
+    (figNum));
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -576,7 +586,7 @@ end_definition = [0.5 3 1 0]; % Located at [1,0] with radius 0.5, 3 points
     start_definition,...
     end_definition,...
     [],...
-    figNum);
+    (figNum));
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -593,6 +603,45 @@ assert(isequal(Nlaps,length(lap_cellArrayOfPaths)));
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));
+
+%% TEST case: Check the 3D case
+figNum = 20009;
+titleString = sprintf('TEST case:  Check the 3D case');
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
+
+
+% Create some data to plot
+dataSetNumber = 9;
+tempXYZdata = fcn_INTERNAL_loadExampleXYData(dataSetNumber);
+
+start_definition = [10 3 0 0]; % Radius 10, 3 points must pass near [0,0]
+end_definition = [30 3 0 -60]; % Radius 30, 3 points must pass near [0,-60]
+excursion_definition = []; % empty
+
+[lap_cellArrayOfPaths, entry_traversal,exit_traversal] = fcn_Laps_breakDataIntoLaps(...
+    tempXYZdata,...
+    start_definition,...
+    end_definition,...
+    excursion_definition,...
+    (figNum));
+
+sgtitle(titleString, 'Interpreter','none');
+
+% Check variable types
+assert(iscell(lap_cellArrayOfPaths));
+assert(isnumeric(entry_traversal));
+assert(isnumeric(exit_traversal));
+
+% Check variable sizes
+Nlaps = 3;
+assert(isequal(Nlaps,length(lap_cellArrayOfPaths))); 
+
+% Check variable values
+
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),figNum));
+
 
 
 
@@ -622,7 +671,7 @@ figure(figNum); close(figNum);
 dataSetNumber = 9;
 
 % Load some test data 
-tempXYdata = fcn_INTERNAL_loadExampleData(dataSetNumber);
+tempXYdata = fcn_INTERNAL_loadExampleXYData(dataSetNumber);
 
 start_definition = [10 3 0 0]; % Radius 10, 3 points must pass near [0,0]
 end_definition = [30 3 0 -60]; % Radius 30, 3 points must pass near [0,-60]
@@ -662,7 +711,7 @@ figure(figNum); close(figNum);
 dataSetNumber = 9;
 
 % Load some test data 
-tempXYdata = fcn_INTERNAL_loadExampleData(dataSetNumber);
+tempXYdata = fcn_INTERNAL_loadExampleXYData(dataSetNumber);
 
 start_definition = [10 3 0 0]; % Radius 10, 3 points must pass near [0,0]
 end_definition = [30 3 0 -60]; % Radius 30, 3 points must pass near [0,-60]
@@ -703,7 +752,7 @@ close(figNum);
 dataSetNumber = 9;
 
 % Load some test data 
-tempXYdata = fcn_INTERNAL_loadExampleData(dataSetNumber);
+tempXYdata = fcn_INTERNAL_loadExampleXYData(dataSetNumber);
 
 start_definition = [10 3 0 0]; % Radius 10, 3 points must pass near [0,0]
 end_definition = [30 3 0 -60]; % Radius 30, 3 points must pass near [0,-60]
@@ -858,7 +907,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%§
 
 %% fcn_INTERNAL_loadExampleData
-function tempXYdata = fcn_INTERNAL_loadExampleData(dataSetNumber)
+function tempXYdata = fcn_INTERNAL_loadExampleXYData(dataSetNumber)
 % Call the function to fill in an array of "path" type
 laps_array = fcn_Laps_fillSampleLaps(-1);
 
@@ -866,3 +915,15 @@ laps_array = fcn_Laps_fillSampleLaps(-1);
 tempXYdata = laps_array{dataSetNumber};
 
 end % Ends fcn_INTERNAL_loadExampleData
+
+%% fcn_INTERNAL_loadExampleXYZData
+function tempXYZdata = fcn_INTERNAL_loadExampleXYZData(dataSetNumber)
+% Call the function to fill in an array of "path" type
+laps_array = fcn_Laps_fillSampleLaps(-1);
+
+% Use the last data
+tempXYdata = laps_array{dataSetNumber};
+Npoints = length(tempXYdata(:,1));
+tempXYZdata = [tempXYdata randn(Npoints,1)];
+
+end % Ends fcn_INTERNAL_loadExampleXYZData

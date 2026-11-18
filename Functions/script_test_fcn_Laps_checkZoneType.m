@@ -4,15 +4,24 @@
 % REVISION HISTORY:
 %
 % 2022_07_23 by Sean Brennan, sbrennan@psu.edu
-% - wrote the code originally, using breakDataIntoLaps as starter
+% - In script_test_fcn_Laps_checkZoneType
+%   % * Wrote the code originally, using breakDataIntoLaps as starter
 % 
 % 2025_07_03 by Sean Brennan, sbrennan@psu.edu
-% - standardized headers on all test scripts
+% - In script_test_fcn_Laps_checkZoneType
+%   % * Standardized headers on all test scripts
+%
+% 2026_11_18 by Sean Brennan, sbrennan@psu.edu
+% - In script_test_fcn_Laps_checkZoneType
+%   % * Standardized header comments into current convention
+%   % * Variable renaming to avoid underscores
+%   % * Added tests for the plot handle cell array outputs
 
 % TO-DO:
 %
 % 2025_11_21 by Sean Brennan, sbrennan@psu.edu
-% - (fill in items here)
+% - In script_test_fcn_Laps_checkZoneType
+%   % * (fill in items here)
 
 
 %% Set up the workspace
@@ -43,9 +52,9 @@ fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
 figure(figNum); clf;
 
 
-input_start_zone_definition = [2 3 0 0]; % Radius of 2, 3 points, centered at 0 0
+zoneDefinition = [2 3 0 0]; % Radius of 2, 3 points, centered at 0 0
 [flag_start_is_a_point_type, output_start_zone_definition] = ...
-    fcn_Laps_checkZoneType(input_start_zone_definition, 'start_definition', figNum);
+    fcn_Laps_checkZoneType(zoneDefinition, 'start_definition', figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -65,9 +74,9 @@ fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
 figure(figNum); clf;
 
 
-input_start_zone_definition = [2 3; 0 0]; % starts at 2 3, ends at 0 0
+zoneDefinition = [2 3; 0 0]; % starts at 2 3, ends at 0 0
 [flag_start_is_a_point_type, output_start_zone_definition] = ...
-    fcn_Laps_checkZoneType(input_start_zone_definition, 'start_definition', figNum);
+    fcn_Laps_checkZoneType(zoneDefinition, 'start_definition', figNum);
 
 sgtitle(titleString, 'Interpreter','none');
 
@@ -102,9 +111,9 @@ figNum = 80001;
 fprintf(1,'Figure: %.0f: FAST mode, empty figNum\n',figNum);
 figure(figNum); close(figNum);
 
-input_start_zone_definition = [2 3 0 0]; % Radius of 2, 3 points, centered at 0 0
+zoneDefinition = [2 3 0 0]; % Radius of 2, 3 points, centered at 0 0
 [flag_start_is_a_point_type, output_start_zone_definition] = ...
-    fcn_Laps_checkZoneType(input_start_zone_definition, 'start_definition', []);
+    fcn_Laps_checkZoneType(zoneDefinition, 'start_definition', []);
 
 % Make sure its type is correct
 assert(isequal(1,flag_start_is_a_point_type))
@@ -122,9 +131,9 @@ figNum = 80002;
 fprintf(1,'Figure: %.0f: FAST mode, figNum=-1\n',figNum);
 figure(figNum); close(figNum);
 
-input_start_zone_definition = [2 3 0 0]; % Radius of 2, 3 points, centered at 0 0
+zoneDefinition = [2 3 0 0]; % Radius of 2, 3 points, centered at 0 0
 [flag_start_is_a_point_type, output_start_zone_definition] = ...
-    fcn_Laps_checkZoneType(input_start_zone_definition, 'start_definition', -1);
+    fcn_Laps_checkZoneType(zoneDefinition, 'start_definition', -1);
 
 % Make sure its type is correct
 assert(isequal(1,flag_start_is_a_point_type))
@@ -143,7 +152,7 @@ fprintf(1,'Figure: %.0f: FAST mode comparisons\n',figNum);
 figure(figNum);
 close(figNum);
 
-input_start_zone_definition = [2 3 0 0]; % Radius of 2, 3 points, centered at 0 0
+zoneDefinition = [2 3 0 0]; % Radius of 2, 3 points, centered at 0 0
 
 Niterations = 50;
 
@@ -152,7 +161,7 @@ tic;
 for ith_test = 1:Niterations
     % Call the function
     [flag_start_is_a_point_type, output_start_zone_definition] = ...
-        fcn_Laps_checkZoneType(input_start_zone_definition, 'start_definition', []);
+        fcn_Laps_checkZoneType(zoneDefinition, 'start_definition', []);
 end
 slow_method = toc;
 
@@ -161,7 +170,7 @@ tic;
 for ith_test = 1:Niterations
     % Call the function
     [flag_start_is_a_point_type, output_start_zone_definition] = ...
-        fcn_Laps_checkZoneType(input_start_zone_definition, 'start_definition', -1);
+        fcn_Laps_checkZoneType(zoneDefinition, 'start_definition', -1);
 
 end
 fast_method = toc;
@@ -209,9 +218,9 @@ assert(~any(figHandles==figNum));
 %% Fail conditions
 if 1==0
     %% WARNING for point-type, due to 3D
-    input_start_zone_definition = [2 3 0 0 0]; % Radius of 2, 3 points, centered at 0 0 0
+    zoneDefinition = [2 3 0 0 0]; % Radius of 2, 3 points, centered at 0 0 0
     [flag_start_is_a_point_type, output_start_zone_definition] = ...
-        fcn_Laps_checkZoneType(input_start_zone_definition, 'start_definition');
+        fcn_Laps_checkZoneType(zoneDefinition, 'start_definition');
     
     % Make sure its type is correct
     assert(isequal(1,flag_start_is_a_point_type))
@@ -220,21 +229,21 @@ if 1==0
     assert(isequal(output_start_zone_definition,[2 3 0 0]))
     
     %% ERROR for point-type, due to bad array size
-    input_start_zone_definition = [2 3]; % Radius of 2, 3 points, centered at ???
+    zoneDefinition = [2 3]; % Radius of 2, 3 points, centered at ???
     [~, ~] = ...
-        fcn_Laps_checkZoneType(input_start_zone_definition, 'start_definition');
+        fcn_Laps_checkZoneType(zoneDefinition, 'start_definition');
     
    
     %% ERROR for point-type, due to bad array size
-    input_start_zone_definition = [2 3 4 5 6 7 8]; % Radius of 2, 3 points, centered at ???
+    zoneDefinition = [2 3 4 5 6 7 8]; % Radius of 2, 3 points, centered at ???
     [~, ~] = ...
-        fcn_Laps_checkZoneType(input_start_zone_definition, 'start_definition');
+        fcn_Laps_checkZoneType(zoneDefinition, 'start_definition');
     
     
     %% WARNING for segment-type, due to 3D
-    input_start_zone_definition = [2 3 0; 0 0 0]; % starts at 2 3 0, ends at 0 0 0
+    zoneDefinition = [2 3 0; 0 0 0]; % starts at 2 3 0, ends at 0 0 0
     [flag_start_is_a_point_type, output_start_zone_definition] = ...
-        fcn_Laps_checkZoneType(input_start_zone_definition, 'start_definition');
+        fcn_Laps_checkZoneType(zoneDefinition, 'start_definition');
     
     % Make sure its type is correct
     assert(isequal(0,flag_start_is_a_point_type))
@@ -243,15 +252,15 @@ if 1==0
     assert(isequal(output_start_zone_definition,[2 3; 0 0]))
     
     %% ERROR for segment-type, due to bad array size
-    input_start_zone_definition = [2 3 0 4; 0 0 0 0]; % starts at ???, ends at ???
+    zoneDefinition = [2 3 0 4; 0 0 0 0]; % starts at ???, ends at ???
     [~, ~] = ...
-        fcn_Laps_checkZoneType(input_start_zone_definition, 'start_definition');
+        fcn_Laps_checkZoneType(zoneDefinition, 'start_definition');
     
     
     %% ERROR for segment-type, due to bad array size
-    input_start_zone_definition = [2; 3]; % starts at ????, ends at ????
+    zoneDefinition = [2; 3]; % starts at ????, ends at ????
     [~, ~] = ...
-        fcn_Laps_checkZoneType(input_start_zone_definition, 'start_definition');
+        fcn_Laps_checkZoneType(zoneDefinition, 'start_definition');
     
 
 end

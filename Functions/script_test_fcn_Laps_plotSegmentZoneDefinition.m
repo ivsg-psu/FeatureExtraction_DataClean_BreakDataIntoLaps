@@ -4,18 +4,27 @@
 % REVISION HISTORY:
 %
 % 2022_04_10 by Sean Brennan, sbrennan@psu.edu
-% - first write of the code
+% - In script_test_fcn_Laps_plotSegmentZoneDefinition
+%   % * First write of the code
 % 
 % 2022_07_23 by Sean Brennan, sbrennan@psu.edu
-% - more examples
+% - In script_test_fcn_Laps_plotSegmentZoneDefinition
+%   % * More examples
 % 
 % 2025_07_03 by Sean Brennan, sbrennan@psu.edu
-% - standardized headers on all test scripts
+% - In script_test_fcn_Laps_plotSegmentZoneDefinition
+%   % * Standardized headers on all test scripts
+%
+% 2026_11_18 by Sean Brennan, sbrennan@psu.edu
+% - In script_test_fcn_Laps_plotSegmentZoneDefinition
+%   % * Standardized header comments into current convention
+%   % * Variable renaming to avoid underscores
+%   % * Added tests for the plot handle cell array outputs
 
 % TO-DO:
 %
 % 2025_11_21 by Sean Brennan, sbrennan@psu.edu
-% - (fill in items here)
+%   % * (fill in items here)
 
 
 %% Set up the workspace
@@ -46,10 +55,19 @@ fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
 figure(figNum); clf;
 
 % For it to use defaults
-fcn_Laps_plotSegmentZoneDefinition([1 2; 3 4], [], figNum);
+cellArrayOfPlotHandles = fcn_Laps_plotSegmentZoneDefinition([1 2; 3 4], [], figNum);
 axis([-5 5 -5 5]);
 
 sgtitle(titleString, 'Interpreter','none');
+
+% Check variable types
+assert(iscell(cellArrayOfPlotHandles));
+
+% Check variable sizes
+assert(length(cellArrayOfPlotHandles)>=1); 
+
+% Check variable values
+% Are the laps starting at expected points?
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));
@@ -62,10 +80,19 @@ figure(figNum); clf;
 
 
 % For it to use defaults
-fcn_Laps_plotSegmentZoneDefinition([1 2; 3 4]);
+cellArrayOfPlotHandles = fcn_Laps_plotSegmentZoneDefinition([1 2; 3 4]);
 axis([-5 5 -5 5]);
 
 sgtitle(titleString, 'Interpreter','none');
+
+% Check variable types
+assert(iscell(cellArrayOfPlotHandles));
+
+% Check variable sizes
+assert(length(cellArrayOfPlotHandles)>=1); 
+
+% Check variable values
+% Are the laps starting at expected points?;
 
 % Make sure plot opened up
 assert(~isequal(get(gcf,'Number'),figNum));
@@ -80,11 +107,20 @@ figure(figNum); clf;
 % to show that it will auto-label the axes and create a new figure (NOT
 % figure 11 here) to plot the data.
 figure(11);
-plot_style = 'b.-';
-fcn_Laps_plotSegmentZoneDefinition([1 2; 3 4],plot_style,figNum);
+plotStyle = 'b.-';
+cellArrayOfPlotHandles = fcn_Laps_plotSegmentZoneDefinition([1 2; 3 4],plotStyle,figNum);
 axis([-5 5 -5 5]);
 
 sgtitle(titleString, 'Interpreter','none');
+
+% Check variable types
+assert(iscell(cellArrayOfPlotHandles));
+
+% Check variable sizes
+assert(length(cellArrayOfPlotHandles)>=1); 
+
+% Check variable values
+% Are the laps starting at expected points?
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));
@@ -96,10 +132,19 @@ fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
 figure(figNum); clf;
 
 % leave the plot style empty
-fcn_Laps_plotSegmentZoneDefinition([1 2; 3 4],[],figNum);
+cellArrayOfPlotHandles = fcn_Laps_plotSegmentZoneDefinition([1 2; 3 4],[],figNum);
 axis([-5 5 -5 5]);
 
 sgtitle(titleString, 'Interpreter','none');
+
+% Check variable types
+assert(iscell(cellArrayOfPlotHandles));
+
+% Check variable sizes
+assert(length(cellArrayOfPlotHandles)>=1); 
+
+% Check variable values
+% Are the laps starting at expected points?
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));
@@ -113,10 +158,19 @@ figure(figNum); clf;
 % to show that it will auto-label the axes and create a new figure (NOT
 % figure 11 here) to plot the data.
 figNum = 11121;
-plot_style = 'g.-.';
-fcn_Laps_plotSegmentZoneDefinition([1 2; 3 4],plot_style,figNum);
+plotStyle = 'g.-.';
+cellArrayOfPlotHandles = fcn_Laps_plotSegmentZoneDefinition([1 2; 3 4],plotStyle,figNum);
 
 sgtitle(titleString, 'Interpreter','none');
+
+% Check variable types
+assert(iscell(cellArrayOfPlotHandles));
+
+% Check variable sizes
+assert(length(cellArrayOfPlotHandles)>=1); 
+
+% Check variable values
+% Are the laps starting at expected points?
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));
@@ -127,10 +181,19 @@ titleString = sprintf('DEMO case: Call to show coloring');
 fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
 figure(figNum); clf;
 
-plot_style = 'r.-';
-fcn_Laps_plotSegmentZoneDefinition([1 2; 3 4],plot_style,figNum);
+plotStyle = 'r.-';
+cellArrayOfPlotHandles = fcn_Laps_plotSegmentZoneDefinition([1 2; 3 4],plotStyle,figNum);
 
 sgtitle(titleString, 'Interpreter','none');
+
+% Check variable types
+assert(iscell(cellArrayOfPlotHandles));
+
+% Check variable sizes
+assert(length(cellArrayOfPlotHandles)>=1); 
+
+% Check variable values
+% Are the laps starting at expected points?
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));
