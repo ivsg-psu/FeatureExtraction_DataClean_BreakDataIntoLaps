@@ -129,7 +129,7 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 % 
 % 2022_04_23 by Sean Brennan, sbrennan@psu.edu
 % - In fcn_Laps_breakDataIntoLaps
-%   % Added external call to zone calculation function
+%   % * Added external call to zone calculation function
 % 
 % 2022_05_21 by Sean Brennan, sbrennan@psu.edu
 % - In fcn_Laps_breakDataIntoLaps
@@ -151,7 +151,7 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 % - In fcn_Laps_breakDataIntoLaps
 %   % * Allow zone definitions based on segments
 % 
-% 2025_04_25 by Sean Brennan
+% 2025_04_25 by Sean Brennan, sbrennan@psu.edu
 % - In fcn_Laps_breakDataIntoLaps
 %   % * Added global debugging options
 % 
@@ -162,18 +162,20 @@ function varargout = fcn_Laps_breakDataIntoLaps(...
 % 
 % 2025_11_12 by Sean Brennan, sbrennan@psu.edu
 % - In fcn_Laps_breakDataIntoLaps
-%   % * Cleaned up variable naming: figNum to figNum
+%   % * Cleaned up variable naming: fig_num to figNum
 % 
 % 2026_11_18 by Sean Brennan, sbrennan@psu.edu
 % - In fcn_Laps_breakDataIntoLaps
 %   % * Standardized header comments into current convention
-% (via Claude CLI)
 %   % * Refactored to call fcn_Laps_breakDataIntoLapIndices and slice the
 %   %   % path by the returned indices, removing ~400 lines of code that
 %   %   % duplicated the zone detection and lap matching logic
 %   % * Fixed crash for N x 3 paths with point zones (zone detection now uses
 %   %   % only the XY columns, while outputs keep all columns)
 %   % * Removed unused INTERNAL_plot_circle
+%   % * Fixed legend, which showed "data1, data2, ..." entries and an
+%   %   % entry for every start/end marker; lines are now labeled with
+%   %   % DisplayName and each zone gets one legend entry
 
 % TO-DO:
 %
@@ -380,7 +382,8 @@ if flag_do_plots
     end
 
     cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(plot_cellArrayOfPaths,(figNum));
-
+    h_legend = legend('Interpreter','none');
+	
     % Make input be thin line
     set(cellArrayOfPlotHandles{1},'Color',[0 0 0],'Marker','.','MarkerSize',10,'Linewidth', 0.75);
 
@@ -389,21 +392,29 @@ if flag_do_plots
         set(cellArrayOfPlotHandles{ith_plot},'Marker','.','MarkerSize',20,'Linewidth', 5);
     end
 
-    % Add legend
-	legend('Interpreter','none');
+    % Label each line for the legend. fcn_Laps_plotLapsXY hides empty
+    % paths and the start/end markers from the legend already.
+    set(cellArrayOfPlotHandles{1},'DisplayName','Input path');
+    for ith_lap = 1:Nlaps
+        set(cellArrayOfPlotHandles{ith_lap+1},'DisplayName',sprintf('Lap %d',ith_lap));
+    end
+    set(cellArrayOfPlotHandles{Nlaps+2},'DisplayName','Entry');
+    set(cellArrayOfPlotHandles{Nlaps+3},'DisplayName','Exit');
 
     % Plot the start zone in green and the end zone in red. If no end
     % zone was given, the start zone is also the end zone.
-    fcn_Laps_plotZoneDefinition(start_definition,'g',(figNum));
+    startZoneHandles = fcn_Laps_plotZoneDefinition(start_definition,'g',(figNum));
     if isempty(end_definition)
-        fcn_Laps_plotZoneDefinition(start_definition,'r',(figNum));
+        endZoneHandles = fcn_Laps_plotZoneDefinition(start_definition,'r',(figNum));
     else
-        fcn_Laps_plotZoneDefinition(end_definition,'r',(figNum));
+        endZoneHandles = fcn_Laps_plotZoneDefinition(end_definition,'r',(figNum));
     end
+    INTERNAL_labelZoneForLegend(startZoneHandles,'Start zone');
+    INTERNAL_labelZoneForLegend(endZoneHandles,'End zone');
 
-    % legend_text = [legend_text, 'Start condition', 'End condition'];
-    % h_legend = legend(legend_text);
-	h_legend = legend('Interpreter','none');
+    % Build the legend once, after everything is plotted, from the
+    % DisplayName of each visible line
+    h_legend = legend('Interpreter','none');
     set(h_legend,'AutoUpdate','off');
 
 end
@@ -425,6 +436,24 @@ end % Ends main function
 %
 % See: https://patorjk.com/software/taag/#p=display&f=Big&t=Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% INTERNAL_labelZoneForLegend
+function INTERNAL_labelZoneForLegend(cellArrayOfZoneHandles, labelString)
+% Gives the first zone handle (point-zone center or segment line) the
+% legend label, and hides the remaining zone handles (boundary circle or
+% direction arrow) from the legend so each zone gets one legend entry.
+for ith_handle = 1:numel(cellArrayOfZoneHandles)
+    thisHandle = cellArrayOfZoneHandles{ith_handle};
+    if isempty(thisHandle)
+        continue;
+    end
+    if 1==ith_handle
+        set(thisHandle,'DisplayName',labelString);
+    else
+        set(thisHandle,'HandleVisibility','off');
+    end
+end
+end % Ends INTERNAL_labelZoneForLegend
 
 %% INTERNAL_sliceIfMoreThanOnePoint
 function sliced_path = INTERNAL_sliceIfMoreThanOnePoint(input_path, indices)

@@ -194,7 +194,24 @@
 % - In fcn_Laps_checkZoneType
 %   % * Standardized header comments into current convention
 %   % * Variable renaming to avoid underscores
-%   % * Added tests for the plot handle cell array outputs
+% - In script_demo_Laps
+%   % * Fixed point-zone demos that passed 1x3 zone centers (the third
+%   %   % value was a leftover radius); these now fail the 2-column check
+%   %   % in fcn_Laps_findPointZoneStartStopAndMinimum
+% - In fcn_Laps_plotLapsXY, fcn_Laps_plotPointZoneDefinition,
+%   % fcn_Laps_plotSegmentZoneDefinition, fcn_Laps_plotZoneDefinition
+%   % * All four now plot into the current figure when figNum is empty
+%   %   % or omitted, and when figNum is -1 (input checks skipped)
+%   % * Lines carry DisplayName labels; helper markers are hidden from
+%   %   % legends
+% - In fcn_Laps_plotLapsXY
+%   % * Fixed error with 1 x N (row) cell array inputs
+%   % * Returns one handle per input cell, including empty cells
+% - In fcn_Laps_breakDataIntoLaps
+%   % * Fixed legend showing "data1, data2, ..." entries
+% - In the script_test_fcn_Laps_plot* and breakDataIntoLaps tests
+%   % * Tightened handle assertions; added no-figNum, -1, row-cell,
+%   %   % legend, and true 3D (N x 3) test cases
 
 
 % TO-DO:
@@ -338,7 +355,7 @@ figNum = 1;
 query_path = ...
     [full_steps 0.4*ones_full_steps];
 
-zone_center = [0 0 0.2]; % Located at [0,0]
+zone_center = [0 0]; % Located at [0,0]
 zone_radius = 0.2; % with radius 0.2
 [zone_start_indices, zone_end_indices, zone_min_indices] = ...
     fcn_Laps_findPointZoneStartStopAndMinimum(...
@@ -361,7 +378,7 @@ figNum = 2;
 query_path = ...
     [full_steps 0.2*ones_full_steps];
 
-zone_center = [0 0 0.2]; % Located at [0,0]
+zone_center = [0 0]; % Located at [0,0]
 zone_radius = 0.2; % with radius 0.2
 [zone_start_indices, zone_end_indices, zone_min_indices] = ...
     fcn_Laps_findPointZoneStartStopAndMinimum(...
@@ -380,7 +397,7 @@ assert(isempty(zone_min_indices));
 query_path = ...
     [full_steps 0.2*ones_full_steps];
 
-zone_center = [0.05 0 0.2]; % Located at [0.05,0]
+zone_center = [0.05 0]; % Located at [0.05,0]
 zone_radius = 0.23; % with radius 0.23
 [zone_start_indices, zone_end_indices, zone_min_indices] = ...
     fcn_Laps_findPointZoneStartStopAndMinimum(...
@@ -403,7 +420,7 @@ figNum = 3;
 query_path = ...
     [half_steps zero_half_steps];
 
-zone_center = [-0.02 0 0.2]; % Located at [-0.02,0]
+zone_center = [-0.02 0]; % Located at [-0.02,0]
 zone_radius = 0.2; % with radius 0.2
 [zone_start_indices, zone_end_indices, zone_min_indices] = ...
     fcn_Laps_findPointZoneStartStopAndMinimum(...

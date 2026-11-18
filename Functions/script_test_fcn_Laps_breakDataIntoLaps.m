@@ -29,6 +29,11 @@
 % - In script_test_fcn_Laps_breakDataIntoLaps
 %   % * Fixed comments into standard form
 %   % * Added 3D test case, including data loading function
+%   % * Test 20009 (3D case) now actually uses N x 3 data, checks that all
+%   %   % outputs keep 3 columns, and that XY matches the 2D result and Z
+%   %   % matches the input rows
+%   % * fcn_INTERNAL_loadExampleXYZData uses deterministic Z values
+%   % * Demo 10001 now checks the legend labels
 
 % TO-DO:
 %
@@ -99,6 +104,17 @@ assert(isequal(79,length(lap_cellArrayOfPaths{3}(:,1))));
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));
+
+% Check the legend: every entry is labeled (no default "dataN" names),
+% and the input, each lap, and each zone appear exactly once
+h_legend = findobj(gcf,'Type','Legend');
+assert(1==length(h_legend));
+legendStrings = h_legend.String;
+assert(~any(startsWith(legendStrings,'data')));
+expectedStrings = {'Input path','Lap 1','Lap 2','Lap 3','Start zone','End zone'};
+for ith_string = 1:length(expectedStrings)
+    assert(1==sum(strcmp(legendStrings,expectedStrings{ith_string})));
+end
 
 if 1==0
     % Plot the lap traversals (should have 3)
@@ -613,7 +629,8 @@ figure(figNum); clf;
 
 % Create some data to plot
 dataSetNumber = 9;
-tempXYZdata = fcn_INTERNAL_loadExampleXYData(dataSetNumber);
+tempXYZdata = fcn_INTERNAL_loadExampleXYZData(dataSetNumber);
+assert(3==size(tempXYZdata,2));
 
 start_definition = [10 3 0 0]; % Radius 10, 3 points must pass near [0,0]
 end_definition = [30 3 0 -60]; % Radius 30, 3 points must pass near [0,-60]
@@ -637,7 +654,38 @@ assert(isnumeric(exit_traversal));
 Nlaps = 3;
 assert(isequal(Nlaps,length(lap_cellArrayOfPaths))); 
 
+% Every output keeps all 3 columns of the input
+for ith_lap = 1:Nlaps
+    assert(3==size(lap_cellArrayOfPaths{ith_lap},2));
+end
+if ~isempty(entry_traversal)
+    assert(3==size(entry_traversal,2));
+end
+if ~isempty(exit_traversal)
+    assert(3==size(exit_traversal,2));
+end
+
 % Check variable values
+% Laps are found from XY only, so the XY columns must match the 2D result
+% exactly, and each Z column must be the input's Z for those same rows
+[lap2D_cellArrayOfPaths, entry2D, exit2D] = fcn_Laps_breakDataIntoLaps(...
+    tempXYZdata(:,1:2),...
+    start_definition,...
+    end_definition,...
+    excursion_definition,...
+    -1);
+assert(isequal(Nlaps,length(lap2D_cellArrayOfPaths)));
+for ith_lap = 1:Nlaps
+    assert(isequal(lap_cellArrayOfPaths{ith_lap}(:,1:2), lap2D_cellArrayOfPaths{ith_lap}));
+    % Z values are unique, so they identify which input rows the lap holds.
+    % Those rows must be contiguous, and their XY must match the lap's XY.
+    [isInInput, rowsInInput] = ismember(lap_cellArrayOfPaths{ith_lap}(:,3), tempXYZdata(:,3));
+    assert(all(isInInput));
+    assert(all(1==diff(rowsInInput)));
+    assert(isequal(lap_cellArrayOfPaths{ith_lap}(:,1:2), tempXYZdata(rowsInInput,1:2)));
+end
+assert(isequal(size(entry_traversal,1), size(entry2D,1)));
+assert(isequal(size(exit_traversal,1), size(exit2D,1)));
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));
@@ -924,6 +972,6 @@ laps_array = fcn_Laps_fillSampleLaps(-1);
 % Use the last data
 tempXYdata = laps_array{dataSetNumber};
 Npoints = length(tempXYdata(:,1));
-tempXYZdata = [tempXYdata randn(Npoints,1)];
+tempXYZdata = [tempXYdata linspace(0,10,Npoints)']; % Distinct, deterministic Z values
 
 end % Ends fcn_INTERNAL_loadExampleXYZData

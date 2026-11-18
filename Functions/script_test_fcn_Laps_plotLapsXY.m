@@ -20,6 +20,10 @@
 %   % * Standardized header comments into current convention
 %   % * Variable renaming to avoid underscores
 %   % * Added tests for the plot handle cell array outputs
+%   % * Tightened handle checks: every returned handle must be a valid
+%   %   % graphics object in the expected figure (fcn_INTERNAL_checkPlotHandles)
+%   % * Added cases: no figNum, row cell array, empty entries and legend
+%   %   % contents, and figNum of -1
 
 % TO-DO:
 %
@@ -70,7 +74,7 @@ sgtitle(titleString, 'Interpreter','none');
 assert(iscell(cellArrayOfPlotHandles));
 
 % Check variable sizes
-assert(length(cellArrayOfPlotHandles)>=1); 
+fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, numel(cellArrayOfPaths), figNum);
 
 % Check variable values
 % Are the laps starting at expected points?
@@ -97,10 +101,98 @@ sgtitle(titleString, 'Interpreter','none');
 assert(iscell(cellArrayOfPlotHandles));
 
 % Check variable sizes
-assert(length(cellArrayOfPlotHandles)>=1); 
+fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, numel(cellArrayOfPaths), figNum);
 
 % Check variable values
 % Are the laps starting at expected points?
+
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),figNum));
+
+%% DEMO case: Call without figure number to show it plots into the current figure
+figNum = 10003;
+titleString = sprintf('DEMO case: Call without figure number to show it plots into the current figure');
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
+
+% Fill in some dummy data
+cellArrayOfPaths = fcn_Laps_fillSampleLaps;
+
+% No figure number, so the plot goes into the current figure (figNum)
+cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(cellArrayOfPaths);
+
+% Check variable types, sizes, and that every handle is a line in figNum
+fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, numel(cellArrayOfPaths), figNum);
+
+sgtitle(titleString, 'Interpreter','none');
+
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),figNum));
+
+%% TEST case: Row (1 x N) cell array input
+figNum = 20001;
+titleString = sprintf('TEST case: Row (1 x N) cell array input');
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
+
+% Fill in some dummy data, then make it a row cell array
+cellArrayOfPaths = fcn_Laps_fillSampleLaps;
+cellArrayOfPaths = cellArrayOfPaths';
+assert(1==size(cellArrayOfPaths,1));
+
+cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(cellArrayOfPaths, figNum);
+
+% Output is still a column, one handle per path
+fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, numel(cellArrayOfPaths), figNum);
+
+sgtitle(titleString, 'Interpreter','none');
+
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),figNum));
+
+%% TEST case: Empty entries keep their place and are hidden from the legend
+figNum = 20002;
+titleString = sprintf('TEST case: Empty entries keep their place and are hidden from the legend');
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
+
+% Fill in some dummy data, with empty entries in the middle and at the end
+samplePaths = fcn_Laps_fillSampleLaps;
+cellArrayOfPaths = {samplePaths{1}; []; samplePaths{2}; []};
+
+cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(cellArrayOfPaths, figNum);
+
+% One handle per entry, including the empty ones
+fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, 4, figNum);
+
+% Handles keep the position of their path
+assert(strcmp(get(cellArrayOfPlotHandles{3},'DisplayName'),'Path 3'));
+
+% Only the two non-empty paths appear in the legend. The empty paths and
+% the green/red start/end markers are hidden from it.
+h_legend = legend('show');
+assert(isequal(sort(h_legend.String), {'Path 1','Path 3'}));
+
+sgtitle(titleString, 'Interpreter','none');
+
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),figNum));
+
+%% TEST case: figNum of -1 skips input checks and plots into the current figure
+figNum = 20003;
+titleString = sprintf('TEST case: figNum of -1 skips input checks and plots into the current figure');
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
+
+% Fill in some dummy data
+cellArrayOfPaths = fcn_Laps_fillSampleLaps;
+
+cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(cellArrayOfPaths, -1);
+
+% Plot went into the current figure, which is figNum
+fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, numel(cellArrayOfPaths), figNum);
+
+sgtitle(titleString, 'Interpreter','none');
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));
@@ -325,3 +417,19 @@ end
 %
 % See: https://patorjk.com/software/taag/#p=display&f=Big&t=Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%§
+
+%% fcn_INTERNAL_checkPlotHandles
+function fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, Nexpected, figNumExpected)
+% Checks that the plot function returned a column cell array with exactly
+% Nexpected entries, that every entry is a valid graphics handle (an empty
+% cell would otherwise pass a length check), and that every handle was
+% drawn into the expected figure.
+assert(iscell(cellArrayOfPlotHandles));
+assert(isequal([Nexpected 1], size(cellArrayOfPlotHandles)));
+for ith_handle = 1:Nexpected
+    thisHandle = cellArrayOfPlotHandles{ith_handle};
+    assert(~isempty(thisHandle));
+    assert(all(isgraphics(thisHandle)));
+    assert(isequal(figNumExpected, get(ancestor(thisHandle,'figure'),'Number')));
+end
+end % Ends fcn_INTERNAL_checkPlotHandles

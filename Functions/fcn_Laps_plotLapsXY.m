@@ -1,78 +1,87 @@
 function cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(cellArrayOfPaths,varargin)
 % fcn_Laps_plotLapsXY
-% Plots the XY positions of all laps existing in a data structure. This is
-% just a modified version of fcn_Path_plotTraversalsXY from the "Path"
-% library of functions. The "laps" type and "tranversals" type are the same
-% type, for consistency.
+% Plots the XY positions of a set of laps, each given as a path. This is a
+% modified version of fcn_Path_plotTraversalsXY from the "Path" library of
+% functions. The start of each lap is marked with a green circle and the
+% end with a red circle.
 %
-% FORMAT: 
+% FORMAT:
 %
-%       cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(cellArrayOfPaths,{figNum})
+%       cellArrayOfPlotHandles = fcn_Laps_plotLapsXY(cellArrayOfPaths,(figNum))
 %
 % INPUTS:
 %
-%      cellArrayOfPaths: a cell array of paths to be averaged with each
-%      other. Each path is a N x 2 or N x 3 set of coordinates
-%      representing the [X Y] or [X Y Z] coordinates, in sequence, of a
-%      path. The averaging works best if each path starts and stops in
-%      approximately the same area and with similar orientations.
+%      cellArrayOfPaths: a cell array of paths to plot, given either as a
+%      column (N x 1) or row (1 x N) cell array. Each path is a M x 2 or
+%      M x 3 set of coordinates representing the [X Y] or [X Y Z]
+%      coordinates, in sequence, of a path. Only X and Y are plotted.
+%      Empty cells are allowed and produce an empty (NaN) line.
 %
 %     (optional inputs)
 %
-%      figNum: a figure number to plot results. If set to -1, skips any
-%      input checking or debugging, no figures will be generated, and sets
-%      up code to maximize speed. 
+%      figNum: a figure number to plot into. If empty or omitted, plots
+%      into the current figure (creating one if none exists). If set to
+%      -1, input checking is skipped and the plot also goes into the
+%      current figure.
 %
 % OUTPUTS:
 %
-%      cellArrayOfPlotHandles: cell array of handles to each of the plots
+%      cellArrayOfPlotHandles: an [N x 1] cell array of line handles, one
+%      per entry of cellArrayOfPaths, in the same order. Each line's
+%      DisplayName is 'Path k'. The green/red start and end markers are
+%      hidden from legends and are not returned.
 %
 % DEPENDENCIES:
 %
 %      fcn_DebugTools_checkInputsToFunctions
 %
 % EXAMPLES:
-%      
+%
 %       See the script: script_test_fcn_Laps_plotLapsXY.m for a full test
-%       suite. 
+%       suite.
 %
 % This function was written on 2022_04_02 by S. Brennan
-% Questions or comments? sbrennan@psu.edu 
+% Questions or comments? sbrennan@psu.edu
 
 % REVISION HISTORY:
 %
 % 2022_04_02 by Sean Brennan, sbrennan@psu.edu
 % - In fcn_Laps_plotLapsXY
 %   % * Wrote the code originally
-% 
+%
 % 2025_04_25 by Sean Brennan, sbrennan@psu.edu
 % - In fcn_Laps_plotLapsXY
 %   % * Added global debugging options
-% 
+%
 % 2025_07_02 by Sean Brennan, sbrennan@psu.edu
 % - In fcn_Laps_plotLapsXY
 %   % * Removed traversal input type and replaced with cell array of paths
-% 
+%
 % 2025_07_03 by Sean Brennan, sbrennan@psu.edu
 % - In fcn_Laps_plotLapsXY
 %   % * Cleanup of Debugging area codes
-%   % * turn on fast mode for Path calls
+%   % * Turn on fast mode for Path calls
 %
 % 2026_11_18 by Sean Brennan, sbrennan@psu.edu
 % - In fcn_Laps_plotLapsXY
 %   % * Fixed errors in comments
 %   % * Standardized header comments into current convention
 %   % * Variable renaming to avoid underscores
-%   % * Fixed bug where, if figNum is empty, does not plot in current
-%   %   % figure
-%   % * Changed output handles to cell array of rows
-%   % * Initialize a default output
-
+%   % * Changed output handles to a column cell array
+%   % * Plots into the current figure when figNum is empty, omitted, or
+%   %   % -1 (previously plotted nothing unless figNum was given)
+%   % * Fixed error with 1 x N (row) cell array inputs
+%   % * Returns one handle per input cell, including empty cells, so
+%   %   % handle k always matches path k
+%   % * Added DisplayName to each line; start/end markers are hidden
+%   %   % from legends
+%   % * Replaced tab indentation with spaces
 
 % TO-DO:
 %
-% 2025_11_21 by Sean Brennan, sbrennan@psu.edu
-% - (fill in items here)
+% 2026_11_18 by Sean Brennan, sbrennan@psu.edu
+% - In fcn_Laps_plotLapsXY
+%   % * (fill in items here)
 
 
 
@@ -130,7 +139,7 @@ if 0==flag_max_speed
         if ~iscell(cellArrayOfPaths)
             error('cellArrayOfPaths input must be a cell type');
         end
-        for ith_cell = 1:length(cellArrayOfPaths)
+        for ith_cell = 1:numel(cellArrayOfPaths)
             if ~isempty(cellArrayOfPaths{ith_cell})
                 fcn_DebugTools_checkInputsToFunctions(cellArrayOfPaths{ith_cell}, 'path2or3D');
             end
@@ -138,123 +147,104 @@ if 0==flag_max_speed
     end
 end
 
-% Does user want to show the plots?
-flag_do_plots = 0; % Default is to NOT show plots
-figNum = [];
-if (0==flag_max_speed) && (MAX_NARGIN == nargin) 
+% Which figure to plot into? Plotting is the purpose of this function, so
+% it always plots: into the given figure, or else into the current figure.
+figNum = []; % Default is to use the current figure
+if (0==flag_max_speed) && (MAX_NARGIN == nargin)
     temp = varargin{end};
     if ~isempty(temp) % Did the user NOT give an empty figure number?
         figNum = temp;
-        flag_do_plots = 1;
     end
 end
 
 if isempty(figNum)
     temp_h = gcf;
-    figNum = temp_h.Number;
 else
     temp_h = figure(figNum);
 end
-flag_this_is_a_new_figure = 0;
-if isempty(get(temp_h,'Children'))
-    flag_this_is_a_new_figure = 1;
-end
+flag_this_is_a_new_figure = isempty(get(temp_h,'Children'));
 
 %% Main code
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   __  __       _       
-%  |  \/  |     (_)      
-%  | \  / | __ _ _ _ __  
-%  | |\/| |/ _` | | '_ \ 
+%   __  __       _
+%  |  \/  |     (_)
+%  | \  / | __ _ _ _ __
+%  | |\/| |/ _` | | '_ \
 %  | |  | | (_| | | | | |
 %  |_|  |_|\__,_|_|_| |_|
-% 
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Initialize outputs
-NumPaths = length(cellArrayOfPaths);
+
+% Use linear indexing throughout so row and column cell arrays both work
+NumPaths = numel(cellArrayOfPaths);
 cellArrayOfPlotHandles = cell(NumPaths,1);
+
+axis equal;
+
+% Check to see if hold is already on. If it is not, set a flag to turn it
+% off after this function is over so it doesn't affect future plotting
+flag_shut_hold_off = 0;
+if ~ishold
+    flag_shut_hold_off = 1;
+    hold on
+end
+
+% Plot each path. Empty paths get a NaN line, hidden from legends, so that
+% handle k always corresponds to path k.
+for ith_path = 1:NumPaths
+    thisPath = cellArrayOfPaths{ith_path};
+    if ~isempty(thisPath)
+        cellArrayOfPlotHandles{ith_path} = plot(thisPath(:,1),thisPath(:,2),'-o',...
+            'DisplayName',sprintf('Path %d',ith_path));
+    else
+        cellArrayOfPlotHandles{ith_path} = plot(NaN,NaN,'-o',...
+            'DisplayName',sprintf('Path %d',ith_path),'HandleVisibility','off');
+    end
+end
+
+% Plot the start and end values as green and red respectively. These are
+% markers only, so keep them out of any legend.
+for ith_path = 1:NumPaths
+    thisPath = cellArrayOfPaths{ith_path};
+    if ~isempty(thisPath)
+        plot(thisPath(1,1),thisPath(1,2),'go','HandleVisibility','off');
+        plot(thisPath(end,1),thisPath(end,2),'ro','HandleVisibility','off');
+    end
+end
+
+% Shut the hold off?
+if flag_shut_hold_off
+    hold off;
+end
+
+% Add labels?
+if flag_this_is_a_new_figure
+    title('X vs Y')
+    xlabel('X [m]')
+    ylabel('Y [m]')
+
+    % Make axis slightly larger
+    temp = axis;
+    axis_range_x = temp(2)-temp(1);
+    axis_range_y = temp(4)-temp(3);
+    percent_larger = 0.3;
+    axis([temp(1)-percent_larger*axis_range_x, temp(2)+percent_larger*axis_range_x,  temp(3)-percent_larger*axis_range_y, temp(4)+percent_larger*axis_range_y]);
+end
+
 
 %% Any debugging?
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   _____       _                 
-%  |  __ \     | |                
-%  | |  | | ___| |__  _   _  __ _ 
+%   _____       _
+%  |  __ \     | |
+%  | |  | | ___| |__  _   _  __ _
 %  | |  | |/ _ \ '_ \| | | |/ _` |
 %  | |__| |  __/ |_) | |_| | (_| |
 %  |_____/ \___|_.__/ \__,_|\__, |
 %                            __/ |
-%                           |___/ 
+%                           |___/
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if flag_do_plots
-figure(figNum);
-	axis equal;
-
-	% Count number of non-empty entries
-	Nnotempty = 0;
-	for ith_cell = 1:length(cellArrayOfPaths)
-		if ~isempty(cellArrayOfPaths{ith_cell})
-			Nnotempty = ith_cell;
-		end
-	end
-
-
-	goodCellArray = cell(Nnotempty,1);
-	for jth_entry = 1:Nnotempty
-		goodCellArray{jth_entry,1} = cellArrayOfPaths{jth_entry,1};
-	end
-	cellArrayOfPaths = goodCellArray;
-
-	% Check to see if hold is already on. If it is not, set a flag to turn it
-	% off after this function is over so it doesn't affect future plotting
-	flag_shut_hold_off = 0;
-	if ~ishold
-		flag_shut_hold_off = 1;
-		hold on
-	end
-
-
-	for ith_lap= 1:length(cellArrayOfPaths)
-		if ~isempty(cellArrayOfPaths{ith_lap})
-			cellArrayOfPlotHandles{ith_lap} = plot(cellArrayOfPaths{ith_lap}(:,1),cellArrayOfPaths{ith_lap}(:,2),'-o');
-		else
-			cellArrayOfPlotHandles{ith_lap} = plot(NaN,NaN,'-o');
-		end
-	end
-
-	% Plot the start and end values as green and red respectively
-	for ith_lap= 1:length(cellArrayOfPaths)
-		if ~isempty(cellArrayOfPaths{ith_lap})
-			plot(...
-				cellArrayOfPaths{ith_lap}(1,1),cellArrayOfPaths{ith_lap}(1,2),'go',...
-				cellArrayOfPaths{ith_lap}(end,1),cellArrayOfPaths{ith_lap}(end,2),'ro');
-		else
-			plot(NaN,NaN,'go',NaN,NaN,'ro');
-		end
-	end
-
-	% Shut the hold off?
-	if flag_shut_hold_off
-		hold off;
-	end
-
-	% Add labels?
-	if flag_this_is_a_new_figure == 1
-		title('X vs Y')
-		xlabel('X [m]')
-		ylabel('Y [m]')
-
-		% Make axis slightly larger?
-		temp = axis;
-		axis_range_x = temp(2)-temp(1);
-		axis_range_y = temp(4)-temp(3);
-		percent_larger = 0.3;
-		axis([temp(1)-percent_larger*axis_range_x, temp(2)+percent_larger*axis_range_x,  temp(3)-percent_larger*axis_range_y, temp(4)+percent_larger*axis_range_y]);
-
-	end
-end
 
 if flag_do_debug
-    fprintf(1,'ENDING function: %s, in file: %s\n\n',st(1).name,st(1).file); 
+    fprintf(1,'ENDING function: %s, in file: %s\n\n',st(1).name,st(1).file);
 end
 end
-

@@ -14,11 +14,13 @@
 % 2026_11_18 by Sean Brennan, sbrennan@psu.edu
 % - In script_test_fcn_Laps_breakDataIntoLapIndices
 %   % * Fixed comments into standard form
+%   % * No-lap cases now check that the entry holds every index of the
+%   %   % path, not just that there is one entry
 
 % TO-DO:
 %
 % 2025_11_21 by Sean Brennan, sbrennan@psu.edu
-% - In script_test_fcn_Laps_breakDataIntoLaps
+% - In script_test_fcn_Laps_breakDataIntoLapIndices
 %   % * (fill in items here)
 
 
@@ -425,6 +427,8 @@ assert(isequal(Nlaps,length(cell_array_of_exit_indices)));
 % Check variable values
 % Are the indices empty?
 assert(isempty(cell_array_of_lap_indices));
+% With no laps, the entry is the whole path
+assert(isequal(cell_array_of_entry_indices{1},(1:length(tempXYdata(:,1)))'));
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));
@@ -606,6 +610,8 @@ assert(isequal(Nlaps,length(cell_array_of_exit_indices)));
 % Check variable values
 % Are the indices empty?
 assert(isempty(cell_array_of_lap_indices));
+% With no laps, the entry is the whole path
+assert(isequal(cell_array_of_entry_indices{1},(1:length(tempXYdata(:,1)))'));
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));
@@ -642,6 +648,8 @@ assert(isequal(Nlaps,length(cell_array_of_exit_indices)));
 % Check variable values
 % Are the indices empty?
 assert(isempty(cell_array_of_lap_indices));
+% With no laps, the entry is the whole path
+assert(isequal(cell_array_of_entry_indices{1},(1:length(tempXYdata(:,1)))'));
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));
@@ -677,6 +685,8 @@ assert(isequal(Nlaps,length(cell_array_of_exit_indices)));
 % Check variable values
 % Are the indices empty?
 assert(isempty(cell_array_of_lap_indices));
+% With no laps, the entry is the whole path
+assert(isequal(cell_array_of_entry_indices{1},(1:length(tempXYdata(:,1)))'));
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));
@@ -714,6 +724,8 @@ assert(isequal(Nlaps,length(cell_array_of_exit_indices)));
 % Check variable values
 % Are the indices empty?
 assert(isempty(cell_array_of_lap_indices));
+% With no laps, the entry is the whole path
+assert(isequal(cell_array_of_entry_indices{1},(1:length(tempXYdata(:,1)))'));
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));
@@ -750,6 +762,8 @@ assert(isequal(Nlaps,length(cell_array_of_exit_indices)));
 % Check variable values
 % Are the indices empty?
 assert(isempty(cell_array_of_lap_indices));
+% With no laps, the entry is the whole path
+assert(isequal(cell_array_of_entry_indices{1},(1:length(tempXYdata(:,1)))'));
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));
@@ -785,6 +799,8 @@ assert(isequal(Nlaps,length(cell_array_of_exit_indices)));
 % Check variable values
 % Are the indices empty?
 assert(isempty(cell_array_of_lap_indices));
+% With no laps, the entry is the whole path
+assert(isequal(cell_array_of_entry_indices{1},(1:length(tempXYdata(:,1)))'));
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));
@@ -828,6 +844,8 @@ assert(isequal(Nlaps,length(cell_array_of_exit_indices)));
 % Check variable values
 % Are the indices empty?
 assert(isempty(cell_array_of_lap_indices));
+% With no laps, the entry is the whole path
+assert(isequal(cell_array_of_entry_indices{1},(1:length(tempXYdata(:,1)))'));
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));

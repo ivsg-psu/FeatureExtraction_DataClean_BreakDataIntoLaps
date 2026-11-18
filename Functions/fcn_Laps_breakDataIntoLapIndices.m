@@ -114,7 +114,9 @@ function varargout = fcn_Laps_breakDataIntoLapIndices(...
 %      OPTIONAL OUTPUTS:
 %
 %      cell_array_of_entry_indices: a cell array containing the indices
-%      prior to each staring condition, that are not part of a lap.
+%      prior to each starting condition, that are not part of a lap. If no
+%      laps are found, this is a 1 x 1 cell holding all indices of the
+%      path, (1:N)'.
 %
 %      cell_array_of_exit_indices: a cell array containing the indices after
 %      to each ending condition, that are not part of a lap.
@@ -163,6 +165,8 @@ function varargout = fcn_Laps_breakDataIntoLapIndices(...
 %   % * Fixed bug where the segment-type excursion branch tests
 %   %   start_zone_start_indices when it should test
 %   %   excursion_zone_start_indices
+%   % * Documented the no-lap entry output in the header; replaced tab
+%   %   % indentation with spaces
 
 % TO-DO:
 %
@@ -685,11 +689,11 @@ if flag_keep_going && Nlaps>0
                 cell_array_of_exit_indices{ith_lap} = (laps_array(ith_lap,3):length(input_path(:,1)))';
             end
         end
-	end
+    end
 
 elseif Nlaps==0
-	% Returns the whole path as the entry indices
-	cell_array_of_entry_indices = {(1:Npoints)'};
+    % No laps found, so the whole path is the entry
+    cell_array_of_entry_indices = {(1:Npoints)'};
 
 end % Ends check to see if keep going
 

@@ -20,6 +20,11 @@
 %   % * Standardized header comments into current convention
 %   % * Variable renaming to avoid underscores
 %   % * Added tests for the plot handle cell array outputs
+%   % * Tightened handle checks: both returned handles must be valid
+%   %   % graphics objects in the expected figure (fcn_INTERNAL_checkPlotHandles)
+%   % * Case 10001 (no figNum) now checks that the plot goes into the
+%   %   % current figure, matching the other Laps plotting functions
+%   % * Added case 10006: figNum of -1, and DisplayName labels
 
 % TO-DO:
 %
@@ -68,13 +73,13 @@ sgtitle(titleString, 'Interpreter','none');
 assert(iscell(cellArrayOfPlotHandles));
 
 % Check variable sizes
-assert(length(cellArrayOfPlotHandles)>=1); 
+fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, 2, figNum);
 
 % Check variable values
 % Are the laps starting at expected points?
 
-% Make sure plot opened up
-assert(~isequal(get(gcf,'Number'),figNum));
+% Make sure plot went into the current figure, not a new one
+assert(isequal(get(gcf,'Number'),figNum));
 
 %% DEMO case: Show specification of plot style
 figNum = 10002;
@@ -95,7 +100,7 @@ sgtitle(titleString, 'Interpreter','none');
 assert(iscell(cellArrayOfPlotHandles));
 
 % Check variable sizes
-assert(length(cellArrayOfPlotHandles)>=1); 
+fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, 2, figNum);
 
 % Check variable values
 % Are the laps starting at expected points?
@@ -122,7 +127,7 @@ sgtitle(titleString, 'Interpreter','none');
 assert(iscell(cellArrayOfPlotHandles));
 
 % Check variable sizes
-assert(length(cellArrayOfPlotHandles)>=1); 
+fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, 2, figNum);
 
 % Check variable values
 % Are the laps starting at expected points?
@@ -151,7 +156,7 @@ sgtitle(titleString, 'Interpreter','none');
 assert(iscell(cellArrayOfPlotHandles));
 
 % Check variable sizes
-assert(length(cellArrayOfPlotHandles)>=1); 
+fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, 2, figNum);
 
 % Check variable values
 % Are the laps starting at expected points?
@@ -179,10 +184,34 @@ sgtitle(titleString, 'Interpreter','none');
 assert(iscell(cellArrayOfPlotHandles));
 
 % Check variable sizes
-assert(length(cellArrayOfPlotHandles)>=1); 
+fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, 2, figNum);
 
 % Check variable values
 % Are the laps starting at expected points?
+
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),figNum));
+
+%% DEMO case: figNum of -1 skips input checks and plots into the current figure
+figNum = 10006;
+titleString = sprintf('DEMO case: figNum of -1 skips input checks and plots into the current figure');
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
+
+zoneCenter = [1 2];
+numPoints = 3;
+zoneRadius = 5;
+zoneDefinition = [zoneRadius numPoints zoneCenter];
+cellArrayOfPlotHandles = fcn_Laps_plotPointZoneDefinition(zoneDefinition, [], -1);
+
+% Plot went into the current figure, which is figNum
+fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, 2, figNum);
+
+% Lines are labeled for legends
+assert(strcmp(get(cellArrayOfPlotHandles{1},'DisplayName'),'Point zone center'));
+assert(strcmp(get(cellArrayOfPlotHandles{2},'DisplayName'),'Point zone boundary'));
+
+sgtitle(titleString, 'Interpreter','none');
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));
@@ -407,3 +436,19 @@ end
 %
 % See: https://patorjk.com/software/taag/#p=display&f=Big&t=Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%§
+
+%% fcn_INTERNAL_checkPlotHandles
+function fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, Nexpected, figNumExpected)
+% Checks that the plot function returned a column cell array with exactly
+% Nexpected entries, that every entry is a valid graphics handle (an empty
+% cell would otherwise pass a length check), and that every handle was
+% drawn into the expected figure.
+assert(iscell(cellArrayOfPlotHandles));
+assert(isequal([Nexpected 1], size(cellArrayOfPlotHandles)));
+for ith_handle = 1:Nexpected
+    thisHandle = cellArrayOfPlotHandles{ith_handle};
+    assert(~isempty(thisHandle));
+    assert(all(isgraphics(thisHandle)));
+    assert(isequal(figNumExpected, get(ancestor(thisHandle,'figure'),'Number')));
+end
+end % Ends fcn_INTERNAL_checkPlotHandles

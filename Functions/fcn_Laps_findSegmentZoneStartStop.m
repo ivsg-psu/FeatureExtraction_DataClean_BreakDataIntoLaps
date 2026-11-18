@@ -103,12 +103,12 @@ function [zone_start_indices, zone_end_indices] = ...
 % 2026_11_18 by Sean Brennan, sbrennan@psu.edu
 % - In fcn_Laps_findSegmentZoneStartStop
 %   % * Standardized header comments into current convention
-%   % * Fixed issue where INTERNAL_print_results(distance, location, ...).
-%   %   % That function was commented out (lines 392–439), and location was
-%   %   % thrown away with ~ on line 198. So anyone who sets
-%   %   % MATLABFLAG_LAPS_FLAG_DO_DEBUG=1 gets an error. This is now fixed.
-%   % * Fixed line 250: had three %d but only two arguments, so the newline
-%   %   % was dropped.
+%   % * Fixed crash in debug mode (MATLABFLAG_LAPS_FLAG_DO_DEBUG=1): the
+%   %   % call to INTERNAL_print_results referred to a commented-out
+%   %   % function and to location, which was discarded with ~. Restored
+%   %   % the function and kept the location output.
+%   % * Fixed debug fprintf of zone indices, which had three %d but only
+%   %   % two arguments, so the newline was dropped.
 
 % TO-DO:
 %

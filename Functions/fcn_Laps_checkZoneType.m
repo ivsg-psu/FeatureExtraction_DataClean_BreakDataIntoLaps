@@ -62,7 +62,6 @@ function [flag_is_a_point_zone_type, new_zoneDefinition] = fcn_Laps_checkZoneTyp
 % - In fcn_Laps_checkZoneType
 %   % * Standardized header comments into current convention
 %   % * Variable renaming to avoid underscores
-%   % * Added tests for the plot handle cell array outputs
 
 % TO-DO:
 %

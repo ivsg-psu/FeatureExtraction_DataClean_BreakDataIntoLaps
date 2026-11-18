@@ -1,4 +1,4 @@
-function cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(zone_definition,varargin)
+function cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(zoneDefinition,varargin)
 % fcn_Laps_plotZoneDefinition - Plots the zone definition for Laps codes
 %
 % Accepts as an optional second input standard plot style specifications,
@@ -9,27 +9,29 @@ function cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(zone_definition,va
 %
 % FORMAT: 
 %
-%       cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(zone_definition, (plotStyle), (figNum))
+%       cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(zoneDefinition, (plotStyle), (figNum))
 %
 % INPUTS:
 %
-%      zone_definition: the definition of the zone as given in a point zone
+%      zoneDefinition: the definition of the zone as given in a point zone
 %      or segment zone style. See fcn_Laps_breakDataIntoLapIndices for
 %      details.
 %
 %      (OPTIONAL INPUTS)
 %   
-%      plotStyle: the standard plot pecification style allowing line and
+%      plotStyle: the standard plot specification style allowing line and
 %      color, for example 'r-'. Type "help plot" for a listing of options.
 %
-%      figNum: a figure number to plot results. If set to -1, skips any
-%      input checking or debugging, no figures will be generated, and sets
-%      up code to maximize speed. If empty, defaults to plotting into
+%      figNum: a figure number to plot into. If empty or omitted, plots
+%      into the current figure (creating one if none exists). If set to
+%      -1, input checking is skipped and the plot also goes into the
 %      current figure.
 %
 % OUTPUTS:
 %
-%      cellArrayOfPlotHandles: cell array of handles to each of the plots
+%      cellArrayOfPlotHandles: a [2 x 1] cell array of handles, as returned
+%      by fcn_Laps_plotPointZoneDefinition (center, boundary) or
+%      fcn_Laps_plotSegmentZoneDefinition (line, direction arrow).
 %
 % DEPENDENCIES:
 %
@@ -65,14 +67,12 @@ function cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(zone_definition,va
 % - In fcn_Laps_plotZoneDefinition
 %   % * Standardized header comments into current convention
 %   % * Variable renaming to avoid underscores
-%   % * Fixed issue where plotSegmentZoneDefinition called without a figNum
-%   %   % opens an empty figure and draws nothing. flag_do_plots defaults
-%   %   % to 0 (line 141), while plotPointZoneDefinition defaults to 1. 
-%   %   % If the caller asks for the output, it also errors because cellArrayOfPlotHandles
-%   %   % is never assigned. This is now fixed.
-%   % * Fixed bug where, if figNum is empty, does not plot.
-%   % * Changed output handles to cell array of rows
+%   % * Fixed bug where, if figNum is empty, does not plot. Now plots into
+%   %   % the current figure when figNum is empty, omitted, or -1
+%   % * Changed output handles to a column cell array
 %   % * Initialize a default output
+%   % * Renamed zone_definition input to zoneDefinition
+%   % * Replaced tab indentation with spaces
 
 % TO-DO:
 %
@@ -144,7 +144,7 @@ end
 
 % Does user want to show the plots?
 figNum = [];
-flag_do_plots = 1; % Default is to show plots
+flag_do_plots = 1; % Always plot: this is a plotting function
 if (0==flag_max_speed) && (MAX_NARGIN == nargin) 
     temp = varargin{end};
     if ~isempty(temp) % Did the user NOT give an empty figure number?
@@ -153,6 +153,7 @@ if (0==flag_max_speed) && (MAX_NARGIN == nargin)
     end
 end
 
+% If no figure was given (or -1 was given), plot into the current figure
 if isempty(figNum)
     temp_h = gcf;
     figNum = temp_h.Number;
@@ -169,18 +170,18 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Initialize outputs
-cellArrayOfPlotHandles = cell(1,1);
+cellArrayOfPlotHandles = cell(2,1);
 
 % What type is it?
-[flag_is_a_point_zone_type, new_zone_definition] = fcn_Laps_checkZoneType(zone_definition, 'plot_zone_definition', -1);
+[flag_is_a_point_zone_type, new_zoneDefinition] = fcn_Laps_checkZoneType(zoneDefinition, 'plot_zone_definition', -1);
 
 % Is it a point-zone type?
 if 1==flag_do_plots
-	if flag_is_a_point_zone_type
-		cellArrayOfPlotHandles = fcn_Laps_plotPointZoneDefinition(new_zone_definition,plotStyle,figNum);
-	else % No, it's a segment zone
-		cellArrayOfPlotHandles = fcn_Laps_plotSegmentZoneDefinition(new_zone_definition,plotStyle,figNum);
-	end
+    if flag_is_a_point_zone_type
+        cellArrayOfPlotHandles = fcn_Laps_plotPointZoneDefinition(new_zoneDefinition,plotStyle,figNum);
+    else % No, it's a segment zone
+        cellArrayOfPlotHandles = fcn_Laps_plotSegmentZoneDefinition(new_zoneDefinition,plotStyle,figNum);
+    end
 end
 
 %% Any debugging?

@@ -19,6 +19,9 @@
 %   %   % assertion actually checks that a new figure opened, 
 %   %   % so the test is incorrect. This is fixed.
 %   % * Added tests of cellArrayOfPlotHandles
+%   % * Tightened handle checks: both returned handles must be valid
+%   %   % graphics objects in the expected figure (fcn_INTERNAL_checkPlotHandles)
+%   % * Added case 10007: point zone without figNum, segment zone with -1
 
 % TO-DO:
 %
@@ -65,7 +68,7 @@ sgtitle(titleString, 'Interpreter','none');
 assert(iscell(cellArrayOfPlotHandles));
 
 % Check variable sizes
-assert(length(cellArrayOfPlotHandles)>=1); 
+fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, 2, figNum);
 
 % Check variable values
 % Are the laps starting at expected points?
@@ -94,7 +97,7 @@ sgtitle(titleString, 'Interpreter','none');
 assert(iscell(cellArrayOfPlotHandles));
 
 % Check variable sizes
-assert(length(cellArrayOfPlotHandles)>=1); 
+fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, 2, figNum);
 
 % Check variable values
 % Are the laps starting at expected points?
@@ -120,7 +123,7 @@ sgtitle(titleString, 'Interpreter','none');
 assert(iscell(cellArrayOfPlotHandles));
 
 % Check variable sizes
-assert(length(cellArrayOfPlotHandles)>=1); 
+fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, 2, figNum);
 
 % Check variable values
 % Are the laps starting at expected points?
@@ -148,7 +151,7 @@ sgtitle(titleString, 'Interpreter','none');
 assert(iscell(cellArrayOfPlotHandles));
 
 % Check variable sizes
-assert(length(cellArrayOfPlotHandles)>=1); 
+fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, 2, figNum);
 
 % Check variable values
 % Are the laps starting at expected points?
@@ -180,7 +183,7 @@ sgtitle(titleString, 'Interpreter','none');
 assert(iscell(cellArrayOfPlotHandles));
 
 % Check variable sizes
-assert(length(cellArrayOfPlotHandles)>=1); 
+fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, 2, figNum);
 
 % Check variable values
 % Are the laps starting at expected points?
@@ -194,7 +197,7 @@ sgtitle(titleString, 'Interpreter','none');
 assert(iscell(cellArrayOfPlotHandles));
 
 % Check variable sizes
-assert(length(cellArrayOfPlotHandles)>=1); 
+fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, 2, figNum);
 
 % Check variable values
 % Are the laps starting at expected points?
@@ -228,7 +231,7 @@ sgtitle(titleString, 'Interpreter','none');
 assert(iscell(cellArrayOfPlotHandles));
 
 % Check variable sizes
-assert(length(cellArrayOfPlotHandles)>=1); 
+fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, 2, figNum);
 
 % Check variable values
 % Are the laps starting at expected points?
@@ -242,10 +245,36 @@ sgtitle(titleString, 'Interpreter','none');
 assert(iscell(cellArrayOfPlotHandles));
 
 % Check variable sizes
-assert(length(cellArrayOfPlotHandles)>=1); 
+fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, 2, figNum);
 
 % Check variable values
 % Are the laps starting at expected points?
+
+% Make sure plot opened up
+assert(isequal(get(gcf,'Number'),figNum));
+
+%% DEMO case: Point zone without figure number, then segment zone with figNum of -1
+figNum = 10007;
+titleString = sprintf('DEMO case: Point zone without figure number, then segment zone with figNum of -1');
+fprintf(1,'Figure %.0f: %s\n',figNum, titleString);
+figure(figNum); clf;
+
+zone_center = [-1 2];
+num_points = 3;
+zone_radius = 2;
+point_zone_definition = [zone_radius num_points zone_center];
+segment_zone_definition = [1 2; 3 4]; % Starts at 1,2 and ends at 3,4
+
+% No figure number, so the plot goes into the current figure (figNum)
+cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(point_zone_definition);
+fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, 2, figNum);
+
+% figNum of -1 skips input checks and also plots into the current figure
+cellArrayOfPlotHandles = fcn_Laps_plotZoneDefinition(segment_zone_definition, 'r', -1);
+fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, 2, figNum);
+axis([-5 5 -5 5]);
+
+sgtitle(titleString, 'Interpreter','none');
 
 % Make sure plot opened up
 assert(isequal(get(gcf,'Number'),figNum));
@@ -470,3 +499,19 @@ end
 %
 % See: https://patorjk.com/software/taag/#p=display&f=Big&t=Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%§
+
+%% fcn_INTERNAL_checkPlotHandles
+function fcn_INTERNAL_checkPlotHandles(cellArrayOfPlotHandles, Nexpected, figNumExpected)
+% Checks that the plot function returned a column cell array with exactly
+% Nexpected entries, that every entry is a valid graphics handle (an empty
+% cell would otherwise pass a length check), and that every handle was
+% drawn into the expected figure.
+assert(iscell(cellArrayOfPlotHandles));
+assert(isequal([Nexpected 1], size(cellArrayOfPlotHandles)));
+for ith_handle = 1:Nexpected
+    thisHandle = cellArrayOfPlotHandles{ith_handle};
+    assert(~isempty(thisHandle));
+    assert(all(isgraphics(thisHandle)));
+    assert(isequal(figNumExpected, get(ancestor(thisHandle,'figure'),'Number')));
+end
+end % Ends fcn_INTERNAL_checkPlotHandles

@@ -21,16 +21,19 @@ function cellArrayOfPlotHandles = fcn_Laps_plotSegmentZoneDefinition(zoneDefinit
 %
 %      (OPTIONAL INPUTS)
 %   
-%      plotStyle: the standard plot pecification style allowing line and
+%      plotStyle: the standard plot specification style allowing line and
 %      color, for example 'r-'. Type "help plot" for a listing of options.
 %
-%      figNum: a figure number to plot results. If set to -1, skips any
-%      input checking or debugging, no figures will be generated, and sets
-%      up code to maximize speed. 
+%      figNum: a figure number to plot into. If empty or omitted, plots
+%      into the current figure (creating one if none exists). If set to
+%      -1, input checking is skipped and the plot also goes into the
+%      current figure.
 %
 % OUTPUTS:
 %
-%      cellArrayOfPlotHandles: cell array of handles to each of the plots
+%      cellArrayOfPlotHandles: a [2 x 1] cell array of handles: {1} is the
+%      segment line (DisplayName 'Segment zone definition') and {2} is the
+%      direction arrow (DisplayName 'Segment zone direction').
 %
 % DEPENDENCIES:
 %
@@ -73,6 +76,10 @@ function cellArrayOfPlotHandles = fcn_Laps_plotSegmentZoneDefinition(zoneDefinit
 %   % * Fixed errors in comments
 %   % * Moved variables away from underscore convention
 %   % * Standardized header comments into current convention
+%   % * Fixed bug where calling without figNum opened an empty new figure
+%   %   % and plotted nothing (flag_do_plots defaulted to 0). Now plots
+%   %   % into the current figure when figNum is empty, omitted, or -1
+%   % * Added missing semicolon on input check
 
 
 % TO-DO:
@@ -135,7 +142,7 @@ if 0==flag_max_speed
 
         % Check the zoneDefinition input that it has 2 columns, and exactly 2
         % rows
-        fcn_DebugTools_checkInputsToFunctions(zoneDefinition, '2column_of_numbers',[2 2])
+        fcn_DebugTools_checkInputsToFunctions(zoneDefinition, '2column_of_numbers',[2 2]);
     end
 end
 
@@ -151,7 +158,7 @@ end
 
 % Does user want to show the plots?
 figNum = [];
-flag_do_plots = 0; % Default is to NOT show plots
+flag_do_plots = 1; % Always plot: this is a plotting function
 if (0==flag_max_speed) && (MAX_NARGIN == nargin) 
     temp = varargin{end};
     if ~isempty(temp) % Did the user NOT give an empty figure number?
@@ -160,8 +167,9 @@ if (0==flag_max_speed) && (MAX_NARGIN == nargin)
     end
 end
 
+% If no figure was given (or -1 was given), plot into the current figure
 if isempty(figNum)
-    temp_h = figure;
+    temp_h = gcf;
     figNum = temp_h.Number;
 end
 

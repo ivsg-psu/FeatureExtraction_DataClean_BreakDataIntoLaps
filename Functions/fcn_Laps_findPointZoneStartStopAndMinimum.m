@@ -63,9 +63,10 @@ function [zone_start_indices, zone_end_indices, zone_min_indices] = ...
 %      functions. Note: the function does not yet support 3D paths but can
 %      easily be modified for this.
 %
-%      zone_center: the condition, defined as a point/radius defining
-%      the zone. The format is zone_center = [X Y] or [X Y Z], and is
-%      expected to be a [1 x 2] or a [1 x 3] matrix, 
+%      zone_center: the center point of the zone, in the format
+%      zone_center = [X Y], given as a [1 x 2] matrix. 3D centers are not
+%      supported; fcn_Laps_checkZoneType flattens 3D zone definitions
+%      before they reach this function.
 %
 %      zone_radius: a scalar specifying the radius of the zone. 
 % 
@@ -128,10 +129,10 @@ function [zone_start_indices, zone_end_indices, zone_min_indices] = ...
 % 2026_11_18 by Sean Brennan, sbrennan@psu.edu
 % - In fcn_Laps_findPointZoneStartStopAndMinimum
 %   % * Standardized header comments into current convention
-%   % * Fixed issue where the input check (line 182) accepts 3 columns, but
-%   %   % lines 233 and 323 assume 2. The header says 3D "is not yet supported",
-%   %   % so the input check should reject 3 columns with a clear message rather
-%   %   % than fail later with a cryptic one. This is now checked at input.
+%   % * Input checks now require 2-column query_path and zone_center.
+%   %   % Previously 3 columns passed the check but crashed later in the
+%   %   % distance calculation and plotting.
+%   % * Updated zone_center description in header to match
 
 % TO-DO:
 %

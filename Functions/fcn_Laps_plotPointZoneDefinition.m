@@ -22,16 +22,19 @@ function cellArrayOfPlotHandles = fcn_Laps_plotPointZoneDefinition(zoneDefinitio
 %
 %      (OPTIONAL INPUTS)
 %
-%      plotStyle: the standard plot pecification style allowing line and
+%      plotStyle: the standard plot specification style allowing line and
 %      color, for example 'r-'. Type "help plot" for a listing of options.
 %
-%      figNum: a figure number to plot results. If set to -1, skips any
-%      input checking or debugging, no figures will be generated, and sets
-%      up code to maximize speed.
+%      figNum: a figure number to plot into. If empty or omitted, plots
+%      into the current figure (creating one if none exists). If set to
+%      -1, input checking is skipped and the plot also goes into the
+%      current figure.
 %
 % OUTPUTS:
 %
-%      cellArrayOfPlotHandles: cell array of handles to each of the plots
+%      cellArrayOfPlotHandles: a [2 x 1] cell array of handles: {1} is the
+%      center marker (DisplayName 'Point zone center') and {2} is the
+%      boundary circle (DisplayName 'Point zone boundary').
 %
 % DEPENDENCIES:
 %
@@ -75,14 +78,12 @@ function cellArrayOfPlotHandles = fcn_Laps_plotPointZoneDefinition(zoneDefinitio
 %   % * Fixed errors in comments
 %   % * Standardized header comments into current convention
 %   % * Variable renaming to avoid underscores
-%   % * Fixed issue where plotSegmentZoneDefinition called without a figNum
-%   %   % opens an empty figure and draws nothing. flag_do_plots defaults
-%   %   % to 0 (line 141), while plotPointZoneDefinition defaults to 1. 
-%   %   % If the caller asks for the output, it also errors because cellArrayOfPlotHandles
-%   %   % is never assigned. This is now fixed.
-%   % * Fixed bug where, if figNum is empty, does not plot.
-%   % * Changed output handles to cell array of rows
+%   % * Changed output handles to a column cell array
 %   % * Initialize a default output
+%   % * When figNum is empty, omitted, or -1, now plots into the current
+%   %   % figure instead of opening a new one (consistent with the other
+%   %   % Laps plotting functions)
+%   % * Added DisplayName labels to the center and boundary lines
 
 % TO-DO:
 %
@@ -158,7 +159,7 @@ end
 
 % Does user want to show the plots?
 figNum = [];
-flag_do_plots = 1; % Default is to show plots
+flag_do_plots = 1; % Always plot: this is a plotting function
 if (0==flag_max_speed) && (MAX_NARGIN == nargin)
     temp = varargin{end};
     if ~isempty(temp) % Did the user NOT give an empty figure number?
@@ -167,8 +168,9 @@ if (0==flag_max_speed) && (MAX_NARGIN == nargin)
     end
 end
 
+% If no figure was given (or -1 was given), plot into the current figure
 if isempty(figNum)
-    temp_h = figure;
+    temp_h = gcf;
     figNum = temp_h.Number;
 end
 
@@ -182,7 +184,7 @@ end
 %  |_|  |_|\__,_|_|_| |_|
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-cellArrayOfPlotHandles = cell(3,1);
+cellArrayOfPlotHandles = cell(2,1); % Center, boundary. A 3rd (radius arrow) is added only if enabled below
 
 % Do the plot
 radius  = zoneDefinition(1,1);
@@ -271,18 +273,18 @@ if flag_do_plots
 
     % Plot the center point
     if flag_plotStyle_is_specified
-        cellArrayOfPlotHandles{1,1} = plot(Xcenter,Ycenter,plotStyle,'Markersize',20);
+        cellArrayOfPlotHandles{1,1} = plot(Xcenter,Ycenter,plotStyle,'Markersize',20,'DisplayName','Point zone center');
         set(cellArrayOfPlotHandles{1},'Marker','+');
     else
-        cellArrayOfPlotHandles{1,1} = plot(Xcenter,Ycenter,'+','Markersize',20);
+        cellArrayOfPlotHandles{1,1} = plot(Xcenter,Ycenter,'+','Markersize',20,'DisplayName','Point zone center');
         main_color = get(cellArrayOfPlotHandles{1},'Color');
     end
 
-    % Plot circle in green
+    % Plot the boundary circle
     if flag_plotStyle_is_specified
-        cellArrayOfPlotHandles{2,1} = plot(x_circle,y_circle,plotStyle,'Linewidth',2,'Markersize',20);
+        cellArrayOfPlotHandles{2,1} = plot(x_circle,y_circle,plotStyle,'Linewidth',2,'Markersize',20,'DisplayName','Point zone boundary');
     else
-        cellArrayOfPlotHandles{2,1} = plot(x_circle,y_circle,'-','color',main_color,'Linewidth',2);
+        cellArrayOfPlotHandles{2,1} = plot(x_circle,y_circle,'-','color',main_color,'Linewidth',2,'DisplayName','Point zone boundary');
     end
 
     % Plot the radius arrow?
